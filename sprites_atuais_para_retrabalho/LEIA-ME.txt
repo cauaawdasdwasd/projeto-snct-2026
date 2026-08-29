@@ -1,0 +1,43 @@
+SPRITES ATUAIS - SOB ANALISE
+
+Esta pasta contem copias das 28 imagens PNG efetivamente usadas pela versao
+atual do jogo. Os arquivos originais continuam em assets; alterar uma copia
+desta pasta nao modifica o jogo automaticamente.
+
+PASTAS
+
+backgrounds
+  novo sprite (teste.png - moldura e cenario ativos da tela de auditoria.
+  audit_base_v6.png - versao anterior mantida como referencia.
+
+cases/case_01
+  ana_ribeiro.png - retrato presente nos documentos do primeiro caso.
+
+protocols
+  Retratos das seis cientistas exibidos no menu e nos popups de protocolo.
+
+stamps
+  Sprites dos quatro botoes fisicos de decisao.
+
+stamp_marks
+  Marcas transparentes aplicadas sobre a folha de auditoria apos a decisao.
+
+newspaper
+  Doze ilustracoes do jornal: resultado correto e incorreto de cada caso.
+
+NAO SAO ARQUIVOS DE SPRITE
+
+Os documentos do centro, os textos, os paineis internos, as barras e os
+botoes menores sao gerados pelo codigo durante a execucao. Por isso eles nao
+possuem PNGs separados para copiar. A implementacao fica principalmente em:
+
+  src/gameplay/document_renderer.py
+  src/ui/ai_decision_panel.py
+  src/ui/case_document.py
+  src/ui/document_inspector.py
+
+COMO DEVOLVER UM SPRITE RETRABALHADO AO JOGO
+
+Mantenha o mesmo nome, formato PNG e transparencia. Depois substitua o arquivo
+correspondente dentro de assets, preservando sua subpasta. Recomenda-se guardar
+estas copias como referencia antes de substituir os originais.

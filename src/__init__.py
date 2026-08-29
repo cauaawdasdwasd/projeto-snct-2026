@@ -1,0 +1,1 @@
+"""Sob Analise game package."""
