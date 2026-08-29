@@ -87,6 +87,8 @@ O projeto está conectado ao repositório
 - Clique em um protocolo para abrir a ficha completa.
 - Use as setas do painel, `A`/`D` ou `←`/`→` para trocar de página.
 - Clique no `X` ou pressione `Esc` para fechar um protocolo.
+- Passe o mouse sobre o post-it de coração para iluminá-lo. Clique nele para virar
+  o papel e consultar as credenciais da estação.
 - Selecione um carimbo e clique na área indicada da `DECISÃO FINAL`.
 - Confirme a decisão para aplicar a marca permanentemente sobre o papel.
 - O campo `Assinatura do auditor` existe na folha desde o início. Clique nele para abrir a folha ampliada, segure o botão esquerdo e desenhe sua assinatura com a caneta.

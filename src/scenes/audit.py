@@ -15,6 +15,7 @@ from src.ui.ai_decision_panel import AIDecisionPanel
 from src.ui.case_dialog import CaseDialog, STAMP_LABELS
 from src.ui.case_document import CaseDocument
 from src.ui.case_hint import CaseHint
+from src.ui.credential_note import CredentialNote
 from src.ui.database_search import DatabaseSearch
 from src.ui.document_inspector import DocumentInspector
 from src.ui.newspaper import FinalNewspaper
@@ -134,6 +135,7 @@ class AuditScene(Scene):
         self.document_inspector = DocumentInspector(self.case.evidence_summary)
         self.case_dialog = CaseDialog(self.case)
         self.case_hint = CaseHint(self.case)
+        self.credential_note = CredentialNote()
         self.database_search = DatabaseSearch(self.case, audio)
         self.signature_pad = SignaturePad()
         self.newspaper = FinalNewspaper(self._load_newspaper_images())
@@ -154,12 +156,14 @@ class AuditScene(Scene):
 
     def on_enter(self) -> None:
         self.pause_menu.close()
+        self.credential_note.close()
         self.head_offset = (0, 0)
         if self.audio is not None:
             self.audio.play_music_sequence(("audit_1", "audit_2"), fade_ms=700)
 
     def on_exit(self) -> None:
         self.pause_menu.close()
+        self.credential_note.close()
         self.database_search.close()
         self.signature_pad.close()
 
@@ -173,6 +177,10 @@ class AuditScene(Scene):
             if handled:
                 self._play_sound("back", 0.65)
             return handled
+        if self.credential_note.is_open:
+            self.credential_note.close()
+            self._play_sound("back", 0.65)
+            return True
         if self.signature_pad.is_open:
             self.signature_pad.close()
             self._play_sound("back", 0.65)
@@ -214,6 +222,14 @@ class AuditScene(Scene):
                 self.manager.switch_to("main_menu")
             return
         if self.newspaper_transition is not None:
+            return
+        if self.credential_note.is_open:
+            action = self.credential_note.handle_popup_event(
+                event,
+                self._corrected_scene_position(self.input_manager.mouse_position),
+            )
+            if action == "close":
+                self._play_sound("back", 0.65)
             return
         if self.signature_pad.is_open:
             result = self.signature_pad.handle_event(
@@ -300,12 +316,20 @@ class AuditScene(Scene):
         if self.newspaper_transition is not None:
             self._update_newspaper_transition(dt)
             return
+        if self.credential_note.is_open:
+            self.head_offset = (0, 0)
+            self.credential_note.update_popup_hover(self.input_manager.mouse_position)
+            return
         self.head_motion_time += dt
         self.head_offset = (
             round(math.sin(self.head_motion_time * 0.72) * HEAD_SWAY_X),
             round(math.sin(self.head_motion_time * 0.51 + 1.1) * HEAD_SWAY_Y),
         )
         scene_position = self.input_manager.mouse_position
+        self.credential_note.update_note_hover(
+            self._corrected_scene_position(scene_position),
+            enabled=not self._is_modal_open(),
+        )
         monitor_position = self.scene_to_monitor(scene_position)
 
         self.protocol_panel.update_hover(monitor_position)
@@ -346,6 +370,7 @@ class AuditScene(Scene):
         surface.fill(SCREEN_BASE_COLOR)
         self._render_monitor_content(surface)
         surface.blit(self.terminal_overlay, (0, 0))
+        self.credential_note.render_note_highlight(surface)
         self._render_status_led(surface)
         if DEBUG_UI and DEBUG_LAYOUT_RECTS:
             self._draw_layout_rects(surface)
@@ -355,6 +380,7 @@ class AuditScene(Scene):
         self._draw_stamp_status(surface)
         if DEBUG_UI:
             self._draw_debug_text(surface)
+        self.credential_note.render_popup(surface)
         if self.pause_menu.is_open:
             self.pause_menu.render(surface)
 
@@ -378,6 +404,15 @@ class AuditScene(Scene):
             position[0] - MONITOR_SCREEN_RECT.x - head_offset[0],
             position[1] - MONITOR_SCREEN_RECT.y - head_offset[1],
         )
+
+    def _corrected_scene_position(
+        self,
+        position: tuple[int, int] | None,
+    ) -> tuple[int, int] | None:
+        if position is None:
+            return None
+        head_offset = self._effective_head_offset()
+        return position[0] - head_offset[0], position[1] - head_offset[1]
 
     def _effective_head_offset(self) -> tuple[int, int]:
         """Match input coordinates to the integer shift used after scaling."""
@@ -554,6 +589,15 @@ class AuditScene(Scene):
                     self.evidence_notes,
                 ):
                     self._play_sound("click")
+            return
+
+        if self.credential_note.contains_note(
+            self._corrected_scene_position(scene_position)
+        ):
+            self._stop_desk_pan()
+            self.head_offset = (0, 0)
+            self.credential_note.open()
+            self._play_sound("paper", 0.55)
             return
 
         if monitor_position is not None:
@@ -858,7 +902,7 @@ class AuditScene(Scene):
         return glass
 
     def _render_active_popup(self, surface: pygame.Surface) -> None:
-        if not self._is_modal_open():
+        if self.credential_note.is_open or not self._is_modal_open():
             return
         self.popup_surface.fill((0, 0, 0, 0))
         if self.newspaper.is_open:
@@ -1089,6 +1133,7 @@ class AuditScene(Scene):
         return (
             self.newspaper_transition is not None
             or self.newspaper.is_open
+            or self.credential_note.is_open
             or self.signature_pad.is_open
             or self.database_search.is_open
             or self.case_hint.is_open
