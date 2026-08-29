@@ -230,7 +230,6 @@ class MainMenuScene(Scene):
         screen_content = self.screen_layer.subsurface(CRT_SCREEN_RECT).copy()
         screen_content.blit(self.screen_mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
         surface.blit(screen_content, CRT_SCREEN_RECT.topleft)
-        self._render_inner_bezel(surface)
 
     def _update_hover(self, pointer: tuple[int, int] | None) -> None:
         if pointer is None:
@@ -435,20 +434,6 @@ class MainMenuScene(Scene):
             pygame.draw.line(boot, (202, 226, 164, round(210 * (1.0 - progress))), (90, line_y), (CRT_SCREEN_RECT.width - 90, line_y), 3)
             surface.blit(boot, CRT_SCREEN_RECT.topleft)
 
-    @staticmethod
-    def _render_inner_bezel(surface: pygame.Surface) -> None:
-        shadow = pygame.Surface(CRT_SCREEN_RECT.size, pygame.SRCALPHA)
-        bounds = pygame.Rect(5, 3, CRT_SCREEN_RECT.width - 10, CRT_SCREEN_RECT.height - 7)
-        for width, alpha in ((24, 48), (15, 38), (8, 28)):
-            pygame.draw.rect(
-                shadow,
-                (0, 0, 0, alpha),
-                bounds,
-                width,
-                border_radius=102,
-            )
-        surface.blit(shadow, CRT_SCREEN_RECT.topleft)
-
     def _corrected_pointer(self, pointer: tuple[int, int] | None) -> tuple[int, int] | None:
         if pointer is None:
             return None
@@ -485,11 +470,32 @@ class MainMenuScene(Scene):
     @staticmethod
     def _build_screen_mask() -> pygame.Surface:
         mask = pygame.Surface(CRT_SCREEN_RECT.size, pygame.SRCALPHA)
-        pygame.draw.rect(
+        # Measured against menu_crt_v1.png after its 1920x1080 upscale. The glass
+        # is slightly barrel-shaped, so a rounded rectangle paints over the bezel.
+        glass_points = (
+            (65, 38),
+            (128, 21),
+            (404, 15),
+            (748, 17),
+            (1001, 30),
+            (1058, 50),
+            (1081, 90),
+            (1087, 606),
+            (1067, 652),
+            (1022, 678),
+            (806, 691),
+            (519, 696),
+            (232, 691),
+            (94, 680),
+            (54, 652),
+            (34, 606),
+            (29, 113),
+            (40, 67),
+        )
+        pygame.draw.polygon(
             mask,
             (255, 255, 255, 255),
-            pygame.Rect(6, 3, CRT_SCREEN_RECT.width - 12, CRT_SCREEN_RECT.height - 8),
-            border_radius=100,
+            glass_points,
         )
         return mask
 
