@@ -20,6 +20,7 @@ from src.ui.document_inspector import DocumentInspector
 from src.ui.newspaper import FinalNewspaper
 from src.ui.pause_menu import PauseMenu
 from src.ui.protocol_panel import ProtocolPanel
+from src.ui.signature_pad import SignaturePad
 from src.ui.stamp_button import StampButton
 
 if TYPE_CHECKING:
@@ -134,6 +135,7 @@ class AuditScene(Scene):
         self.case_dialog = CaseDialog(self.case)
         self.case_hint = CaseHint(self.case)
         self.database_search = DatabaseSearch(self.case, audio)
+        self.signature_pad = SignaturePad()
         self.newspaper = FinalNewspaper(self._load_newspaper_images())
         self.pause_menu = PauseMenu(
             audio,
@@ -159,6 +161,7 @@ class AuditScene(Scene):
     def on_exit(self) -> None:
         self.pause_menu.close()
         self.database_search.close()
+        self.signature_pad.close()
 
     def handle_escape(self) -> bool:
         if self.pause_menu.is_open:
@@ -167,6 +170,9 @@ class AuditScene(Scene):
             return True
         if self.newspaper.is_open:
             return self.newspaper.handle_escape()
+        if self.signature_pad.is_open:
+            self.signature_pad.close()
+            return True
         if self.database_search.is_open:
             self.database_search.close()
             return True
@@ -196,6 +202,19 @@ class AuditScene(Scene):
                 self.manager.switch_to("main_menu")
             return
         if self.newspaper_transition is not None:
+            return
+        if self.signature_pad.is_open:
+            result = self.signature_pad.handle_event(
+                event,
+                self.scene_to_monitor(self.input_manager.mouse_position),
+            )
+            if result is not None and result[0] == "confirm" and result[1] is not None:
+                self._get_document("final").sign(result[1])
+                self._play_sound("confirm")
+            elif result is not None and result[0] == "clear":
+                self._play_sound("paper", 0.55)
+            elif result is not None and result[0] == "cancel":
+                self._play_sound("click", 0.7)
             return
         if self.database_search.is_open:
             self.database_search.handle_event(
@@ -567,13 +586,11 @@ class AuditScene(Scene):
             self._bring_document_to_front(document)
 
             if (
-                self.case_completed
-                and document.document_id == "final"
-                and not document.is_signed
+                document.document_id == "final"
                 and document.contains_signature_target(monitor_position)
             ):
-                document.sign()
-                self._play_sound("confirm")
+                self.signature_pad.open(document.signature_image)
+                self._play_sound("paper", 0.7)
                 return
 
             if (
@@ -684,6 +701,7 @@ class AuditScene(Scene):
         self.case_dialog = CaseDialog(self.case)
         self.case_hint = CaseHint(self.case)
         self.database_search.set_case(self.case)
+        self.signature_pad.close()
         self.protocol_panel.close_popup()
         self._clear_stamp_selection()
         self.hovered_desk_control = None
@@ -812,6 +830,8 @@ class AuditScene(Scene):
         self.popup_surface.fill((0, 0, 0, 0))
         if self.newspaper.is_open:
             self.newspaper.render(self.popup_surface)
+        elif self.signature_pad.is_open:
+            self.signature_pad.render(self.popup_surface)
         elif self.database_search.is_open:
             self.database_search.render(self.popup_surface)
         elif self.case_hint.is_open:
@@ -851,7 +871,7 @@ class AuditScene(Scene):
             instruction = (
                 "ENVIE A DECISÃO PELO BOTÃO ABAIXO"
                 if final_document.is_signed
-                else "CLIQUE NA LINHA DE ASSINATURA DA FOLHA"
+                else "CLIQUE NO CAMPO DE ASSINATURA DA FOLHA"
             )
         elif not self.ai_report_seen:
             step = 1
@@ -928,7 +948,7 @@ class AuditScene(Scene):
             if self._get_document("final").is_signed:
                 text = "FOLHA ASSINADA — ENVIE A DECISÃO"
             else:
-                text = "DECISÃO CARIMBADA — ASSINE A LINHA DO AUDITOR"
+                text = "DECISÃO CARIMBADA — ASSINE O CAMPO DO AUDITOR"
             color = (184, 176, 104)
         elif self.selected_stamp_id is not None:
             label = STAMP_LABELS.get(self.selected_stamp_id, self.selected_stamp_id.upper())
@@ -1036,6 +1056,7 @@ class AuditScene(Scene):
         return (
             self.newspaper_transition is not None
             or self.newspaper.is_open
+            or self.signature_pad.is_open
             or self.database_search.is_open
             or self.case_hint.is_open
             or self.case_dialog.is_open

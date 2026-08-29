@@ -8,7 +8,6 @@ from src.gameplay.document_renderer import EvidenceRegion, RenderedDocument
 PREVIEW_SIZE = (310, 390)
 HIGHLIGHT_COLOR = (244, 216, 65, 78)
 TARGET_COLOR = (244, 216, 65, 122)
-SIGNATURE_COLOR = (43, 62, 75)
 
 
 class CaseDocument:
@@ -37,6 +36,7 @@ class CaseDocument:
         self.stamp_target_active = False
         self.signature_target_active = False
         self.is_signed = False
+        self.signature_image: pygame.Surface | None = None
         self._decorated_cache: pygame.Surface | None = None
 
     def contains_point(self, position: tuple[int, int]) -> bool:
@@ -138,9 +138,12 @@ class CaseDocument:
         self.signature_target_active = active
         self._decorated_cache = None
 
-    def sign(self) -> None:
+    def sign(self, signature_image: pygame.Surface) -> None:
         if self.signature_target is None:
             raise ValueError(f"Document {self.document_id} has no signature target")
+        if signature_image.get_bounding_rect(min_alpha=10).width == 0:
+            raise ValueError("Signature image cannot be empty")
+        self.signature_image = signature_image.copy()
         self.is_signed = True
         self.signature_target_active = False
         self._decorated_cache = None
@@ -211,20 +214,33 @@ class CaseDocument:
         surface.blit(stamp, stamp.get_rect(center=self.stamp_target.center))
 
     def _blit_signature(self, surface: pygame.Surface) -> None:
-        if not self.is_signed or self.signature_target is None:
+        if (
+            not self.is_signed
+            or self.signature_target is None
+            or self.signature_image is None
+        ):
             return
-        font = pygame.font.SysFont(
-            ("Courier New", "Consolas", "monospace"),
-            27,
-            bold=True,
-            italic=True,
+
+        bounds = self.signature_image.get_bounding_rect(min_alpha=10)
+        if bounds.width == 0 or bounds.height == 0:
+            return
+        cropped = self.signature_image.subsurface(bounds).copy()
+        available = pygame.Rect(
+            self.signature_target.x + 13,
+            self.signature_target.y + 24,
+            self.signature_target.width - 26,
+            self.signature_target.height - 45,
         )
-        signature = font.render("AUDITOR 04", True, SIGNATURE_COLOR)
-        signature = pygame.transform.rotate(signature, 3)
-        surface.blit(
-            signature,
-            (self.signature_target.x + 12, self.signature_target.y + 10),
+        scale = min(
+            available.width / cropped.get_width(),
+            available.height / cropped.get_height(),
         )
+        size = (
+            max(1, round(cropped.get_width() * scale)),
+            max(1, round(cropped.get_height() * scale)),
+        )
+        signature = pygame.transform.smoothscale(cropped, size)
+        surface.blit(signature, signature.get_rect(center=available.center))
 
     def _draw_inspect_button(self, surface: pygame.Surface) -> None:
         rect = self.inspect_button_rect

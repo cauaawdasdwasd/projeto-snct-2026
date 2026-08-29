@@ -168,8 +168,32 @@ class DocumentRenderer:
         self._draw_text(surface, "DECISÃO FINAL", self.font_body_bold, INK_MUTED, (92, 550))
         self._draw_text(surface, "APLIQUE O CARIMBO AQUI", self.font_field, PAPER_DARK, stamp_target.center, anchor="center")
         self._draw_text(surface, "O registro encerra o caso.", self.font_tiny, INK_MUTED, (190, 663))
-        self._draw_signature_line(surface, "Auditor responsável", (326, 735), 255)
+
         signature_target = pygame.Rect(310, 696, 290, 88)
+        pygame.draw.rect(surface, PAPER_LIGHT, signature_target)
+        pygame.draw.rect(surface, BLUE, signature_target, 3)
+        self._draw_text(
+            surface,
+            "ASSINATURA DO AUDITOR",
+            self.font_tiny,
+            INK_MUTED,
+            (signature_target.x + 12, signature_target.y + 8),
+        )
+        pygame.draw.line(
+            surface,
+            INK_MUTED,
+            (signature_target.x + 12, signature_target.bottom - 20),
+            (signature_target.right - 12, signature_target.bottom - 20),
+            2,
+        )
+        self._draw_text(
+            surface,
+            "CLIQUE PARA ASSINAR",
+            self.font_tiny,
+            BLUE,
+            (signature_target.centerx, signature_target.bottom - 17),
+            anchor="midtop",
+        )
         return RenderedDocument(
             "final",
             "Folha de auditoria",

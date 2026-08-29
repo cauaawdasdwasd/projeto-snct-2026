@@ -89,7 +89,8 @@ O projeto está conectado ao repositório
 - Clique no `X` ou pressione `Esc` para fechar um protocolo.
 - Selecione um carimbo e clique na área indicada da `DECISÃO FINAL`.
 - Confirme a decisão para aplicar a marca permanentemente sobre o papel.
-- Depois do carimbo, clique na linha `Auditor responsável` para assinar a folha.
+- O campo `Assinatura do auditor` existe na folha desde o início. Clique nele para abrir a folha ampliada, segure o botão esquerdo e desenhe sua assinatura com a caneta.
+- Na tela de assinatura, use `LIMPAR`, `CANCELAR` ou `CONFIRMAR ASSINATURA`. O campo pode ser reaberto para corrigir o traço antes do envio.
 - Confira o papel carimbado e assinado e clique em `ENVIAR / PRÓXIMO CASO`.
 - Ao concluir o sexto caso, o monitor desliga e o noticiário do dia é revelado.
 - No jornal, use os botões laterais, `A`/`D` ou `←`/`→` para folhear as matérias.
