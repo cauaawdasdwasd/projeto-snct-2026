@@ -20,6 +20,8 @@ class AudioManager:
     def __init__(self, assets: AssetManager) -> None:
         self.assets = assets
         self.enabled = False
+        self.music_volume = 0.2
+        self.sfx_volume = 0.75
         self.sounds: dict[str, pygame.mixer.Sound] = {}
         self._start_mixer()
         if self.enabled:
@@ -50,7 +52,7 @@ class AudioManager:
             return
         try:
             pygame.mixer.music.load(str(music_path))
-            pygame.mixer.music.set_volume(0.22)
+            pygame.mixer.music.set_volume(self.music_volume)
             pygame.mixer.music.play(-1, fade_ms=800)
         except pygame.error:
             self.enabled = False
@@ -64,9 +66,17 @@ class AudioManager:
         try:
             channel = sound.play()
             if channel is not None:
-                channel.set_volume(max(0.0, min(1.0, volume)))
+                channel.set_volume(max(0.0, min(1.0, volume * self.sfx_volume)))
         except pygame.error:
             pass
+
+    def set_music_volume(self, volume: float) -> None:
+        self.music_volume = max(0.0, min(1.0, volume))
+        if self.enabled:
+            pygame.mixer.music.set_volume(self.music_volume)
+
+    def set_sfx_volume(self, volume: float) -> None:
+        self.sfx_volume = max(0.0, min(1.0, volume))
 
     def stop(self) -> None:
         if self.enabled:

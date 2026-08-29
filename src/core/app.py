@@ -7,6 +7,7 @@ import pygame
 from src.core.assets import AssetManager
 from src.core.audio import AudioManager
 from src.core.input_manager import InputManager
+from src.core.preferences import UserPreferences
 from src.core.scene_manager import SceneManager
 from src.core.settings import (
     ASSETS_DIR,
@@ -21,8 +22,6 @@ from src.core.settings import (
     TARGET_FPS,
     VIRTUAL_HEIGHT,
     VIRTUAL_WIDTH,
-    WINDOW_HEIGHT,
-    WINDOW_WIDTH,
 )
 from src.scenes.audit import AuditScene
 from src.scenes.main_menu import MainMenuScene
@@ -35,21 +34,21 @@ class Application:
         pygame.init()
         pygame.display.set_caption(GAME_TITLE)
 
-        self.window = pygame.display.set_mode(
-            (WINDOW_WIDTH, WINDOW_HEIGHT),
-            pygame.RESIZABLE,
-        )
+        self.preferences = UserPreferences.load()
+        self.window = self._set_display_mode(self.preferences)
         self.virtual_surface = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT)).convert()
         self.clock = pygame.time.Clock()
         self.is_running = True
 
         self.assets = AssetManager(ASSETS_DIR)
         self.audio = AudioManager(self.assets)
+        self.audio.set_music_volume(self.preferences.music_volume)
+        self.audio.set_sfx_volume(self.preferences.sfx_volume)
         self.audio.start_music()
         self.input_manager = InputManager((VIRTUAL_WIDTH, VIRTUAL_HEIGHT))
         self.scene_manager = SceneManager()
 
-        self._viewport_rect = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        self._viewport_rect = self.window.get_rect()
         self._viewport_scale = 1.0
         self._camera_rect = pygame.Rect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
         self._camera_position = pygame.Vector2(0, 0)
@@ -73,10 +72,42 @@ class Application:
     def stop(self) -> None:
         self.is_running = False
 
+    def apply_preferences(self, preferences: UserPreferences) -> bool:
+        updated = preferences.copy()
+        updated.normalize()
+        display_changed = (
+            updated.resolution != self.preferences.resolution
+            or updated.display_mode != self.preferences.display_mode
+        )
+
+        if display_changed:
+            try:
+                self.window = self._set_display_mode(updated)
+            except pygame.error:
+                return False
+            self._update_viewport()
+
+        self.preferences = updated
+        self.audio.set_music_volume(updated.music_volume)
+        self.audio.set_sfx_volume(updated.sfx_volume)
+        try:
+            updated.save()
+        except OSError:
+            return False
+        return True
+
     def _register_scenes(self) -> None:
         self.scene_manager.add_scene(
             "main_menu",
-            MainMenuScene(self.scene_manager, self.assets, self.input_manager, self.audio),
+            MainMenuScene(
+                self.scene_manager,
+                self.assets,
+                self.input_manager,
+                self.audio,
+                self.preferences,
+                self.apply_preferences,
+                self.stop,
+            ),
         )
         self.scene_manager.add_scene(
             "audit",
@@ -90,7 +121,7 @@ class Application:
                 self.stop()
                 continue
 
-            if event.type == pygame.VIDEORESIZE:
+            if event.type == pygame.VIDEORESIZE and self.preferences.display_mode == "windowed":
                 self.window = pygame.display.set_mode(event.size, pygame.RESIZABLE)
                 self._update_viewport()
 
@@ -238,3 +269,9 @@ class Application:
         self._viewport_rect = pygame.Rect(viewport_x, viewport_y, viewport_width, viewport_height)
         self._viewport_scale = scale
         self.input_manager.set_viewport(self._viewport_rect, self._viewport_scale)
+
+    @staticmethod
+    def _set_display_mode(preferences: UserPreferences) -> pygame.Surface:
+        if preferences.display_mode == "fullscreen":
+            return pygame.display.set_mode(preferences.resolution, pygame.FULLSCREEN)
+        return pygame.display.set_mode(preferences.resolution, pygame.RESIZABLE)

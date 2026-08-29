@@ -14,5 +14,8 @@ env/
 Thumbs.db
 desktop.ini
 
+# Preferências locais de vídeo e áudio.
+data/user_settings.json
+
 # Copia compactada e redundante da pasta de sprites editaveis.
 sprites_atuais_para_retrabalho.rar

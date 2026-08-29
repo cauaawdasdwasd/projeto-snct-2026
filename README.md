@@ -49,7 +49,12 @@ O projeto está conectado ao repositório
 
 ## Controles atuais
 
-- Clique em `[ INICIAR ]` para entrar na auditoria.
+- O menu inicial permite iniciar o turno, abrir as configurações, consultar os
+  créditos ou encerrar o jogo. Todas as opções funcionam por mouse ou teclado.
+- Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,
+  alterar a resolução, alternar entre janela e tela cheia e ajustar separadamente
+  os volumes da música e dos efeitos. O jogo preserva a imagem original com barras
+  quando a janela não é `16:9`, sem esticar a interface.
 - Leia o chamado e clique em `ABRIR CASO`.
 - Clique e arraste os documentos para reorganizá-los sobre a mesa.
 - Use `-`, `100%` e `+` no canto da mesa para diminuir, restaurar ou ampliar todos
@@ -150,6 +155,7 @@ sob_analise/
     │   ├── assets.py             # Carregamento centralizado de assets
     │   ├── audio.py              # Música ambiente e efeitos com fallback silencioso
     │   ├── input_manager.py      # Mouse virtual e correção da câmera
+    │   ├── preferences.py        # Preferências persistentes de vídeo e áudio
     │   ├── scene.py              # Contrato das cenas
     │   ├── scene_manager.py      # Troca e atualização de cenas
     │   └── settings.py           # Resolução, FPS, debug e câmera
