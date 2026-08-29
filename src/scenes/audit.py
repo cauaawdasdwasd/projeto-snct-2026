@@ -641,7 +641,7 @@ class AuditScene(Scene):
                 return
 
             document.start_drag(monitor_position)
-            self._play_sound("paper", 0.55)
+            self._play_sound("document", 0.42)
             self.active_document = document
             return
 
