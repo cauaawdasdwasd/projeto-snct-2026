@@ -1,18 +1,9 @@
 from __future__ import annotations
 
-import math
 import random
 
 import pygame
 
-
-HEART_NOTE_RECT = pygame.Rect(332, 963, 105, 105)
-HEART_NOTE_POINTS = (
-    (10, 8),
-    (88, 14),
-    (102, 96),
-    (3, 90),
-)
 
 PAPER_POINTS = (
     (620, 247),
@@ -28,26 +19,33 @@ PAPER_LIGHT = (208, 145, 119)
 PAPER_DARK = (104, 58, 51)
 INK = (49, 30, 27)
 INK_MUTED = (91, 51, 45)
-INK_LIGHT = (238, 189, 148)
 PIN = (105, 45, 36)
 PIN_LIGHT = (223, 126, 91)
 
 WORKSTATION_USERNAME = "empresa"
 WORKSTATION_PASSWORD = "computadorempresa"
-WORKSTATION_HINT = "LEMBRE-SE: CONFIE NO SEU CORAÇÃO!"
 
 
 class CredentialNote:
     """Clickable heart post-it whose reverse stores the workstation credentials."""
 
-    def __init__(self) -> None:
+    def __init__(self, note_asset: pygame.Surface) -> None:
+        self.note_rect = note_asset.get_bounding_rect(min_alpha=16)
+        if self.note_rect.width == 0 or self.note_rect.height == 0:
+            raise ValueError("Heart note asset cannot be empty")
+        note_crop = note_asset.subsurface(self.note_rect).copy()
+        self.note_mask = pygame.mask.from_surface(note_crop, threshold=16)
+        self.note_highlight = note_crop.copy()
+        self.note_highlight.fill(
+            (82, 82, 82, 0),
+            special_flags=pygame.BLEND_RGBA_ADD,
+        )
         self.is_open = False
         self.note_hovered = False
         self.close_hovered = False
         self.paper_texture = self._build_paper_texture()
         self.font_tiny = self._font(16)
         self.font_small = self._font(20)
-        self.font_body = self._font(27)
         self.font_body_bold = self._font(30, bold=True)
         self.font_title = self._font(39, bold=True)
 
@@ -61,13 +59,13 @@ class CredentialNote:
         self.close_hovered = False
 
     def contains_note(self, position: tuple[int, int] | None) -> bool:
-        if position is None or not HEART_NOTE_RECT.collidepoint(position):
+        if position is None or not self.note_rect.collidepoint(position):
             return False
         local = (
-            position[0] - HEART_NOTE_RECT.x,
-            position[1] - HEART_NOTE_RECT.y,
+            position[0] - self.note_rect.x,
+            position[1] - self.note_rect.y,
         )
-        return self._point_in_polygon(local, HEART_NOTE_POINTS)
+        return bool(self.note_mask.get_at(local))
 
     def update_note_hover(
         self,
@@ -104,15 +102,7 @@ class CredentialNote:
     def render_note_highlight(self, surface: pygame.Surface) -> None:
         if not self.note_hovered or self.is_open:
             return
-        pulse = (math.sin(pygame.time.get_ticks() * 0.006) + 1.0) * 0.5
-        amount = 22 + round(pulse * 7)
-        glow = pygame.Surface(HEART_NOTE_RECT.size, pygame.SRCALPHA)
-        pygame.draw.polygon(
-            glow,
-            (amount, round(amount * 0.72), round(amount * 0.32), 0),
-            HEART_NOTE_POINTS,
-        )
-        surface.blit(glow, HEART_NOTE_RECT, special_flags=pygame.BLEND_RGB_ADD)
+        surface.blit(self.note_highlight, self.note_rect)
 
     def render_popup(self, surface: pygame.Surface) -> None:
         if not self.is_open:
@@ -151,15 +141,6 @@ class CredentialNote:
         )
         pygame.draw.line(surface, INK_MUTED, (676, 600), (1228, 610), 2)
 
-        self._draw_text(
-            surface,
-            WORKSTATION_HINT,
-            self.font_body,
-            PAPER_DARK,
-            (955, 664),
-            anchor="center",
-        )
-        self._draw_heart(surface, (1222, 666), 18)
         self._draw_close(surface)
 
     def _draw_close(self, surface: pygame.Surface) -> None:
@@ -177,22 +158,6 @@ class CredentialNote:
         pygame.draw.circle(surface, PIN, (953, 262), 12)
         pygame.draw.circle(surface, PIN_LIGHT, (949, 258), 4)
         pygame.draw.line(surface, PAPER_DARK, (955, 273), (959, 294), 3)
-
-    @staticmethod
-    def _draw_heart(
-        surface: pygame.Surface,
-        center: tuple[int, int],
-        size: int,
-    ) -> None:
-        x, y = center
-        color = (122, 48, 49)
-        pygame.draw.circle(surface, color, (x - size // 3, y - size // 4), size // 3)
-        pygame.draw.circle(surface, color, (x + size // 3, y - size // 4), size // 3)
-        pygame.draw.polygon(
-            surface,
-            color,
-            ((x - size * 2 // 3, y - 2), (x + size * 2 // 3, y - 2), (x, y + size)),
-        )
 
     @staticmethod
     def _build_paper_texture() -> pygame.Surface:

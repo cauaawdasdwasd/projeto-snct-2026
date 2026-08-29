@@ -135,7 +135,9 @@ class AuditScene(Scene):
         self.document_inspector = DocumentInspector(self.case.evidence_summary)
         self.case_dialog = CaseDialog(self.case)
         self.case_hint = CaseHint(self.case)
-        self.credential_note = CredentialNote()
+        self.credential_note = CredentialNote(
+            self.assets.load_image("ui/heart_note.png")
+        )
         self.database_search = DatabaseSearch(self.case, audio)
         self.signature_pad = SignaturePad()
         self.newspaper = FinalNewspaper(self._load_newspaper_images())
