@@ -7,9 +7,10 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from src.core.preferences import DISPLAY_MODES, RESOLUTIONS_BY_ASPECT, UserPreferences
+from src.core.preferences import UserPreferences
 from src.core.scene import Scene
 from src.core.settings import VIRTUAL_HEIGHT, VIRTUAL_WIDTH
+from src.ui.settings_panel import SettingsPanel
 
 if TYPE_CHECKING:
     from src.core.assets import AssetManager
@@ -18,24 +19,16 @@ if TYPE_CHECKING:
     from src.core.scene_manager import SceneManager
 
 
-INK = (222, 225, 180)
-INK_BRIGHT = (246, 239, 164)
-INK_MUTED = (118, 127, 91)
-AMBER = (211, 166, 66)
-RED = (167, 61, 47)
-GREEN = (104, 158, 75)
-PANEL = (15, 20, 17)
-PANEL_LIGHT = (24, 30, 24)
-LINE = (64, 72, 50)
+CRT_SCREEN_RECT = pygame.Rect(400, 174, 1120, 720)
+INK = (208, 218, 167)
+INK_BRIGHT = (245, 239, 164)
+INK_MUTED = (98, 118, 81)
+AMBER = (220, 168, 61)
+RED = (176, 63, 45)
+GREEN = (100, 158, 72)
+LINE = (58, 75, 51)
 
-MAIN_COMMANDS = ("INICIAR TURNO", "CONFIGURAÇÕES", "CRÉDITOS", "ENCERRAR")
-SETTING_ROWS = (
-    "PROPORÇÃO DA JANELA",
-    "RESOLUÇÃO",
-    "MODO DE EXIBIÇÃO",
-    "VOLUME DA MÚSICA",
-    "VOLUME DOS EFEITOS",
-)
+MAIN_COMMANDS = ("INICIAR TURNO", "CONFIGURAÇÕES", "CRÉDITOS")
 TEAM = (
     "CAUÃ DANIEL ABREU",
     "LETÍCIA FAUSTINO SORCHETI",
@@ -45,7 +38,7 @@ TEAM = (
 
 
 class MainMenuScene(Scene):
-    """Industrial terminal menu with functional display and audio settings."""
+    """Old CRT title screen with mouse-driven physical parallax."""
 
     def __init__(
         self,
@@ -53,175 +46,148 @@ class MainMenuScene(Scene):
         assets: AssetManager,
         input_manager: InputManager,
         audio: AudioManager | None = None,
-        preferences: UserPreferences | None = None,
+        preferences_provider: Callable[[], UserPreferences] | None = None,
         apply_preferences: Callable[[UserPreferences], bool] | None = None,
-        quit_game: Callable[[], None] | None = None,
     ) -> None:
         super().__init__(manager, assets, input_manager)
         self.audio = audio
-        self.preferences = (preferences or UserPreferences()).copy()
-        self.pending_preferences = self.preferences.copy()
-        self.apply_preferences_callback = apply_preferences
-        self.quit_game = quit_game
-
+        self.preferences_provider = preferences_provider or UserPreferences
+        self.preferences = self.preferences_provider()
         self.view = "main"
         self.main_selection = 0
-        self.settings_selection = 0
         self.elapsed = 0.0
-        self.status_message = ""
-        self.status_time = 0.0
+        self.parallax = pygame.Vector2()
+        self.head_offset = (0, 0)
 
-        self.font_tiny = self._font(17)
-        self.font_small = self._font(22)
-        self.font_body = self._font(28)
-        self.font_body_bold = self._font(29, bold=True)
-        self.font_title = self._font(104, bold=True)
-        self.font_section = self._font(43, bold=True)
+        background = self.assets.load_image("backgrounds/menu_crt_v1.png", alpha=False)
+        self.background = pygame.transform.smoothscale(
+            background,
+            (VIRTUAL_WIDTH, VIRTUAL_HEIGHT),
+        ).convert()
+        self.screen_noise = self._build_screen_noise()
+        self.scanlines = self._build_scanlines()
+
+        self.font_tiny = self._font(16)
+        self.font_small = self._font(20)
+        self.font_body = self._font(25)
+        self.font_body_bold = self._font(27, bold=True)
+        self.font_title = self._font(73, bold=True)
+        self.font_section = self._font(39, bold=True)
 
         self.main_rects = tuple(
-            pygame.Rect(1190, 340 + index * 106, 560, 82)
+            pygame.Rect(1035, 354 + index * 94, 390, 70)
             for index in range(len(MAIN_COMMANDS))
         )
-        self.settings_row_rects = tuple(
-            pygame.Rect(655, 280 + index * 103, 990, 78)
-            for index in range(len(SETTING_ROWS))
+        self.credits_back_rect = pygame.Rect(1190, 770, 230, 58)
+        self.settings = SettingsPanel(
+            pygame.Rect(445, 192, 1030, 680),
+            audio,
+            apply_preferences,
+            draw_frame=False,
         )
-        self.settings_arrow_rects = tuple(
-            (
-                pygame.Rect(rect.right - 330, rect.y + 12, 50, 54),
-                pygame.Rect(rect.right - 50, rect.y + 12, 50, 54),
-            )
-            for rect in self.settings_row_rects
-        )
-        self.apply_rect = pygame.Rect(1115, 846, 248, 70)
-        self.back_rect = pygame.Rect(1390, 846, 255, 70)
-        self.credits_back_rect = pygame.Rect(1390, 864, 255, 70)
-
-        self.noise_overlay = self._build_noise_overlay()
-        self.scanline_overlay = self._build_scanline_overlay()
 
     def on_enter(self) -> None:
+        self.preferences = self.preferences_provider()
         self.elapsed = 0.0
+        self.parallax.update(0, 0)
+        self.head_offset = (0, 0)
         self.view = "main"
         self.main_selection = 0
+        if self.audio is not None:
+            self.audio.play_music_sequence(("menu",), fade_ms=700)
 
     def handle_escape(self) -> bool:
-        if self.view == "main":
-            return False
-        self._play_click()
-        self.view = "main"
-        self.status_message = ""
+        if self.view != "main":
+            self._play_click(0.65)
+            self.view = "main"
         return True
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        pointer = self._corrected_pointer(self.input_manager.mouse_position)
+        if self.view == "settings":
+            action = self.settings.handle_event(event, pointer)
+            if action == "applied":
+                self.preferences = self.settings.applied_preferences.copy()
+            elif action == "back":
+                self.view = "main"
+            return
+
         if event.type == pygame.MOUSEMOTION:
-            self._handle_mouse_motion(self.input_manager.mouse_position)
+            self._update_hover(pointer)
             return
-
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self._handle_click(self.input_manager.mouse_position)
+            self._handle_click(pointer)
             return
-
         if event.type != pygame.KEYDOWN:
             return
 
-        if self.view == "main":
-            self._handle_main_key(event.key)
-        elif self.view == "settings":
-            self._handle_settings_key(event.key)
-        elif self.view == "credits" and event.key in (pygame.K_RETURN, pygame.K_SPACE):
-            self._play_click()
-            self.view = "main"
+        if self.view == "credits":
+            if event.key in (pygame.K_RETURN, pygame.K_SPACE):
+                self._play_click()
+                self.view = "main"
+            return
+        if event.key in (pygame.K_UP, pygame.K_w):
+            self.main_selection = (self.main_selection - 1) % len(MAIN_COMMANDS)
+            self._play_click(0.5)
+        elif event.key in (pygame.K_DOWN, pygame.K_s):
+            self.main_selection = (self.main_selection + 1) % len(MAIN_COMMANDS)
+            self._play_click(0.5)
+        elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
+            self._activate_main_command(self.main_selection)
 
     def update(self, dt: float) -> None:
         self.elapsed += dt
-        if self.status_time > 0:
-            self.status_time = max(0.0, self.status_time - dt)
-            if self.status_time == 0:
-                self.status_message = ""
+        pointer = self.input_manager.mouse_position
+        if pointer is None:
+            target = pygame.Vector2()
+        else:
+            target = pygame.Vector2(
+                (pointer[0] / VIRTUAL_WIDTH - 0.5) * 12.0,
+                (pointer[1] / VIRTUAL_HEIGHT - 0.5) * 8.0,
+            )
+        response = 1.0 - math.exp(-3.6 * dt)
+        self.parallax += (target - self.parallax) * response
+        idle_x = math.sin(self.elapsed * 0.47) * 0.65
+        idle_y = math.sin(self.elapsed * 0.39 + 1.1) * 0.45
+        self.head_offset = (
+            round(self.parallax.x + idle_x),
+            round(self.parallax.y + idle_y),
+        )
+        if self.view == "settings":
+            self.settings.update(dt)
 
     def render(self, surface: pygame.Surface) -> None:
-        self._render_machine_background(surface)
+        surface.blit(self.background, (0, 0))
+        old_clip = surface.get_clip()
+        surface.set_clip(CRT_SCREEN_RECT)
+        self._render_screen_base(surface)
         if self.view == "main":
             self._render_main(surface)
         elif self.view == "settings":
-            self._render_settings(surface)
+            self.settings.render(surface)
         else:
             self._render_credits(surface)
         self._render_screen_finish(surface)
+        surface.set_clip(old_clip)
 
-    def _handle_main_key(self, key: int) -> None:
-        if key in (pygame.K_UP, pygame.K_w):
-            self.main_selection = (self.main_selection - 1) % len(MAIN_COMMANDS)
-            self._play_click(0.5)
-        elif key in (pygame.K_DOWN, pygame.K_s):
-            self.main_selection = (self.main_selection + 1) % len(MAIN_COMMANDS)
-            self._play_click(0.5)
-        elif key in (pygame.K_RETURN, pygame.K_SPACE):
-            self._activate_main_command(self.main_selection)
-
-    def _handle_settings_key(self, key: int) -> None:
-        item_count = len(SETTING_ROWS) + 2
-        if key in (pygame.K_UP, pygame.K_w):
-            self.settings_selection = (self.settings_selection - 1) % item_count
-            self._play_click(0.5)
-        elif key in (pygame.K_DOWN, pygame.K_s):
-            self.settings_selection = (self.settings_selection + 1) % item_count
-            self._play_click(0.5)
-        elif key in (pygame.K_LEFT, pygame.K_a) and self.settings_selection < len(SETTING_ROWS):
-            self._change_setting(self.settings_selection, -1)
-        elif key in (pygame.K_RIGHT, pygame.K_d) and self.settings_selection < len(SETTING_ROWS):
-            self._change_setting(self.settings_selection, 1)
-        elif key in (pygame.K_RETURN, pygame.K_SPACE):
-            if self.settings_selection == len(SETTING_ROWS):
-                self._apply_settings()
-            elif self.settings_selection == len(SETTING_ROWS) + 1:
-                self._play_click()
-                self.view = "main"
-
-    def _handle_mouse_motion(self, position: tuple[int, int] | None) -> None:
-        if position is None:
+    def _update_hover(self, pointer: tuple[int, int] | None) -> None:
+        if pointer is None:
             return
         if self.view == "main":
             for index, rect in enumerate(self.main_rects):
-                if rect.collidepoint(position):
+                if rect.collidepoint(pointer):
                     self.main_selection = index
                     return
-        elif self.view == "settings":
-            for index, rect in enumerate(self.settings_row_rects):
-                if rect.collidepoint(position):
-                    self.settings_selection = index
-                    return
-            if self.apply_rect.collidepoint(position):
-                self.settings_selection = len(SETTING_ROWS)
-            elif self.back_rect.collidepoint(position):
-                self.settings_selection = len(SETTING_ROWS) + 1
 
-    def _handle_click(self, position: tuple[int, int] | None) -> None:
-        if position is None:
+    def _handle_click(self, pointer: tuple[int, int] | None) -> None:
+        if pointer is None:
             return
         if self.view == "main":
             for index, rect in enumerate(self.main_rects):
-                if rect.collidepoint(position):
+                if rect.collidepoint(pointer):
                     self._activate_main_command(index)
                     return
-        elif self.view == "settings":
-            for index, (left_rect, right_rect) in enumerate(self.settings_arrow_rects):
-                if left_rect.collidepoint(position):
-                    self.settings_selection = index
-                    self._change_setting(index, -1)
-                    return
-                if right_rect.collidepoint(position):
-                    self.settings_selection = index
-                    self._change_setting(index, 1)
-                    return
-            if self.apply_rect.collidepoint(position):
-                self.settings_selection = len(SETTING_ROWS)
-                self._apply_settings()
-            elif self.back_rect.collidepoint(position):
-                self._play_click()
-                self.view = "main"
-        elif self.credits_back_rect.collidepoint(position):
+        elif self.credits_back_rect.collidepoint(pointer):
             self._play_click()
             self.view = "main"
 
@@ -230,271 +196,116 @@ class MainMenuScene(Scene):
         if index == 0:
             self.manager.switch_to("audit")
         elif index == 1:
-            self.pending_preferences = self.preferences.copy()
-            self.settings_selection = 0
-            self.status_message = ""
+            self.settings.open(self.preferences)
             self.view = "settings"
-        elif index == 2:
-            self.view = "credits"
-        elif self.quit_game is not None:
-            self.quit_game()
-
-    def _change_setting(self, index: int, direction: int) -> None:
-        if index == 0:
-            aspects = tuple(RESOLUTIONS_BY_ASPECT)
-            current = aspects.index(self.pending_preferences.aspect_ratio)
-            self.pending_preferences.aspect_ratio = aspects[(current + direction) % len(aspects)]
-            self.pending_preferences.resolution = RESOLUTIONS_BY_ASPECT[
-                self.pending_preferences.aspect_ratio
-            ][0]
-        elif index == 1:
-            resolutions = RESOLUTIONS_BY_ASPECT[self.pending_preferences.aspect_ratio]
-            current = resolutions.index(self.pending_preferences.resolution)
-            self.pending_preferences.resolution = resolutions[(current + direction) % len(resolutions)]
-        elif index == 2:
-            current = DISPLAY_MODES.index(self.pending_preferences.display_mode)
-            self.pending_preferences.display_mode = DISPLAY_MODES[
-                (current + direction) % len(DISPLAY_MODES)
-            ]
-        elif index == 3:
-            self.pending_preferences.music_volume = self._step_volume(
-                self.pending_preferences.music_volume,
-                direction,
-            )
-        elif index == 4:
-            self.pending_preferences.sfx_volume = self._step_volume(
-                self.pending_preferences.sfx_volume,
-                direction,
-            )
-        self._play_click(0.55)
-
-    def _apply_settings(self) -> None:
-        self._play_click()
-        was_applied = True
-        if self.apply_preferences_callback is not None:
-            was_applied = self.apply_preferences_callback(self.pending_preferences)
-        if was_applied:
-            self.preferences = self.pending_preferences.copy()
-            self.status_message = "CONFIGURAÇÕES APLICADAS"
         else:
-            self.status_message = "NÃO FOI POSSÍVEL APLICAR"
-        self.status_time = 2.5
+            self.view = "credits"
 
-    def _render_machine_background(self, surface: pygame.Surface) -> None:
-        surface.fill((6, 9, 7))
-        pygame.draw.rect(surface, (9, 13, 10), (54, 42, 1812, 996))
-        pygame.draw.rect(surface, (45, 45, 34), (54, 42, 1812, 996), 5)
-        pygame.draw.rect(surface, (19, 24, 18), (75, 63, 1770, 954), 3)
+    def _render_screen_base(self, surface: pygame.Surface) -> None:
+        tint = pygame.Surface(CRT_SCREEN_RECT.size, pygame.SRCALPHA)
+        tint.fill((0, 18, 12, 88))
+        surface.blit(tint, CRT_SCREEN_RECT.topleft)
+        surface.blit(self.screen_noise, CRT_SCREEN_RECT.topleft)
 
-        pygame.draw.rect(surface, (20, 24, 19), (75, 63, 1770, 92))
-        pygame.draw.line(surface, LINE, (75, 155), (1845, 155), 2)
-        self._text(surface, "SISTEMA DE AUDITORIA ALGORÍTMICA", self.font_small, INK, (115, 98))
-        self._text(surface, "TERMINAL 04", self.font_tiny, INK_MUTED, (1502, 101))
-        led_color = GREEN if int(self.elapsed * 2.2) % 2 == 0 else (66, 104, 51)
-        pygame.draw.circle(surface, (30, 42, 26), (1768, 108), 13)
-        pygame.draw.circle(surface, led_color, (1768, 108), 7)
-
-        pygame.draw.line(surface, (38, 45, 34), (1110, 195), (1110, 957), 2)
-        pygame.draw.rect(surface, PANEL, (1138, 200, 650, 760))
-        pygame.draw.rect(surface, LINE, (1138, 200, 650, 760), 2)
-
-        if self.view == "main":
-            for x in range(110, 1050, 78):
-                pygame.draw.line(surface, (17, 24, 18), (x, 500), (x, 930), 1)
-            for y in range(500, 931, 54):
-                pygame.draw.line(surface, (17, 24, 18), (110, y), (1050, y), 1)
-
-            signal_y = 722 + int(math.sin(self.elapsed * 1.3) * 22)
-            points = [(115, 722), (270, 722), (322, signal_y), (390, 722), (548, 722)]
-            points.extend(
-                (x, 722 + int(math.sin(x * 0.025 + self.elapsed * 2.0) * 18))
-                for x in range(570, 1030, 24)
-            )
-            pygame.draw.lines(surface, (71, 105, 61), False, points, 3)
-        surface.blit(self.noise_overlay, (0, 0))
+        if self.view != "settings":
+            self._text(surface, "SISTEMA DE AUDITORIA // ESTAÇÃO 04", self.font_tiny, INK_MUTED, (455, 224))
+            pulse = (math.sin(self.elapsed * 2.7) + 1.0) * 0.5
+            led = (70 + round(pulse * 35), 130 + round(pulse * 35), 55)
+            pygame.draw.circle(surface, led, (1424, 230), 5)
+            self._text(surface, "ONLINE", self.font_tiny, GREEN, (1439, 220))
+            pygame.draw.line(surface, LINE, (450, 254), (1470, 254), 2)
 
     def _render_main(self, surface: pygame.Surface) -> None:
-        reveal = max(0.0, min(1.0, self.elapsed / 0.65))
-        self._text(surface, "CENTRAL DE REVISÃO", self.font_small, AMBER, (120, 250))
-        title_surface = self.font_title.render("SOB ANÁLISE", False, INK_BRIGHT)
-        title_surface.set_alpha(round(255 * reveal))
-        surface.blit(title_surface, (112, 292))
-        pygame.draw.rect(surface, RED, (118, 425, round(760 * reveal), 8))
+        reveal = max(0.0, min(1.0, (self.elapsed - 0.16) / 0.7))
+        self._text(surface, "CENTRAL DE REVISÃO", self.font_small, AMBER, (455, 310))
+        title = self.font_title.render("SOB ANÁLISE", False, INK_BRIGHT)
+        title.set_alpha(round(255 * reveal))
+        surface.blit(title, (449, 342))
+        pygame.draw.rect(surface, RED, (455, 431, round(500 * reveal), 6))
 
-        self._text(surface, "TURNO DISPONÍVEL", self.font_tiny, INK_MUTED, (120, 470))
-        self._text(surface, "06 DECISÕES PENDENTES", self.font_body_bold, INK, (120, 500))
+        self._text(surface, "TURNO DISPONÍVEL", self.font_tiny, INK_MUTED, (458, 478))
+        self._text(surface, "06 DECISÕES PENDENTES", self.font_body_bold, INK, (455, 504))
+        pygame.draw.line(surface, LINE, (995, 294), (995, 716), 2)
 
-        self._text(surface, "SELECIONE UMA OPERAÇÃO", self.font_tiny, INK_MUTED, (1190, 275))
+        self._text(surface, "OPERAÇÕES", self.font_tiny, INK_MUTED, (1035, 306))
         for index, (label, rect) in enumerate(zip(MAIN_COMMANDS, self.main_rects)):
-            selected = index == self.main_selection
-            if selected:
-                pygame.draw.rect(surface, (31, 37, 27), rect)
-                pygame.draw.rect(surface, AMBER, (rect.x, rect.y, 7, rect.height))
+            active = index == self.main_selection
+            if active:
+                pygame.draw.rect(surface, (25, 35, 26), rect)
+                pygame.draw.rect(surface, AMBER, (rect.x, rect.y, 5, rect.height))
                 pygame.draw.polygon(
                     surface,
                     INK_BRIGHT,
-                    (
-                        (rect.right - 34, rect.centery - 10),
-                        (rect.right - 16, rect.centery),
-                        (rect.right - 34, rect.centery + 10),
-                    ),
+                    ((rect.right - 26, rect.centery - 8), (rect.right - 12, rect.centery), (rect.right - 26, rect.centery + 8)),
                 )
             pygame.draw.line(surface, LINE, rect.bottomleft, rect.bottomright, 2)
-            number_color = AMBER if selected else INK_MUTED
-            label_color = INK_BRIGHT if selected else INK
-            self._text(surface, f"0{index + 1}", self.font_tiny, number_color, (rect.x + 28, rect.y + 29))
-            self._text(surface, label, self.font_body_bold, label_color, (rect.x + 90, rect.y + 23))
+            self._text(surface, f"0{index + 1}", self.font_tiny, AMBER if active else INK_MUTED, (rect.x + 20, rect.y + 26))
+            self._text(surface, label, self.font_body_bold, INK_BRIGHT if active else INK, (rect.x + 67, rect.y + 20))
 
-        self._text(surface, "VERSÃO 0.1 // SNCT 2026", self.font_tiny, INK_MUTED, (118, 966))
-
-    def _render_settings(self, surface: pygame.Surface) -> None:
-        self._render_section_heading(surface, "CONFIGURAÇÕES", "PARÂMETROS DO TERMINAL")
-        values = (
-            self.pending_preferences.aspect_ratio,
-            f"{self.pending_preferences.resolution[0]} x {self.pending_preferences.resolution[1]}",
-            "TELA CHEIA" if self.pending_preferences.display_mode == "fullscreen" else "JANELA",
-            self._volume_label(self.pending_preferences.music_volume),
-            self._volume_label(self.pending_preferences.sfx_volume),
-        )
-
-        for index, (label, value, rect) in enumerate(
-            zip(SETTING_ROWS, values, self.settings_row_rects)
-        ):
-            selected = index == self.settings_selection
-            if selected:
-                pygame.draw.rect(surface, PANEL_LIGHT, rect)
-                pygame.draw.rect(surface, AMBER, (rect.x, rect.y, 6, rect.height))
-            pygame.draw.line(surface, LINE, rect.bottomleft, rect.bottomright, 2)
-            self._text(
-                surface,
-                label,
-                self.font_small,
-                INK if selected else INK_MUTED,
-                (rect.x + 26, rect.y + 26),
-            )
-            left_rect, right_rect = self.settings_arrow_rects[index]
-            self._draw_arrow_button(surface, left_rect, -1, selected)
-            self._draw_arrow_button(surface, right_rect, 1, selected)
-            value_font = self.font_small if index >= 3 else self.font_body_bold
-            self._text(
-                surface,
-                value,
-                value_font,
-                INK_BRIGHT,
-                (rect.right - 165, rect.y + 22),
-                "midtop",
-            )
-
-        apply_selected = self.settings_selection == len(SETTING_ROWS)
-        back_selected = self.settings_selection == len(SETTING_ROWS) + 1
-        self._draw_command_button(surface, self.apply_rect, "APLICAR", apply_selected)
-        self._draw_command_button(surface, self.back_rect, "VOLTAR", back_selected)
-        if self.status_message:
-            color = GREEN if self.status_message == "CONFIGURAÇÕES APLICADAS" else RED
-            self._text(surface, self.status_message, self.font_small, color, (655, 873))
+        trace = []
+        for x in range(460, 955, 16):
+            y = 691 + round(math.sin(x * 0.034 + self.elapsed * 1.7) * 9)
+            trace.append((x, y))
+        pygame.draw.lines(surface, (64, 102, 61), False, trace, 2)
+        self._text(surface, "SNCT 2026 // VERSÃO 0.1", self.font_tiny, INK_MUTED, (455, 750))
 
     def _render_credits(self, surface: pygame.Surface) -> None:
-        self._render_section_heading(surface, "CRÉDITOS", "EQUIPE DE DESENVOLVIMENTO")
-        y = 318
+        self._text(surface, "CRÉDITOS", self.font_section, INK_BRIGHT, (500, 292))
+        self._text(surface, "EQUIPE DE DESENVOLVIMENTO", self.font_tiny, AMBER, (502, 343))
+        y = 392
         for index, name in enumerate(TEAM, start=1):
-            self._text(surface, f"0{index}", self.font_small, AMBER, (675, y + 5))
-            self._text(surface, name, self.font_body_bold, INK_BRIGHT, (748, y))
-            pygame.draw.line(surface, LINE, (655, y + 62), (1645, y + 62), 2)
-            y += 112
-        self._draw_command_button(surface, self.credits_back_rect, "VOLTAR", True)
-
-    def _render_section_heading(self, surface: pygame.Surface, title: str, subtitle: str) -> None:
-        self._text(surface, title, self.font_section, INK_BRIGHT, (655, 190))
-        self._text(surface, subtitle, self.font_tiny, AMBER, (655, 244))
+            self._text(surface, f"0{index}", self.font_tiny, AMBER, (520, y + 6))
+            self._text(surface, name, self.font_body_bold, INK, (575, y))
+            pygame.draw.line(surface, LINE, (500, y + 47), (1415, y + 47), 2)
+            y += 78
+        self._draw_button(surface, self.credits_back_rect, "VOLTAR", True)
 
     def _render_screen_finish(self, surface: pygame.Surface) -> None:
-        surface.blit(self.scanline_overlay, (0, 0))
-        flicker = 4 + int((math.sin(self.elapsed * 7.0) + 1) * 2)
-        glow = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.SRCALPHA)
-        glow.fill((220, 235, 170, flicker))
-        surface.blit(glow, (0, 0))
+        surface.blit(self.scanlines, CRT_SCREEN_RECT.topleft)
+        glass = pygame.Surface(CRT_SCREEN_RECT.size, pygame.SRCALPHA)
+        pygame.draw.ellipse(glass, (172, 207, 175, 13), (-180, -300, 920, 510))
+        surface.blit(glass, CRT_SCREEN_RECT.topleft)
 
-        for inset, alpha in ((0, 95), (14, 58), (28, 28)):
-            border = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.SRCALPHA)
-            pygame.draw.rect(
-                border,
-                (0, 0, 0, alpha),
-                (inset, inset, VIRTUAL_WIDTH - inset * 2, VIRTUAL_HEIGHT - inset * 2),
-                18,
-            )
-            surface.blit(border, (0, 0))
+        if self.elapsed < 0.82:
+            progress = max(0.0, min(1.0, self.elapsed / 0.82))
+            boot = pygame.Surface(CRT_SCREEN_RECT.size, pygame.SRCALPHA)
+            boot.fill((0, 0, 0, round(255 * (1.0 - progress))))
+            line_y = round(CRT_SCREEN_RECT.height / 2)
+            pygame.draw.line(boot, (202, 226, 164, round(210 * (1.0 - progress))), (90, line_y), (CRT_SCREEN_RECT.width - 90, line_y), 3)
+            surface.blit(boot, CRT_SCREEN_RECT.topleft)
 
-    def _draw_arrow_button(
-        self,
-        surface: pygame.Surface,
-        rect: pygame.Rect,
-        direction: int,
-        active: bool,
-    ) -> None:
-        pygame.draw.rect(surface, (10, 15, 11), rect)
-        pygame.draw.rect(surface, AMBER if active else LINE, rect, 2)
-        center_x, center_y = rect.center
-        if direction < 0:
-            points = (
-                (center_x + 7, center_y - 11),
-                (center_x - 8, center_y),
-                (center_x + 7, center_y + 11),
-            )
-        else:
-            points = (
-                (center_x - 7, center_y - 11),
-                (center_x + 8, center_y),
-                (center_x - 7, center_y + 11),
-            )
-        pygame.draw.polygon(surface, INK_BRIGHT if active else INK_MUTED, points)
+    def _corrected_pointer(self, pointer: tuple[int, int] | None) -> tuple[int, int] | None:
+        if pointer is None:
+            return None
+        scale = self.input_manager.viewport.scale
+        if scale <= 0:
+            return pointer
+        offset_x = round(round(self.head_offset[0] * scale) / scale)
+        offset_y = round(round(self.head_offset[1] * scale) / scale)
+        return pointer[0] - offset_x, pointer[1] - offset_y
 
-    def _draw_command_button(
-        self,
-        surface: pygame.Surface,
-        rect: pygame.Rect,
-        label: str,
-        selected: bool,
-    ) -> None:
-        pygame.draw.rect(surface, PANEL_LIGHT if selected else PANEL, rect)
-        pygame.draw.rect(surface, AMBER if selected else LINE, rect, 3 if selected else 2)
-        self._text(
-            surface,
-            label,
-            self.font_body_bold,
-            INK_BRIGHT if selected else INK,
-            rect.center,
-            "center",
-        )
+    def _draw_button(self, surface: pygame.Surface, rect: pygame.Rect, label: str, active: bool) -> None:
+        pygame.draw.rect(surface, (25, 34, 25) if active else (8, 15, 11), rect)
+        pygame.draw.rect(surface, AMBER if active else LINE, rect, 3 if active else 2)
+        self._text(surface, label, self.font_body_bold, INK_BRIGHT if active else INK, rect.center, "center")
 
     @staticmethod
-    def _build_noise_overlay() -> pygame.Surface:
-        overlay = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.SRCALPHA)
-        rng = random.Random(2608)
-        for _ in range(4200):
-            shade = rng.choice((16, 22, 31, 38))
+    def _build_screen_noise() -> pygame.Surface:
+        overlay = pygame.Surface(CRT_SCREEN_RECT.size, pygame.SRCALPHA)
+        rng = random.Random(904)
+        for _ in range(2800):
             overlay.set_at(
-                (rng.randrange(VIRTUAL_WIDTH), rng.randrange(VIRTUAL_HEIGHT)),
-                (175, 181, 130, shade),
+                (rng.randrange(CRT_SCREEN_RECT.width), rng.randrange(CRT_SCREEN_RECT.height)),
+                (156, 184, 132, rng.choice((10, 14, 18, 22))),
             )
         return overlay
 
     @staticmethod
-    def _build_scanline_overlay() -> pygame.Surface:
-        overlay = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.SRCALPHA)
-        for y in range(0, VIRTUAL_HEIGHT, 4):
-            pygame.draw.line(overlay, (0, 0, 0, 24), (0, y), (VIRTUAL_WIDTH, y))
+    def _build_scanlines() -> pygame.Surface:
+        overlay = pygame.Surface(CRT_SCREEN_RECT.size, pygame.SRCALPHA)
+        for y in range(0, CRT_SCREEN_RECT.height, 4):
+            pygame.draw.line(overlay, (0, 0, 0, 31), (0, y), (CRT_SCREEN_RECT.width, y))
         return overlay
-
-    @staticmethod
-    def _step_volume(value: float, direction: int) -> float:
-        return max(0.0, min(1.0, round(value * 10 + direction) / 10))
-
-    @staticmethod
-    def _volume_label(value: float) -> str:
-        if value <= 0:
-            return "MUDO"
-        bars = round(value * 10)
-        return f"{'|' * bars}{'.' * (10 - bars)}  {round(value * 100):02d}%"
 
     def _play_click(self, volume: float = 0.8) -> None:
         if self.audio is not None:

@@ -72,6 +72,9 @@ class Application:
     def stop(self) -> None:
         self.is_running = False
 
+    def get_preferences(self) -> UserPreferences:
+        return self.preferences.copy()
+
     def apply_preferences(self, preferences: UserPreferences) -> bool:
         updated = preferences.copy()
         updated.normalize()
@@ -104,14 +107,20 @@ class Application:
                 self.assets,
                 self.input_manager,
                 self.audio,
-                self.preferences,
+                self.get_preferences,
                 self.apply_preferences,
-                self.stop,
             ),
         )
         self.scene_manager.add_scene(
             "audit",
-            AuditScene(self.scene_manager, self.assets, self.input_manager, self.audio),
+            AuditScene(
+                self.scene_manager,
+                self.assets,
+                self.input_manager,
+                self.audio,
+                self.get_preferences,
+                self.apply_preferences,
+            ),
         )
         self.scene_manager.switch_to("main_menu")
 
@@ -121,16 +130,17 @@ class Application:
                 self.stop()
                 continue
 
+            if self.audio.handle_event(event):
+                continue
+
             if event.type == pygame.VIDEORESIZE and self.preferences.display_mode == "windowed":
                 self.window = pygame.display.set_mode(event.size, pygame.RESIZABLE)
                 self._update_viewport()
 
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 current_scene = self.scene_manager.current_scene
-                if current_scene is not None and current_scene.handle_escape():
-                    continue
-
-                self.stop()
+                if current_scene is not None:
+                    current_scene.handle_escape()
                 continue
 
             self.input_manager.handle_event(event)

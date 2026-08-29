@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import pygame
 
+from src.core.preferences import UserPreferences
 from src.core.scene import Scene
 from src.core.settings import DEBUG_LAYOUT_RECTS, DEBUG_UI
 from src.gameplay.cases import CASES, CaseResult
@@ -15,6 +17,7 @@ from src.ui.case_document import CaseDocument
 from src.ui.case_hint import CaseHint
 from src.ui.document_inspector import DocumentInspector
 from src.ui.newspaper import FinalNewspaper
+from src.ui.pause_menu import PauseMenu
 from src.ui.protocol_panel import ProtocolPanel
 from src.ui.stamp_button import StampButton
 
@@ -82,9 +85,12 @@ class AuditScene(Scene):
         assets: AssetManager,
         input_manager: InputManager,
         audio: AudioManager | None = None,
+        preferences_provider: Callable[[], UserPreferences] | None = None,
+        apply_preferences: Callable[[UserPreferences], bool] | None = None,
     ) -> None:
         super().__init__(manager, assets, input_manager)
         self.audio = audio
+        self.preferences_provider = preferences_provider or UserPreferences
         self.case_index = 0
         self.case_results: list[CaseResult] = []
         self.case = CASES[self.case_index]
@@ -126,6 +132,11 @@ class AuditScene(Scene):
         self.case_dialog = CaseDialog(self.case)
         self.case_hint = CaseHint(self.case)
         self.newspaper = FinalNewspaper(self._load_newspaper_images())
+        self.pause_menu = PauseMenu(
+            audio,
+            self.preferences_provider,
+            apply_preferences,
+        )
 
         self.evidence_notes: dict[str, str] = {}
         self.active_document: CaseDocument | None = None
@@ -134,7 +145,18 @@ class AuditScene(Scene):
         self.newspaper_transition: str | None = None
         self.newspaper_transition_time = 0.0
 
+    def on_enter(self) -> None:
+        self.pause_menu.close()
+        self.head_offset = (0, 0)
+        if self.audio is not None:
+            self.audio.play_music_sequence(("audit_1", "audit_2"), fade_ms=700)
+
+    def on_exit(self) -> None:
+        self.pause_menu.close()
+
     def handle_escape(self) -> bool:
+        if self.pause_menu.is_open:
+            return self.pause_menu.handle_escape()
         if self.newspaper_transition is not None:
             return True
         if self.newspaper.is_open:
@@ -153,9 +175,17 @@ class AuditScene(Scene):
         if self.ai_decision_panel.popup_open:
             self.ai_decision_panel.close()
             return True
-        return False
+        self._stop_desk_pan()
+        self.head_offset = (0, 0)
+        self.pause_menu.open()
+        return True
 
     def handle_event(self, event: pygame.event.Event) -> None:
+        if self.pause_menu.is_open:
+            action = self.pause_menu.handle_event(event, self.input_manager.mouse_position)
+            if action == "main_menu":
+                self.manager.switch_to("main_menu")
+            return
         if self.newspaper_transition is not None:
             return
         if event.type == pygame.MOUSEWHEEL and self.document_inspector.is_open:
@@ -204,6 +234,10 @@ class AuditScene(Scene):
             self._handle_mouse_up()
 
     def update(self, dt: float) -> None:
+        if self.pause_menu.is_open:
+            self.head_offset = (0, 0)
+            self.pause_menu.update(dt)
+            return
         if self.newspaper_transition is not None:
             self._update_newspaper_transition(dt)
             return
@@ -254,6 +288,8 @@ class AuditScene(Scene):
         self._draw_stamp_status(surface)
         if DEBUG_UI:
             self._draw_debug_text(surface)
+        if self.pause_menu.is_open:
+            self.pause_menu.render(surface)
 
     def _render_status_led(self, surface: pygame.Surface) -> None:
         pulse = (math.sin(self.head_motion_time * 2.4) + 1.0) * 0.5
@@ -476,7 +512,7 @@ class AuditScene(Scene):
             action, document_id = ai_action
             if action == "focus" and document_id is not None:
                 self._focus_document(document_id)
-                self._play_sound("paper", 0.65)
+                self._play_sound("document", 0.65)
             elif action == "open":
                 self._play_sound("click")
             elif action == "scroll":
@@ -498,7 +534,7 @@ class AuditScene(Scene):
 
             if document.contains_inspect_button(monitor_position) or click_count >= 2:
                 self.document_inspector.open(document)
-                self._play_sound("paper")
+                self._play_sound("document")
                 return
 
             document.start_drag(monitor_position)

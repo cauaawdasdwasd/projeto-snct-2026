@@ -49,8 +49,9 @@ O projeto está conectado ao repositório
 
 ## Controles atuais
 
-- O menu inicial permite iniciar o turno, abrir as configurações, consultar os
-  créditos ou encerrar o jogo. Todas as opções funcionam por mouse ou teclado.
+- O menu inicial usa uma estação CRT animada e permite iniciar o turno, abrir as
+  configurações ou consultar os créditos. Todas as opções funcionam por mouse ou
+  teclado, e o aparelho acompanha o cursor com um movimento sutil.
 - Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,
   alterar a resolução, alternar entre janela e tela cheia e ajustar separadamente
   os volumes da música e dos efeitos. O jogo preserva a imagem original com barras
@@ -82,9 +83,13 @@ O projeto está conectado ao repositório
 - Confira o papel carimbado e clique em `ENVIAR / PRÓXIMO CASO`.
 - Ao concluir o sexto caso, o monitor desliga e o noticiário do dia é revelado.
 - No jornal, use os botões laterais, `A`/`D` ou `←`/`→` para folhear as matérias.
-- Há uma trilha ambiente em loop e efeitos para cliques, papel, dicas, confirmações
-  e carimbos.
-- Pressione `Esc` sem um protocolo aberto para sair.
+- A música muda entre o menu e o turno. Durante a auditoria, duas faixas se
+  alternam automaticamente. Há efeitos próprios para interface, documentos,
+  papel, dicas, confirmações e carimbos.
+- Pressione `Esc` sem outra janela aberta para pausar. A pausa permite continuar,
+  abrir as configurações ou voltar ao menu principal.
+- `Esc` nunca encerra o jogo. Para fechar a aplicação, use o botão da janela ou
+  `Alt+F4`.
 
 ## Casos jogáveis
 
@@ -138,7 +143,7 @@ sob_analise/
 │   ├── backgrounds/             # Moldura e cenário da auditoria (novo_sprite_teste.png)
 │   ├── cases/case_01/           # Retrato usado nos documentos funcionais
 │   ├── documents/dev/           # Documentos antigos de desenvolvimento
-│   ├── music/                   # Trilha ambiente da auditoria
+│   ├── music/                   # Música do menu e duas faixas da auditoria
 │   ├── newspaper/               # Ilustrações das matérias corretas e desastrosas
 │   ├── protocols/               # Retratos dos seis protocolos
 │   ├── stamp_marks/             # Marcas transparentes aplicadas ao papel
@@ -173,7 +178,9 @@ sob_analise/
         ├── case_hint.py          # Dica contextual e atalho para o protocolo
         ├── document_inspector.py # Zoom, navegação e caderno de evidências
         ├── newspaper.py          # Jornal final paginado, matérias e placar
+        ├── pause_menu.py         # Pausa, retorno ao menu e acesso às configurações
         ├── protocol_panel.py     # Menu paginado e popup dos protocolos
+        ├── settings_panel.py     # Configurações reutilizadas no menu e na pausa
         └── stamp_button.py       # Hover e seleção dos carimbos
 ```
 
