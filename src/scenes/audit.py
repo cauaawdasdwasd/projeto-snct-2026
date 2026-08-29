@@ -169,26 +169,38 @@ class AuditScene(Scene):
         if self.newspaper_transition is not None:
             return True
         if self.newspaper.is_open:
-            return self.newspaper.handle_escape()
+            handled = self.newspaper.handle_escape()
+            if handled:
+                self._play_sound("back", 0.65)
+            return handled
         if self.signature_pad.is_open:
             self.signature_pad.close()
+            self._play_sound("back", 0.65)
             return True
         if self.database_search.is_open:
             self.database_search.close()
+            self._play_sound("back", 0.65)
             return True
         if self.case_hint.is_open:
             self.case_hint.close()
+            self._play_sound("back", 0.65)
             return True
         if self.case_dialog.is_open:
-            return self.case_dialog.handle_escape()
+            handled = self.case_dialog.handle_escape()
+            if handled:
+                self._play_sound("back", 0.65)
+            return handled
         if self.protocol_panel.is_popup_open:
             self.protocol_panel.close_popup()
+            self._play_sound("back", 0.65)
             return True
         if self.document_inspector.is_open:
             self.document_inspector.close()
+            self._play_sound("back", 0.65)
             return True
         if self.ai_decision_panel.popup_open:
             self.ai_decision_panel.close()
+            self._play_sound("back", 0.65)
             return True
         self._stop_desk_pan()
         self.head_offset = (0, 0)
@@ -214,7 +226,7 @@ class AuditScene(Scene):
             elif result is not None and result[0] == "clear":
                 self._play_sound("paper", 0.55)
             elif result is not None and result[0] == "cancel":
-                self._play_sound("click", 0.7)
+                self._play_sound("back", 0.7)
             return
         if self.database_search.is_open:
             self.database_search.handle_event(
@@ -250,7 +262,12 @@ class AuditScene(Scene):
 
         if event.type == pygame.KEYDOWN:
             if self.newspaper.is_open:
-                self.newspaper.handle_key_down(event.key)
+                previous_page = self.newspaper.page_index
+                if self.newspaper.handle_key_down(event.key):
+                    if self.newspaper.page_index < previous_page:
+                        self._play_sound("back", 0.65)
+                    elif self.newspaper.page_index > previous_page:
+                        self._play_sound("forward", 0.65)
                 return
             if (
                 event.key == pygame.K_f
@@ -258,7 +275,7 @@ class AuditScene(Scene):
                 and not self._is_modal_open()
             ):
                 if self.database_search.open():
-                    self._play_sound("click")
+                    self._play_sound("forward", 0.7)
                 return
             if not self._is_modal_open():
                 self.protocol_panel.handle_key_down(event.key)
@@ -481,24 +498,36 @@ class AuditScene(Scene):
 
         if self.newspaper.is_open:
             if monitor_position is not None:
+                previous_page = self.newspaper.page_index
                 action = self.newspaper.handle_mouse_down(monitor_position)
                 if action == "restart":
+                    self._play_sound("forward", 0.7)
                     self._restart_turn()
+                elif action == "previous" and self.newspaper.page_index < previous_page:
+                    self._play_sound("back", 0.65)
+                elif action == "next" and self.newspaper.page_index > previous_page:
+                    self._play_sound("forward", 0.65)
+                elif action == "close":
+                    self._play_sound("back", 0.65)
             return
 
         if self.case_hint.is_open:
             if monitor_position is not None:
                 action = self.case_hint.handle_mouse_down(monitor_position)
                 if action == "open_protocol":
-                    self._play_sound("click")
+                    self._play_sound("forward", 0.65)
                     self.protocol_panel.open_protocol(self.case.protocol_focus)
+                elif action == "close":
+                    self._play_sound("back", 0.65)
             return
 
         if self.case_dialog.is_open:
             if monitor_position is not None:
                 action = self.case_dialog.handle_mouse_down(monitor_position)
-                if action in ("start", "cancel"):
-                    self._play_sound("click")
+                if action == "start":
+                    self._play_sound("forward", 0.7)
+                elif action == "cancel":
+                    self._play_sound("back", 0.7)
                 self._handle_case_dialog_action(action)
             return
 
@@ -529,11 +558,16 @@ class AuditScene(Scene):
 
         if monitor_position is not None:
             if self.database_search.handle_launcher_click(monitor_position):
-                self._play_sound("click")
+                self._play_sound("forward", 0.7)
                 return
             hint_action = self.case_hint.handle_mouse_down(monitor_position)
             if hint_action is not None:
-                self._play_sound("hint" if hint_action == "open" else "click")
+                if hint_action == "open":
+                    self._play_sound("hint")
+                elif hint_action == "close":
+                    self._play_sound("back", 0.65)
+                else:
+                    self._play_sound("forward", 0.65)
                 return
 
         if monitor_position is not None and self._handle_desk_control(monitor_position):
@@ -546,7 +580,6 @@ class AuditScene(Scene):
             and monitor_position is not None
             and CASE_SUBMIT_RECT.collidepoint(monitor_position)
         ):
-            self._play_sound("confirm")
             self._advance_case_or_show_newspaper()
             return
 
@@ -561,7 +594,7 @@ class AuditScene(Scene):
         clicked_stamp = self._get_clicked_stamp(scene_position)
         if clicked_stamp is not None:
             self._select_stamp(clicked_stamp)
-            self._play_sound("click")
+            self._play_sound("toggle", 0.6)
             return
 
         if monitor_position is None:
@@ -572,10 +605,10 @@ class AuditScene(Scene):
             action, document_id = ai_action
             if action == "toggle" and document_id is not None:
                 self._toggle_document_visibility(document_id)
-                self._play_sound("document", 0.65)
+                self._play_sound("toggle", 0.6)
             elif action == "open":
                 self.ai_report_seen = True
-                self._play_sound("click")
+                self._play_sound("forward", 0.7)
             elif action == "scroll":
                 self._play_sound("scroll", 0.7)
             return
@@ -709,12 +742,12 @@ class AuditScene(Scene):
 
     def _advance_case_or_show_newspaper(self) -> None:
         if self.case_index >= len(CASES) - 1:
-            self._play_sound("confirm")
+            self._play_sound("forward", 0.75)
             self.newspaper_transition = "shutdown"
             self.newspaper_transition_time = 0.0
             return
         self._load_case(self.case_index + 1)
-        self._play_sound("paper", 0.75)
+        self._play_sound("forward", 0.7)
 
     def _restart_turn(self) -> None:
         self.newspaper.close()

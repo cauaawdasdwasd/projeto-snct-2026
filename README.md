@@ -161,7 +161,7 @@ sob_analise/
 │   ├── protocols/               # Retratos dos seis protocolos
 │   ├── stamp_marks/             # Marcas transparentes aplicadas ao papel
 │   ├── stamps/                  # Botões dos carimbos jogáveis
-│   ├── sfx/                     # Efeitos sonoros da interface
+│   ├── sfx/                     # Cliques retrô, digitação, transições, papel e carimbo
 │   └── videos/                  # Futuros tutoriais em vídeo
 ├── scripts/
 │   ├── generate_audio.py         # Regenera a trilha e os efeitos WAV

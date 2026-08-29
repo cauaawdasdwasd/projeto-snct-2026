@@ -112,6 +112,7 @@ class DatabaseSearch:
         if event.type == pygame.TEXTINPUT:
             if len(self.query) < 48:
                 self.query += event.text
+                self._play("typing", 0.42, maxtime_ms=90)
             return
         if event.type == pygame.MOUSEWHEEL:
             self._move_selection(-event.y)
@@ -120,7 +121,7 @@ class DatabaseSearch:
             if position is None:
                 return
             if SEARCH_CLOSE_RECT.collidepoint(position):
-                self._play("click")
+                self._play("back", 0.65)
                 self.close()
             elif SEARCH_SUBMIT_RECT.collidepoint(position):
                 self._search()
@@ -134,7 +135,10 @@ class DatabaseSearch:
         if event.type != pygame.KEYDOWN:
             return
         if event.key == pygame.K_BACKSPACE:
+            had_text = bool(self.query)
             self.query = self.query[:-1]
+            if had_text:
+                self._play("typing", 0.36, maxtime_ms=75)
         elif event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
             self._search()
         elif event.key == pygame.K_UP:
@@ -242,9 +246,15 @@ class DatabaseSearch:
         pygame.draw.line(surface, INK_BRIGHT, (1442, 47), (1460, 65), 2)
         pygame.draw.line(surface, INK_BRIGHT, (1460, 47), (1442, 65), 2)
 
-    def _play(self, name: str, volume: float = 0.75) -> None:
+    def _play(
+        self,
+        name: str,
+        volume: float = 0.75,
+        *,
+        maxtime_ms: int = 0,
+    ) -> None:
         if self.audio is not None:
-            self.audio.play(name, volume)
+            self.audio.play(name, volume, maxtime_ms=maxtime_ms)
 
     @staticmethod
     def _normalize(value: str) -> str:

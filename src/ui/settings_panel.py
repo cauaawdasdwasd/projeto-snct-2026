@@ -124,7 +124,7 @@ class SettingsPanel:
                 self._apply()
                 return "applied"
             if self.selection == len(ROW_LABELS) + 1:
-                self._play_click()
+                self._play_sound("back")
                 return "back"
         return None
 
@@ -215,7 +215,7 @@ class SettingsPanel:
             return "applied"
         if self.back_rect.collidepoint(pointer):
             self.selection = len(ROW_LABELS) + 1
-            self._play_click()
+            self._play_sound("back")
             return "back"
         return None
 
@@ -288,8 +288,11 @@ class SettingsPanel:
         self._text(surface, label, self.font_body, INK_BRIGHT if active else INK, rect.center, "center")
 
     def _play_click(self, volume: float = 0.8) -> None:
+        self._play_sound("click", volume)
+
+    def _play_sound(self, name: str, volume: float = 0.8) -> None:
         if self.audio is not None:
-            self.audio.play("click", volume)
+            self.audio.play(name, volume)
 
     @staticmethod
     def _font(size: int, bold: bool = False) -> pygame.font.Font:

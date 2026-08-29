@@ -15,8 +15,12 @@ class AudioManager:
         "audit_2": "music/audit_2.mp3",
     }
     SOUND_PATHS = {
-        "click": "sfx/click_mouse_1.mp3",
+        "click": "sfx/retro_click.mp3",
+        "toggle": "sfx/retro_click_alt.mp3",
         "document": "sfx/click_mouse_2.mp3",
+        "typing": "sfx/retro_typing.mp3",
+        "forward": "sfx/transition_forward.mp3",
+        "back": "sfx/transition_back.mp3",
         "paper": "sfx/paper_flip.wav",
         "stamp": "sfx/stamp.wav",
         "hint": "sfx/hint.wav",
@@ -89,14 +93,22 @@ class AudioManager:
         except pygame.error:
             self.music_sequence = ()
 
-    def play(self, name: str, volume: float = 1.0) -> None:
+    def play(
+        self,
+        name: str,
+        volume: float = 1.0,
+        *,
+        maxtime_ms: int = 0,
+    ) -> None:
         if not self.enabled:
             return
         sound = self.sounds.get(name)
         if sound is None:
             return
         try:
-            channel = sound.play()
+            if name in {"click", "toggle", "typing"}:
+                sound.stop()
+            channel = sound.play(maxtime=max(0, maxtime_ms))
             if channel is not None:
                 channel.set_volume(max(0.0, min(1.0, volume * self.sfx_volume)))
         except pygame.error:

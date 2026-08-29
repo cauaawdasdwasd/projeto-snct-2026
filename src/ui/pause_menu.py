@@ -63,10 +63,10 @@ class PauseMenu:
     def handle_escape(self) -> bool:
         if self.view == "settings":
             self.view = "menu"
-            self._play_click(0.65)
+            self._play_sound("back", 0.65)
         else:
             self.close()
-            self._play_click(0.65)
+            self._play_sound("back", 0.65)
         return True
 
     def handle_event(
@@ -146,7 +146,7 @@ class PauseMenu:
             )
 
     def _activate(self, index: int) -> str | None:
-        self._play_click()
+        self._play_sound("back" if index in (0, 2) else "forward")
         if index == 0:
             self.close()
         elif index == 1:
@@ -158,8 +158,11 @@ class PauseMenu:
         return None
 
     def _play_click(self, volume: float = 0.8) -> None:
+        self._play_sound("click", volume)
+
+    def _play_sound(self, name: str, volume: float = 0.8) -> None:
         if self.audio is not None:
-            self.audio.play("click", volume)
+            self.audio.play(name, volume)
 
     @staticmethod
     def _font(size: int, bold: bool = False) -> pygame.font.Font:
