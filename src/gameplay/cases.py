@@ -58,6 +58,14 @@ class NewspaperArticle:
 
 
 @dataclass(frozen=True)
+class SearchRecord:
+    title: str
+    source: str
+    snippet: str
+    keywords: tuple[str, ...]
+
+
+@dataclass(frozen=True)
 class AuditCase:
     case_id: str
     sequence: int
@@ -79,6 +87,7 @@ class AuditCase:
     incorrect_feedback: str
     newspaper_correct: NewspaperArticle
     newspaper_incorrect: NewspaperArticle
+    search_records: tuple[SearchRecord, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -180,6 +189,15 @@ CASE_01 = AuditCase(
     incorrect_feedback="A promoção foi bloqueada mesmo sem ocorrência no ID de Ana.",
     newspaper_correct=NewspaperArticle("AUDITORIA IMPEDE QUE UM ZERO CUSTE A PROMOÇÃO DE ANA RIBEIRO", "A conferência dos IDs separou dois homônimos do mesmo setor. O registro disciplinar voltou ao prontuário correto e a promoção de Ana será reavaliada.", "newspaper/identity_correct_v2.png"),
     newspaper_incorrect=NewspaperArticle("ERRO ENTRE O E ZERO CUSTA PROMOÇÃO A ANA; EMPRESA PAGARÁ R$ 620 MIL", "A companhia confirmou a punição usando o registro de Artur Ribeiro. Ana perdeu salário e progressão por oito meses antes de a troca ser descoberta na Justiça do Trabalho.", "newspaper/identity_wrong_v2.png"),
+    search_records=(
+        SearchRecord("Ana Ribeiro — LAB-4827O", "Diretório funcional", "Técnica de laboratório, Controle de Qualidade, turno diurno. Cadastro ativo sem ocorrência disciplinar.", ("ana", "ribeiro", "lab-4827o", "diurno", "controle")),
+        SearchRecord("Artur Ribeiro — LAB-48270", "Diretório funcional", "Técnico de laboratório, Controle de Qualidade, turno noturno. Há uma ocorrência vinculada ao registro.", ("artur", "ribeiro", "lab-48270", "noturno", "controle")),
+        SearchRecord("RD-0607-118 — A. Ribeiro", "Segurança e conformidade", "Ocorrência registrada às 23:40 para o ID LAB-48270. Turno noturno.", ("rd-0607-118", "a ribeiro", "lab-48270", "ocorrencia", "23:40")),
+        SearchRecord("Amanda Ribeiro — LAB-4827Q", "Diretório funcional", "Assistente administrativa, setor de Compras. Cadastro sem relação com o Núcleo Orbital.", ("amanda", "ribeiro", "lab-4827q", "compras")),
+        SearchRecord("PR-204-77 — pedido de promoção", "Comitê de desenvolvimento", "Beneficiária LAB-4827O. Solicitação para Analista de Dados Jr., nota 94/100.", ("pr-204-77", "lab-4827o", "promocao", "analista")),
+        SearchRecord("LAB-48270 — histórico de acesso", "Controle de temperatura", "Credencial usada no laboratório durante o turno noturno de 07/06/2026.", ("lab-48270", "acesso", "temperatura", "07/06/2026")),
+        SearchRecord("LAB-4827O — autenticação", "Portal de pessoas", "Último acesso às 16:12. A letra final do identificador é O.", ("lab-4827o", "autenticacao", "letra o", "16:12")),
+    ),
 )
 
 
@@ -542,6 +560,16 @@ CASE_06 = AuditCase(
     incorrect_feedback="A carga foi decidida automaticamente apesar das divergências materiais.",
     newspaper_correct=NewspaperArticle("REVISÃO HUMANA ENCONTRA 478 QUILOS DE COCAÍNA SOB CARGA DE CASACOS", "A diferença de peso, o lacre divergente e a imagem inconclusiva levaram à abertura do contêiner. A droga estava oculta nas três últimas fileiras.", "newspaper/cargo_correct.png"),
     newspaper_incorrect=NewspaperArticle("CONTÊINER DE 'ROUPAS' LEVA 478 QUILOS DE COCAÍNA AO MEDITERRÂNEO", "A IA liberou a carga porque o manifesto parecia regular. A polícia espanhola apreendeu o contêiner em Valência e perguntou por que ninguém conferiu os 478 quilos extras.", "newspaper/cargo_wrong.png"),
+    search_records=(
+        SearchRecord("MEDU-771204 — escala Valparaíso", "Base portuária integrada", "Contêiner aguardando decisão de liberação. Peso bruto 22.558 kg e alerta de divergência documental.", ("medu-771204", "valparaiso", "22558", "divergencia")),
+        SearchRecord("PSC-88417 — conhecimento de embarque", "Pacífico Sul Cargas", "Carga declarada: 1.920 caixas de roupas. Lacre informado pelo exportador: CL-7718.", ("psc-88417", "medu-771204", "cl-7718", "roupas")),
+        SearchRecord("CL-7718 — lacre emitido", "Registro de lacres", "Lacre entregue ao exportador às 18:10 e declarado no manifesto PSC-88417.", ("cl-7718", "lacre", "psc-88417", "18:10")),
+        SearchRecord("CL-771B — leitura fotográfica", "Câmeras do terminal", "Leitura de baixa luminosidade associada à balança 04. Caractere final classificado como B com 78% de confiança.", ("cl-771b", "lacre", "balanca", "camera", "78")),
+        SearchRecord("SCAN-88204 — imagem inconclusiva", "Inspeção não intrusiva", "Massa orgânica estimada entre 460 e 500 kg. Tecido comprimido não pode ser descartado.", ("scan-88204", "medu-771204", "460", "500", "massa")),
+        SearchRecord("MEDU-771240 — contêiner refrigerado", "Base portuária integrada", "Código semelhante, carga de frutas. Nenhuma divergência registrada.", ("medu-771240", "frutas", "refrigerado")),
+        SearchRecord("ADU-REV-12 — limite de decisão", "Normas aduaneiras", "Divergência de lacre ou peso acima de 120 kg exige inspeção por fiscal.", ("adu-rev-12", "lacre", "peso", "120", "fiscal")),
+        SearchRecord("Pacífico Sul Cargas — perfil", "Cadastro de operadores", "Transportadora ativa. Regularidade cadastral não substitui inspeção física de uma carga específica.", ("pacifico sul", "transportadora", "operador", "inspecao")),
+    ),
 )
 
 

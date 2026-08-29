@@ -15,6 +15,7 @@ from src.ui.ai_decision_panel import AIDecisionPanel
 from src.ui.case_dialog import CaseDialog, STAMP_LABELS
 from src.ui.case_document import CaseDocument
 from src.ui.case_hint import CaseHint
+from src.ui.database_search import DatabaseSearch
 from src.ui.document_inspector import DocumentInspector
 from src.ui.newspaper import FinalNewspaper
 from src.ui.pause_menu import PauseMenu
@@ -131,6 +132,7 @@ class AuditScene(Scene):
         self.document_inspector = DocumentInspector(self.case.evidence_summary)
         self.case_dialog = CaseDialog(self.case)
         self.case_hint = CaseHint(self.case)
+        self.database_search = DatabaseSearch(self.case, audio)
         self.newspaper = FinalNewspaper(self._load_newspaper_images())
         self.pause_menu = PauseMenu(
             audio,
@@ -153,6 +155,7 @@ class AuditScene(Scene):
 
     def on_exit(self) -> None:
         self.pause_menu.close()
+        self.database_search.close()
 
     def handle_escape(self) -> bool:
         if self.pause_menu.is_open:
@@ -161,6 +164,9 @@ class AuditScene(Scene):
             return True
         if self.newspaper.is_open:
             return self.newspaper.handle_escape()
+        if self.database_search.is_open:
+            self.database_search.close()
+            return True
         if self.case_hint.is_open:
             self.case_hint.close()
             return True
@@ -187,6 +193,12 @@ class AuditScene(Scene):
                 self.manager.switch_to("main_menu")
             return
         if self.newspaper_transition is not None:
+            return
+        if self.database_search.is_open:
+            self.database_search.handle_event(
+                event,
+                self.scene_to_monitor(self.input_manager.mouse_position),
+            )
             return
         if event.type == pygame.MOUSEWHEEL and self.document_inspector.is_open:
             self.document_inspector.handle_wheel(
@@ -217,6 +229,14 @@ class AuditScene(Scene):
         if event.type == pygame.KEYDOWN:
             if self.newspaper.is_open:
                 self.newspaper.handle_key_down(event.key)
+                return
+            if (
+                event.key == pygame.K_f
+                and getattr(event, "mod", 0) & pygame.KMOD_CTRL
+                and not self._is_modal_open()
+            ):
+                if self.database_search.open():
+                    self._play_sound("click")
                 return
             if not self._is_modal_open():
                 self.protocol_panel.handle_key_down(event.key)
@@ -253,6 +273,7 @@ class AuditScene(Scene):
         self.ai_decision_panel.update_hover(monitor_position)
         self.case_dialog.update_hover(monitor_position)
         self.case_hint.update_hover(monitor_position)
+        self.database_search.update_hover(monitor_position)
         self.newspaper.update_hover(monitor_position)
         self._update_desk_controls_hover(monitor_position)
         self.submit_hovered = bool(
@@ -472,6 +493,9 @@ class AuditScene(Scene):
             return
 
         if monitor_position is not None:
+            if self.database_search.handle_launcher_click(monitor_position):
+                self._play_sound("click")
+                return
             hint_action = self.case_hint.handle_mouse_down(monitor_position)
             if hint_action is not None:
                 self._play_sound("hint" if hint_action == "open" else "click")
@@ -628,6 +652,7 @@ class AuditScene(Scene):
         self.ai_decision_panel = AIDecisionPanel(self.case)
         self.case_dialog = CaseDialog(self.case)
         self.case_hint = CaseHint(self.case)
+        self.database_search.set_case(self.case)
         self.protocol_panel.close_popup()
         self._clear_stamp_selection()
         self.hovered_desk_control = None
@@ -708,6 +733,7 @@ class AuditScene(Scene):
             document.render(self.monitor_surface)
         self.monitor_surface.set_clip(previous_clip)
         self._render_case_progress(self.monitor_surface)
+        self.database_search.render_launcher(self.monitor_surface)
         self.case_hint.render_button(self.monitor_surface)
         self._render_desk_zoom_controls(self.monitor_surface)
         if self.case_completed:
@@ -751,6 +777,8 @@ class AuditScene(Scene):
         self.popup_surface.fill((0, 0, 0, 0))
         if self.newspaper.is_open:
             self.newspaper.render(self.popup_surface)
+        elif self.database_search.is_open:
+            self.database_search.render(self.popup_surface)
         elif self.case_hint.is_open:
             self.case_hint.render_popup(self.popup_surface)
         elif self.case_dialog.is_open:
@@ -902,6 +930,7 @@ class AuditScene(Scene):
         return (
             self.newspaper_transition is not None
             or self.newspaper.is_open
+            or self.database_search.is_open
             or self.case_hint.is_open
             or self.case_dialog.is_open
             or self.protocol_panel.is_popup_open

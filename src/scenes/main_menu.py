@@ -28,7 +28,48 @@ RED = (176, 63, 45)
 GREEN = (100, 158, 72)
 LINE = (58, 75, 51)
 
-MAIN_COMMANDS = ("INICIAR TURNO", "CONFIGURAÇÕES", "CRÉDITOS")
+MAIN_COMMANDS = ("INICIAR TURNO", "TREINAMENTO", "CONFIGURAÇÕES", "CRÉDITOS")
+TUTORIAL_PAGES = (
+    (
+        "01 // LEIA E CRUZE",
+        "Nenhum documento conta a história inteira.",
+        (
+            "Abra os documentos e a decisão da IA.",
+            "Compare nomes, IDs, datas, contas e permissões.",
+            "Consulte o protocolo quando a regra não estiver clara.",
+        ),
+    ),
+    (
+        "02 // PESQUISE",
+        "Alguns rastros só aparecem na base interna.",
+        (
+            "Abra BASE INTERNA ou pressione CTRL + F.",
+            "Digite um nome, ID, código ou empresa e pressione ENTER.",
+            "Resultados parecidos podem pertencer a pessoas diferentes.",
+        ),
+    ),
+    (
+        "03 // DECIDA",
+        "O carimbo responde à decisão da IA, não ao seu humor.",
+        (
+            "APROVAR: a decisão e os dados estão corretos.",
+            "NEGAR: há erro objetivo na decisão.",
+            "REVISÃO ou VIOLAÇÃO: use apenas quando o protocolo exigir.",
+        ),
+    ),
+    (
+        "04 // ENVIE",
+        "Uma decisão confirmada produz consequências.",
+        (
+            "Carimbe o documento de decisão final.",
+            "Confirme e envie para receber o próximo caso.",
+            "Ao fim do turno, o noticiário revela o que aconteceu.",
+        ),
+    ),
+)
+TUTORIAL_BACK_RECT = pygame.Rect(455, 804, 190, 48)
+TUTORIAL_PREV_RECT = pygame.Rect(1188, 804, 84, 48)
+TUTORIAL_NEXT_RECT = pygame.Rect(1284, 804, 136, 48)
 TEAM = (
     "CAUÃ DANIEL ABREU",
     "LETÍCIA FAUSTINO SORCHETI",
@@ -55,6 +96,8 @@ class MainMenuScene(Scene):
         self.preferences = self.preferences_provider()
         self.view = "main"
         self.main_selection = 0
+        self.tutorial_page = 0
+        self.tutorial_hovered: str | None = None
         self.elapsed = 0.0
         self.parallax = pygame.Vector2()
         self.head_offset = (0, 0)
@@ -66,6 +109,8 @@ class MainMenuScene(Scene):
         ).convert()
         self.screen_noise = self._build_screen_noise()
         self.scanlines = self._build_scanlines()
+        self.screen_mask = self._build_screen_mask()
+        self.screen_layer = pygame.Surface((VIRTUAL_WIDTH, VIRTUAL_HEIGHT), pygame.SRCALPHA)
 
         self.font_tiny = self._font(16)
         self.font_small = self._font(20)
@@ -75,7 +120,7 @@ class MainMenuScene(Scene):
         self.font_section = self._font(39, bold=True)
 
         self.main_rects = tuple(
-            pygame.Rect(1035, 354 + index * 94, 390, 70)
+            pygame.Rect(1035, 330 + index * 80, 390, 62)
             for index in range(len(MAIN_COMMANDS))
         )
         self.credits_back_rect = pygame.Rect(1190, 770, 230, 58)
@@ -93,6 +138,8 @@ class MainMenuScene(Scene):
         self.head_offset = (0, 0)
         self.view = "main"
         self.main_selection = 0
+        self.tutorial_page = 0
+        self.tutorial_hovered = None
         if self.audio is not None:
             self.audio.play_music_sequence(("menu",), fade_ms=700)
 
@@ -126,6 +173,16 @@ class MainMenuScene(Scene):
                 self._play_click()
                 self.view = "main"
             return
+        if self.view == "tutorial":
+            if event.key in (pygame.K_LEFT, pygame.K_a):
+                self._change_tutorial_page(-1)
+            elif event.key in (pygame.K_RIGHT, pygame.K_d, pygame.K_RETURN, pygame.K_SPACE):
+                if self.tutorial_page == len(TUTORIAL_PAGES) - 1:
+                    self._play_click()
+                    self.view = "main"
+                else:
+                    self._change_tutorial_page(1)
+            return
         if event.key in (pygame.K_UP, pygame.K_w):
             self.main_selection = (self.main_selection - 1) % len(MAIN_COMMANDS)
             self._play_click(0.5)
@@ -158,17 +215,22 @@ class MainMenuScene(Scene):
 
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.background, (0, 0))
-        old_clip = surface.get_clip()
-        surface.set_clip(CRT_SCREEN_RECT)
-        self._render_screen_base(surface)
+        self.screen_layer.fill((0, 0, 0, 0))
+        self._render_screen_base(self.screen_layer)
         if self.view == "main":
-            self._render_main(surface)
+            self._render_main(self.screen_layer)
         elif self.view == "settings":
-            self.settings.render(surface)
+            self.settings.render(self.screen_layer)
+        elif self.view == "tutorial":
+            self._render_tutorial(self.screen_layer)
         else:
-            self._render_credits(surface)
-        self._render_screen_finish(surface)
-        surface.set_clip(old_clip)
+            self._render_credits(self.screen_layer)
+        self._render_screen_finish(self.screen_layer)
+
+        screen_content = self.screen_layer.subsurface(CRT_SCREEN_RECT).copy()
+        screen_content.blit(self.screen_mask, (0, 0), special_flags=pygame.BLEND_RGBA_MULT)
+        surface.blit(screen_content, CRT_SCREEN_RECT.topleft)
+        self._render_inner_bezel(surface)
 
     def _update_hover(self, pointer: tuple[int, int] | None) -> None:
         if pointer is None:
@@ -177,6 +239,16 @@ class MainMenuScene(Scene):
             for index, rect in enumerate(self.main_rects):
                 if rect.collidepoint(pointer):
                     self.main_selection = index
+                    return
+        elif self.view == "tutorial":
+            self.tutorial_hovered = None
+            for action, rect in (
+                ("back", TUTORIAL_BACK_RECT),
+                ("previous", TUTORIAL_PREV_RECT),
+                ("next", TUTORIAL_NEXT_RECT),
+            ):
+                if rect.collidepoint(pointer):
+                    self.tutorial_hovered = action
                     return
 
     def _handle_click(self, pointer: tuple[int, int] | None) -> None:
@@ -187,6 +259,18 @@ class MainMenuScene(Scene):
                 if rect.collidepoint(pointer):
                     self._activate_main_command(index)
                     return
+        elif self.view == "tutorial":
+            if TUTORIAL_BACK_RECT.collidepoint(pointer):
+                self._play_click()
+                self.view = "main"
+            elif TUTORIAL_PREV_RECT.collidepoint(pointer):
+                self._change_tutorial_page(-1)
+            elif TUTORIAL_NEXT_RECT.collidepoint(pointer):
+                if self.tutorial_page == len(TUTORIAL_PAGES) - 1:
+                    self._play_click()
+                    self.view = "main"
+                else:
+                    self._change_tutorial_page(1)
         elif self.credits_back_rect.collidepoint(pointer):
             self._play_click()
             self.view = "main"
@@ -196,6 +280,9 @@ class MainMenuScene(Scene):
         if index == 0:
             self.manager.switch_to("audit")
         elif index == 1:
+            self.tutorial_page = 0
+            self.view = "tutorial"
+        elif index == 2:
             self.settings.open(self.preferences)
             self.view = "settings"
         else:
@@ -211,8 +298,8 @@ class MainMenuScene(Scene):
             self._text(surface, "SISTEMA DE AUDITORIA // ESTAÇÃO 04", self.font_tiny, INK_MUTED, (455, 224))
             pulse = (math.sin(self.elapsed * 2.7) + 1.0) * 0.5
             led = (70 + round(pulse * 35), 130 + round(pulse * 35), 55)
-            pygame.draw.circle(surface, led, (1424, 230), 5)
-            self._text(surface, "ONLINE", self.font_tiny, GREEN, (1439, 220))
+            pygame.draw.circle(surface, led, (1365, 230), 5)
+            self._text(surface, "ONLINE", self.font_tiny, GREEN, (1380, 220))
             pygame.draw.line(surface, LINE, (450, 254), (1470, 254), 2)
 
     def _render_main(self, surface: pygame.Surface) -> None:
@@ -239,8 +326,8 @@ class MainMenuScene(Scene):
                     ((rect.right - 26, rect.centery - 8), (rect.right - 12, rect.centery), (rect.right - 26, rect.centery + 8)),
                 )
             pygame.draw.line(surface, LINE, rect.bottomleft, rect.bottomright, 2)
-            self._text(surface, f"0{index + 1}", self.font_tiny, AMBER if active else INK_MUTED, (rect.x + 20, rect.y + 26))
-            self._text(surface, label, self.font_body_bold, INK_BRIGHT if active else INK, (rect.x + 67, rect.y + 20))
+            self._text(surface, f"0{index + 1}", self.font_tiny, AMBER if active else INK_MUTED, (rect.x + 20, rect.y + 22))
+            self._text(surface, label, self.font_body_bold, INK_BRIGHT if active else INK, (rect.x + 67, rect.y + 16))
 
         trace = []
         for x in range(460, 955, 16):
@@ -248,6 +335,80 @@ class MainMenuScene(Scene):
             trace.append((x, y))
         pygame.draw.lines(surface, (64, 102, 61), False, trace, 2)
         self._text(surface, "SNCT 2026 // VERSÃO 0.1", self.font_tiny, INK_MUTED, (455, 750))
+
+    def _render_tutorial(self, surface: pygame.Surface) -> None:
+        title, lead, instructions = TUTORIAL_PAGES[self.tutorial_page]
+        self._text(surface, "TREINAMENTO DE AUDITORIA", self.font_tiny, AMBER, (455, 294))
+        self._text(surface, title, self.font_section, INK_BRIGHT, (455, 330))
+        self._text(surface, lead, self.font_small, INK, (458, 394))
+        pygame.draw.line(surface, LINE, (455, 438), (965, 438), 2)
+
+        y = 474
+        for index, instruction in enumerate(instructions, start=1):
+            pygame.draw.rect(surface, (18, 27, 20), pygame.Rect(457, y - 5, 40, 34))
+            pygame.draw.rect(surface, LINE, pygame.Rect(457, y - 5, 40, 34), 2)
+            self._text(surface, f"{index:02d}", self.font_tiny, AMBER, (477, y + 3), "center")
+            self._draw_wrapped(surface, instruction, self.font_small, INK, pygame.Rect(515, y - 2, 440, 56))
+            y += 86
+
+        pygame.draw.line(surface, LINE, (995, 294), (995, 755), 2)
+        self._render_tutorial_diagram(surface)
+
+        page_text = f"{self.tutorial_page + 1:02d} / {len(TUTORIAL_PAGES):02d}"
+        self._text(surface, page_text, self.font_tiny, INK_MUTED, (1100, 820), "center")
+        self._draw_button(surface, TUTORIAL_BACK_RECT, "VOLTAR", self.tutorial_hovered == "back")
+        self._draw_button(surface, TUTORIAL_PREV_RECT, "<", self.tutorial_hovered == "previous")
+        next_label = "CONCLUIR" if self.tutorial_page == len(TUTORIAL_PAGES) - 1 else ">"
+        self._draw_button(surface, TUTORIAL_NEXT_RECT, next_label, self.tutorial_hovered == "next")
+
+    def _render_tutorial_diagram(self, surface: pygame.Surface) -> None:
+        panel = pygame.Rect(1035, 326, 390, 388)
+        pygame.draw.rect(surface, (7, 14, 10), panel)
+        pygame.draw.rect(surface, LINE, panel, 2)
+
+        if self.tutorial_page == 0:
+            for index, (x, y, color) in enumerate(((1081, 397, AMBER), (1165, 366, GREEN), (1249, 420, RED))):
+                paper = pygame.Rect(x, y, 138, 186)
+                pygame.draw.rect(surface, (192, 184, 139), paper)
+                pygame.draw.rect(surface, color, paper, 4)
+                self._text(surface, f"DOC 0{index + 1}", self.font_tiny, (42, 46, 34), (paper.x + 14, paper.y + 18))
+                for line_y in range(paper.y + 57, paper.bottom - 18, 24):
+                    pygame.draw.line(surface, (91, 91, 68), (paper.x + 14, line_y), (paper.right - 14, line_y), 2)
+        elif self.tutorial_page == 1:
+            search = pygame.Rect(1072, 372, 316, 54)
+            pygame.draw.rect(surface, (15, 24, 18), search)
+            pygame.draw.rect(surface, AMBER, search, 2)
+            self._text(surface, "LAB-48270_", self.font_small, INK_BRIGHT, (1090, 388))
+            for index, label in enumerate(("ANA RIBEIRO // LAB-4827O", "ARTUR RIBEIRO // LAB-48270", "AMANDA RIBEIRO // LAB-4827Q")):
+                result = pygame.Rect(1072, 454 + index * 66, 316, 52)
+                pygame.draw.rect(surface, (25, 34, 25) if index == 1 else (10, 18, 13), result)
+                pygame.draw.rect(surface, AMBER if index == 1 else LINE, (result.x, result.y, 4, result.height))
+                self._text(surface, label, self.font_tiny, INK_BRIGHT if index == 1 else INK_MUTED, (result.x + 14, result.y + 17))
+        elif self.tutorial_page == 2:
+            labels = (("APROVAR", GREEN), ("NEGAR", RED), ("REVISÃO", AMBER), ("VIOLAÇÃO", (142, 78, 151)))
+            for index, (label, color) in enumerate(labels):
+                stamp = pygame.Rect(1068 + (index % 2) * 168, 376 + (index // 2) * 130, 150, 94)
+                pygame.draw.rect(surface, (21, 25, 20), stamp)
+                pygame.draw.rect(surface, color, stamp, 3)
+                pygame.draw.circle(surface, color, (stamp.centerx, stamp.y + 29), 14, 3)
+                self._text(surface, label, self.font_tiny, color, (stamp.centerx, stamp.y + 60), "center")
+        else:
+            page = pygame.Rect(1103, 356, 255, 320)
+            pygame.draw.rect(surface, (211, 202, 157), page)
+            pygame.draw.rect(surface, (91, 81, 57), page, 3)
+            self._text(surface, "NOTICIÁRIO DO DIA", self.font_body_bold, (40, 42, 32), (page.centerx, page.y + 28), "center")
+            pygame.draw.line(surface, (70, 63, 45), (page.x + 18, page.y + 67), (page.right - 18, page.y + 67), 3)
+            self._draw_wrapped(surface, "AUDITORIA EVITA PREJUÍZO MILIONÁRIO", self.font_small, (54, 51, 36), pygame.Rect(page.x + 20, page.y + 88, page.width - 40, 74))
+            pygame.draw.rect(surface, (95, 105, 77), pygame.Rect(page.x + 20, page.y + 176, page.width - 40, 88))
+            for line_y in (page.y + 284, page.y + 302):
+                pygame.draw.line(surface, (101, 94, 67), (page.x + 20, line_y), (page.right - 20, line_y), 2)
+
+    def _change_tutorial_page(self, direction: int) -> None:
+        next_page = max(0, min(len(TUTORIAL_PAGES) - 1, self.tutorial_page + direction))
+        if next_page == self.tutorial_page:
+            return
+        self.tutorial_page = next_page
+        self._play_click(0.55)
 
     def _render_credits(self, surface: pygame.Surface) -> None:
         self._text(surface, "CRÉDITOS", self.font_section, INK_BRIGHT, (500, 292))
@@ -273,6 +434,20 @@ class MainMenuScene(Scene):
             line_y = round(CRT_SCREEN_RECT.height / 2)
             pygame.draw.line(boot, (202, 226, 164, round(210 * (1.0 - progress))), (90, line_y), (CRT_SCREEN_RECT.width - 90, line_y), 3)
             surface.blit(boot, CRT_SCREEN_RECT.topleft)
+
+    @staticmethod
+    def _render_inner_bezel(surface: pygame.Surface) -> None:
+        shadow = pygame.Surface(CRT_SCREEN_RECT.size, pygame.SRCALPHA)
+        bounds = pygame.Rect(5, 3, CRT_SCREEN_RECT.width - 10, CRT_SCREEN_RECT.height - 7)
+        for width, alpha in ((24, 48), (15, 38), (8, 28)):
+            pygame.draw.rect(
+                shadow,
+                (0, 0, 0, alpha),
+                bounds,
+                width,
+                border_radius=102,
+            )
+        surface.blit(shadow, CRT_SCREEN_RECT.topleft)
 
     def _corrected_pointer(self, pointer: tuple[int, int] | None) -> tuple[int, int] | None:
         if pointer is None:
@@ -307,6 +482,17 @@ class MainMenuScene(Scene):
             pygame.draw.line(overlay, (0, 0, 0, 31), (0, y), (CRT_SCREEN_RECT.width, y))
         return overlay
 
+    @staticmethod
+    def _build_screen_mask() -> pygame.Surface:
+        mask = pygame.Surface(CRT_SCREEN_RECT.size, pygame.SRCALPHA)
+        pygame.draw.rect(
+            mask,
+            (255, 255, 255, 255),
+            pygame.Rect(6, 3, CRT_SCREEN_RECT.width - 12, CRT_SCREEN_RECT.height - 8),
+            border_radius=100,
+        )
+        return mask
+
     def _play_click(self, volume: float = 0.8) -> None:
         if self.audio is not None:
             self.audio.play("click", volume)
@@ -328,3 +514,26 @@ class MainMenuScene(Scene):
         rect = rendered.get_rect()
         setattr(rect, anchor, position)
         surface.blit(rendered, rect)
+
+    @classmethod
+    def _draw_wrapped(
+        cls,
+        surface: pygame.Surface,
+        text: str,
+        font: pygame.font.Font,
+        color: tuple[int, int, int],
+        rect: pygame.Rect,
+    ) -> None:
+        words = text.split()
+        line = ""
+        y = rect.y
+        for word in words:
+            candidate = f"{line} {word}".strip()
+            if not line or font.size(candidate)[0] <= rect.width:
+                line = candidate
+                continue
+            cls._text(surface, line, font, color, (rect.x, y))
+            y += font.get_linesize()
+            line = word
+        if line and y < rect.bottom:
+            cls._text(surface, line, font, color, (rect.x, y))

@@ -49,9 +49,12 @@ O projeto está conectado ao repositório
 
 ## Controles atuais
 
-- O menu inicial usa uma estação CRT animada e permite iniciar o turno, abrir as
-  configurações ou consultar os créditos. Todas as opções funcionam por mouse ou
-  teclado, e o aparelho acompanha o cursor com um movimento sutil.
+- O menu inicial usa uma estação CRT animada e permite iniciar o turno, fazer o
+  treinamento, abrir as configurações ou consultar os créditos. Todas as opções
+  funcionam por mouse ou teclado, e o aparelho acompanha o cursor com um movimento
+  sutil. A interface é recortada pela curvatura do vidro e permanece dentro do visor.
+- Em `TREINAMENTO`, use `A`/`D`, `←`/`→`, `Enter` ou os botões na tela para aprender
+  o fluxo de leitura, pesquisa, decisão e envio.
 - Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,
   alterar a resolução, alternar entre janela e tela cheia e ajustar separadamente
   os volumes da música e dos efeitos. O jogo preserva a imagem original com barras
@@ -66,6 +69,9 @@ O projeto está conectado ao repositório
   tela central, sem invadir os outros setores.
 - Clique em `? DICA` para receber uma pista e abrir diretamente o protocolo
   recomendado para o caso atual.
+- Quando `BASE INTERNA` estiver disponível, clique nela ou pressione `Ctrl+F`.
+  Digite um nome, ID, código ou empresa e pressione `Enter`. Use `↑`/`↓` ou a roda
+  do mouse para percorrer resultados e comparar cadastros parecidos.
 - Clique na lupa de um documento ou dê dois cliques nele para inspecioná-lo.
 - Na inspeção, use a roda do mouse ou os botões `+` e `-` para controlar o zoom.
 - Clique na porcentagem do zoom da inspeção para voltar a `100%`.
@@ -98,7 +104,8 @@ documentos e encontrar a informação decisiva entre dados que parecem coerentes
 
 1. **Correspondência suficiente:** a IA separa corretamente dois códigos quase
    idênticos; o jogador precisa confirmar que o registro disciplinar é de Artur,
-   não de Ana, antes de aceitar a promoção.
+   não de Ana, antes de aceitar a promoção. A base interna permite pesquisar os
+   homônimos, o pedido e o registro de segurança.
 2. **Lote 28800:** a capacidade declarada pela HEIN só fecha quando doze crachás de
    visitante entram na conta. Log de máquinas, datas de nascimento e um termo de
    visita revelam estudantes operando a linha de uniformes escolares.
@@ -110,7 +117,8 @@ documentos e encontrar a informação decisiva entre dados que parecem coerentes
    e reduz a nota de uma funcionária com desempenho superior.
 6. **Carga MEDU-771204:** lacre, peso e scanner entram em conflito numa
    carga de casacos; há suspeita séria, mas não prova suficiente para decisão
-   automática.
+   automática. A base interna inclui códigos de carga quase idênticos e registros
+   de scanner, aduana e transportadora.
 
 Os casos privilegiam IDs, datas, quantidades, contratos, permissões e contas
 verificáveis. As escolhas não são corrigidas imediatamente. Ao fim do turno, o
@@ -176,6 +184,7 @@ sob_analise/
         ├── case_dialog.py        # Chamado e confirmação do carimbo
         ├── case_document.py      # Papel arrastável, lupa e marca aplicada
         ├── case_hint.py          # Dica contextual e atalho para o protocolo
+        ├── database_search.py    # Pesquisa digitada na base interna do caso
         ├── document_inspector.py # Zoom, navegação e caderno de evidências
         ├── newspaper.py          # Jornal final paginado, matérias e placar
         ├── pause_menu.py         # Pausa, retorno ao menu e acesso às configurações
