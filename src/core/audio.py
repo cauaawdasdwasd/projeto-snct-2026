@@ -17,7 +17,7 @@ class AudioManager:
     SOUND_PATHS = {
         "click": "sfx/retro_click.mp3",
         "toggle": "sfx/retro_click_alt.mp3",
-        "document": "sfx/click_mouse_2.mp3",
+        "document": "sfx/ui_click.wav",
         "typing": "sfx/retro_typing.mp3",
         "forward": "sfx/transition_forward.mp3",
         "back": "sfx/transition_back.mp3",

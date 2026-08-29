@@ -637,7 +637,7 @@ class AuditScene(Scene):
             if document.contains_inspect_button(monitor_position) or click_count >= 2:
                 self.document_inspector.open(document)
                 self.inspected_document_ids.add(document.document_id)
-                self._play_sound("document")
+                self._play_sound("document", 0.62)
                 return
 
             document.start_drag(monitor_position)
