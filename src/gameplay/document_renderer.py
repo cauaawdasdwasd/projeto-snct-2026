@@ -43,6 +43,7 @@ class RenderedDocument:
     surface: pygame.Surface
     evidence_regions: tuple[EvidenceRegion, ...] = ()
     stamp_target: pygame.Rect | None = None
+    signature_target: pygame.Rect | None = None
 
 
 class DocumentRenderer:
@@ -168,7 +169,14 @@ class DocumentRenderer:
         self._draw_text(surface, "APLIQUE O CARIMBO AQUI", self.font_field, PAPER_DARK, stamp_target.center, anchor="center")
         self._draw_text(surface, "O registro encerra o caso.", self.font_tiny, INK_MUTED, (190, 663))
         self._draw_signature_line(surface, "Auditor responsável", (326, 735), 255)
-        return RenderedDocument("final", "Folha de auditoria", surface, stamp_target=stamp_target)
+        signature_target = pygame.Rect(310, 696, 290, 88)
+        return RenderedDocument(
+            "final",
+            "Folha de auditoria",
+            surface,
+            stamp_target=stamp_target,
+            signature_target=signature_target,
+        )
 
     def _new_paper(
         self,

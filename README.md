@@ -49,17 +49,20 @@ O projeto está conectado ao repositório
 
 ## Controles atuais
 
-- O menu inicial usa uma estação CRT animada e permite iniciar o turno, fazer o
-  treinamento, abrir as configurações ou consultar os créditos. Todas as opções
-  funcionam por mouse ou teclado, e o aparelho acompanha o cursor com um movimento
-  sutil. A interface é recortada pela curvatura do vidro e permanece dentro do visor.
-- Em `TREINAMENTO`, use `A`/`D`, `←`/`→`, `Enter` ou os botões na tela para aprender
-  o fluxo de leitura, pesquisa, decisão e envio.
+- O menu inicial usa uma estação CRT animada e permite iniciar o turno, abrir as
+  configurações ou consultar os créditos. Todas as opções funcionam por mouse ou
+  teclado, e o aparelho acompanha o cursor com um movimento sutil. A interface é
+  recortada pela curvatura do vidro e permanece dentro do visor.
 - Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,
   alterar a resolução, alternar entre janela e tela cheia e ajustar separadamente
   os volumes da música e dos efeitos. O jogo preserva a imagem original com barras
   quando a janela não é `16:9`, sem esticar a interface.
 - Leia o chamado e clique em `ABRIR CASO`.
+- A faixa `PASSO 1/5` indica a próxima ação: abrir a decisão da IA, escolher
+  documentos, comparar dados, carimbar e assinar.
+- A mesa começa apenas com a folha de auditoria. Em `DADOS UTILIZADOS`, clique numa
+  fonte para colocá-la na mesa; clique novamente para retirá-la. O indicador verde
+  mostra quais documentos estão visíveis.
 - Clique e arraste os documentos para reorganizá-los sobre a mesa.
 - Use `-`, `100%` e `+` no canto da mesa para diminuir, restaurar ou ampliar todos
   os documentos até `180%`. A roda do mouse também controla esse zoom quando está
@@ -77,8 +80,8 @@ O projeto está conectado ao repositório
 - Clique na porcentagem do zoom da inspeção para voltar a `100%`.
 - Com o documento ampliado, arraste o papel para examinar outras regiões.
 - Clique em campos relevantes, como os IDs, para anotá-los no caderno de evidências.
-- Clique em `ABRIR DECISÃO` para consultar a justificativa e os dados usados pela IA.
-- Clique nos itens de `DADOS UTILIZADOS` para localizar o documento correspondente.
+- Clique em `ABRIR DECISÃO` para ver, em sequência, os dados consultados, o que a IA
+  fez com eles e qual comparação precisa ser auditada.
 - Em `DADOS UTILIZADOS`, use a roda do mouse, as setas da barra ou arraste o
   indicador para consultar as demais fontes.
 - Clique em um protocolo para abrir a ficha completa.
@@ -86,7 +89,8 @@ O projeto está conectado ao repositório
 - Clique no `X` ou pressione `Esc` para fechar um protocolo.
 - Selecione um carimbo e clique na área indicada da `DECISÃO FINAL`.
 - Confirme a decisão para aplicar a marca permanentemente sobre o papel.
-- Confira o papel carimbado e clique em `ENVIAR / PRÓXIMO CASO`.
+- Depois do carimbo, clique na linha `Auditor responsável` para assinar a folha.
+- Confira o papel carimbado e assinado e clique em `ENVIAR / PRÓXIMO CASO`.
 - Ao concluir o sexto caso, o monitor desliga e o noticiário do dia é revelado.
 - No jornal, use os botões laterais, `A`/`D` ou `←`/`→` para folhear as matérias.
 - A música muda entre o menu e o turno. Durante a auditoria, duas faixas se
@@ -198,6 +202,15 @@ sob_analise/
 A interface já reserva um quadro 16:9 para os tutoriais. Os arquivos finais devem
 seguir os nomes documentados em `assets/videos/README.md`. A reprodução dentro do
 PyGame será ligada quando os vídeos estiverem disponíveis.
+
+## Tutorial de abertura planejado
+
+O tutorial definitivo não será uma opção separada do menu. Ao selecionar
+`INICIAR TURNO`, o monitor deverá apagar e iniciar uma apresentação curta com voz,
+texto digitado e instruções contextuais. A primeira auditoria funcionará como caso
+real e tutorial ao mesmo tempo: a narração libera, em sequência, a decisão da IA,
+a seleção de documentos, a comparação, o carimbo, a assinatura e o envio. Depois
+disso, os próximos casos mantêm apenas a faixa discreta de orientação da mesa.
 
 ## Decisões técnicas
 

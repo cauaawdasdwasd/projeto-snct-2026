@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from src.core.audio import AudioManager
 
 
-SEARCH_BUTTON_RECT = pygame.Rect(686, 69, 174, 36)
+SEARCH_BUTTON_RECT = pygame.Rect(684, 72, 176, 34)
 SEARCH_INPUT_RECT = pygame.Rect(86, 126, 1110, 52)
 SEARCH_SUBMIT_RECT = pygame.Rect(1212, 126, 244, 52)
 SEARCH_CLOSE_RECT = pygame.Rect(1430, 35, 42, 42)
@@ -147,10 +147,10 @@ class DatabaseSearch:
             return
         pygame.draw.rect(surface, PANEL_SELECTED if self.launcher_hovered else SCREEN_BLACK, SEARCH_BUTTON_RECT)
         pygame.draw.rect(surface, INK_BRIGHT if self.launcher_hovered else LINE, SEARCH_BUTTON_RECT, 2)
-        icon = pygame.Rect(SEARCH_BUTTON_RECT.x + 8, SEARCH_BUTTON_RECT.y + 7, 22, 22)
+        icon = pygame.Rect(SEARCH_BUTTON_RECT.x + 8, SEARCH_BUTTON_RECT.y + 6, 22, 22)
         pygame.draw.circle(surface, AMBER if self.launcher_hovered else INK_MUTED, icon.center, 8, 2)
         pygame.draw.line(surface, AMBER if self.launcher_hovered else INK_MUTED, (icon.centerx + 6, icon.centery + 6), (icon.right, icon.bottom), 2)
-        self._text(surface, "BASE INTERNA", self.font_tiny, INK_BRIGHT if self.launcher_hovered else INK, (SEARCH_BUTTON_RECT.x + 38, SEARCH_BUTTON_RECT.y + 10))
+        self._text(surface, "BASE INTERNA", self.font_tiny, INK_BRIGHT if self.launcher_hovered else INK, (SEARCH_BUTTON_RECT.x + 38, SEARCH_BUTTON_RECT.y + 9))
 
     def render(self, surface: pygame.Surface) -> None:
         surface.fill((3, 7, 6))

@@ -8,6 +8,7 @@ from src.gameplay.document_renderer import EvidenceRegion, RenderedDocument
 PREVIEW_SIZE = (310, 390)
 HIGHLIGHT_COLOR = (244, 216, 65, 78)
 TARGET_COLOR = (244, 216, 65, 122)
+SIGNATURE_COLOR = (43, 62, 75)
 
 
 class CaseDocument:
@@ -24,18 +25,22 @@ class CaseDocument:
         self.source_image = rendered.surface
         self.evidence_regions = rendered.evidence_regions
         self.stamp_target = rendered.stamp_target
+        self.signature_target = rendered.signature_target
         self.rect = pygame.Rect(position, PREVIEW_SIZE)
         self.position = self.rect.topleft
+        self.visible = True
         self.dragging = False
         self.drag_offset = pygame.Vector2(0, 0)
         self.marked_evidence: set[str] = set()
         self.applied_stamp_id: str | None = None
         self.applied_stamp_image: pygame.Surface | None = None
         self.stamp_target_active = False
+        self.signature_target_active = False
+        self.is_signed = False
         self._decorated_cache: pygame.Surface | None = None
 
     def contains_point(self, position: tuple[int, int]) -> bool:
-        return self.rect.collidepoint(position)
+        return self.visible and self.rect.collidepoint(position)
 
     def contains_inspect_button(self, position: tuple[int, int]) -> bool:
         return self.inspect_button_rect.collidepoint(position)
@@ -100,9 +105,19 @@ class CaseDocument:
         return None
 
     def contains_stamp_target(self, monitor_position: tuple[int, int]) -> bool:
-        if self.stamp_target is None or not self.rect.collidepoint(monitor_position):
+        if self.stamp_target is None or not self.contains_point(monitor_position):
             return False
         return self.stamp_target.collidepoint(self.source_position(monitor_position))
+
+    def contains_signature_target(self, monitor_position: tuple[int, int]) -> bool:
+        if self.signature_target is None or not self.contains_point(monitor_position):
+            return False
+        return self.signature_target.collidepoint(self.source_position(monitor_position))
+
+    def set_visible(self, visible: bool) -> None:
+        self.visible = visible
+        if not visible:
+            self.dragging = False
 
     def set_evidence_marked(self, evidence_key: str, marked: bool) -> None:
         if marked:
@@ -115,6 +130,19 @@ class CaseDocument:
         if self.stamp_target_active == active:
             return
         self.stamp_target_active = active
+        self._decorated_cache = None
+
+    def set_signature_target_active(self, active: bool) -> None:
+        if self.signature_target_active == active:
+            return
+        self.signature_target_active = active
+        self._decorated_cache = None
+
+    def sign(self) -> None:
+        if self.signature_target is None:
+            raise ValueError(f"Document {self.document_id} has no signature target")
+        self.is_signed = True
+        self.signature_target_active = False
         self._decorated_cache = None
 
     def place_stamp(self, stamp_id: str, stamp_image: pygame.Surface) -> None:
@@ -142,12 +170,19 @@ class CaseDocument:
                 pygame.draw.rect(overlay, TARGET_COLOR, self.stamp_target)
                 pygame.draw.rect(overlay, (241, 218, 76, 240), self.stamp_target, 6)
 
+            if self.signature_target_active and self.signature_target is not None:
+                pygame.draw.rect(overlay, (91, 143, 168, 58), self.signature_target)
+                pygame.draw.rect(overlay, (70, 116, 139, 220), self.signature_target, 4)
+
             composed.blit(overlay, (0, 0))
             self._blit_stamp(composed)
+            self._blit_signature(composed)
             self._decorated_cache = composed
         return self._decorated_cache
 
     def render(self, surface: pygame.Surface) -> None:
+        if not self.visible:
+            return
         shadow_rect = self.rect.move(8, 8)
         shadow = pygame.Surface(shadow_rect.size, pygame.SRCALPHA)
         shadow.fill((0, 0, 0, 95))
@@ -174,6 +209,22 @@ class CaseDocument:
         )
         stamp = pygame.transform.scale(self.applied_stamp_image, size)
         surface.blit(stamp, stamp.get_rect(center=self.stamp_target.center))
+
+    def _blit_signature(self, surface: pygame.Surface) -> None:
+        if not self.is_signed or self.signature_target is None:
+            return
+        font = pygame.font.SysFont(
+            ("Courier New", "Consolas", "monospace"),
+            27,
+            bold=True,
+            italic=True,
+        )
+        signature = font.render("AUDITOR 04", True, SIGNATURE_COLOR)
+        signature = pygame.transform.rotate(signature, 3)
+        surface.blit(
+            signature,
+            (self.signature_target.x + 12, self.signature_target.y + 10),
+        )
 
     def _draw_inspect_button(self, surface: pygame.Surface) -> None:
         rect = self.inspect_button_rect

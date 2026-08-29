@@ -16,7 +16,7 @@ BORDER = (127, 137, 80)
 BORDER_DARK = (55, 64, 45)
 PAPER = (180, 148, 83)
 
-HINT_BUTTON_RECT = pygame.Rect(872, 69, 128, 36)
+HINT_BUTTON_RECT = pygame.Rect(870, 72, 128, 34)
 HINT_POPUP_RECT = pygame.Rect(385, 174, 786, 348)
 HINT_CLOSE_RECT = pygame.Rect(1112, 191, 42, 42)
 HINT_PROTOCOL_RECT = pygame.Rect(784, 450, 337, 48)
@@ -72,7 +72,7 @@ class CaseHint:
         pygame.draw.rect(surface, PANEL_MID if hovered else SCREEN_BLACK, HINT_BUTTON_RECT)
         pygame.draw.rect(surface, INK_BRIGHT if hovered else BORDER_DARK, HINT_BUTTON_RECT, 2)
 
-        icon_rect = pygame.Rect(HINT_BUTTON_RECT.x + 8, HINT_BUTTON_RECT.y + 6, 24, 24)
+        icon_rect = pygame.Rect(HINT_BUTTON_RECT.x + 8, HINT_BUTTON_RECT.y + 5, 24, 24)
         pygame.draw.rect(surface, PAPER if hovered else PANEL_MID, icon_rect)
         pygame.draw.rect(surface, INK_BRIGHT if hovered else BORDER, icon_rect, 2)
         self._draw_text(
@@ -88,7 +88,7 @@ class CaseHint:
             "DICA",
             self.font_small,
             INK_BRIGHT if hovered else INK,
-            (HINT_BUTTON_RECT.x + 42, HINT_BUTTON_RECT.y + 8),
+            (HINT_BUTTON_RECT.x + 42, HINT_BUTTON_RECT.y + 7),
         )
 
     def render_popup(self, surface: pygame.Surface) -> None:

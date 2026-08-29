@@ -46,10 +46,11 @@ STATUS_LED_CENTER = (1388, 1013)
 DEBUG_TEXT_POSITION = (500, 786)
 STAMP_STATUS_POSITION = (960, 786)
 
-DESK_ZOOM_OUT_RECT = pygame.Rect(1010, 69, 42, 36)
-DESK_ZOOM_LABEL_RECT = pygame.Rect(1057, 69, 58, 36)
-DESK_ZOOM_IN_RECT = pygame.Rect(1120, 69, 42, 36)
-CASE_PROGRESS_RECT = pygame.Rect(302, 69, 136, 36)
+DESK_ZOOM_OUT_RECT = pygame.Rect(1008, 72, 38, 34)
+DESK_ZOOM_LABEL_RECT = pygame.Rect(1052, 72, 56, 34)
+DESK_ZOOM_IN_RECT = pygame.Rect(1114, 72, 37, 34)
+CASE_PROGRESS_RECT = pygame.Rect(304, 72, 136, 34)
+CASE_GUIDANCE_RECT = pygame.Rect(304, 114, 847, 38)
 CASE_SUBMIT_RECT = pygame.Rect(786, 579, 370, 51)
 DESK_ZOOM_LEVELS = (0.75, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8)
 NEWS_SHUTDOWN_DURATION = 2.15
@@ -65,11 +66,11 @@ STAMP_LAYOUT = (
 )
 
 DOCUMENT_POSITIONS = (
-    (312, 103),
-    (455, 199),
-    (598, 103),
-    (741, 199),
-    (564, 153),
+    (312, 157),
+    (455, 253),
+    (598, 157),
+    (741, 253),
+    (564, 207),
 )
 
 
@@ -144,6 +145,8 @@ class AuditScene(Scene):
         self.active_document: CaseDocument | None = None
         self.selected_stamp_id: str | None = None
         self.case_completed = False
+        self.ai_report_seen = False
+        self.inspected_document_ids: set[str] = set()
         self.newspaper_transition: str | None = None
         self.newspaper_transition_time = 0.0
 
@@ -278,6 +281,7 @@ class AuditScene(Scene):
         self._update_desk_controls_hover(monitor_position)
         self.submit_hovered = bool(
             self.case_completed
+            and self._get_document("final").is_signed
             and not self._is_modal_open()
             and monitor_position is not None
             and CASE_SUBMIT_RECT.collidepoint(monitor_position)
@@ -294,6 +298,12 @@ class AuditScene(Scene):
         for document in self.documents:
             document.set_stamp_target_active(
                 target_active and document.document_id == "final"
+            )
+            document.set_signature_target_active(
+                self.case_completed
+                and not self._get_document("final").is_signed
+                and not self._is_modal_open()
+                and document.document_id == "final"
             )
 
     def render(self, surface: pygame.Surface) -> None:
@@ -350,10 +360,13 @@ class AuditScene(Scene):
             else None
         )
         rendered_documents = self.document_renderer.render_case(self.case, portrait)
-        return [
+        documents = [
             CaseDocument(rendered, position)
             for rendered, position in zip(rendered_documents, DOCUMENT_POSITIONS, strict=True)
         ]
+        for document in documents:
+            document.set_visible(document.document_id == "final")
+        return documents
 
     def _play_sound(self, name: str, volume: float = 1.0) -> None:
         if self.audio is not None:
@@ -386,10 +399,13 @@ class AuditScene(Scene):
         if not delta or not self.documents:
             return
 
-        left = min(document.rect.left for document in self.documents)
-        top = min(document.rect.top for document in self.documents)
-        right = max(document.rect.right for document in self.documents)
-        bottom = max(document.rect.bottom for document in self.documents)
+        visible_documents = [document for document in self.documents if document.visible]
+        if not visible_documents:
+            return
+        left = min(document.rect.left for document in visible_documents)
+        top = min(document.rect.top for document in visible_documents)
+        right = max(document.rect.right for document in visible_documents)
+        bottom = max(document.rect.bottom for document in visible_documents)
         document_bounds = pygame.Rect(left, top, right - left, bottom - top)
         proposed = document_bounds.move(delta)
         adjusted_x, adjusted_y = delta
@@ -406,7 +422,7 @@ class AuditScene(Scene):
 
         if not adjusted_x and not adjusted_y:
             return
-        for document in self.documents:
+        for document in visible_documents:
             document.rect.move_ip(adjusted_x, adjusted_y)
             document.position = document.rect.topleft
 
@@ -507,6 +523,7 @@ class AuditScene(Scene):
 
         if (
             self.case_completed
+            and self._get_document("final").is_signed
             and monitor_position is not None
             and CASE_SUBMIT_RECT.collidepoint(monitor_position)
         ):
@@ -534,10 +551,11 @@ class AuditScene(Scene):
         ai_action = self.ai_decision_panel.handle_panel_mouse_down(monitor_position)
         if ai_action is not None:
             action, document_id = ai_action
-            if action == "focus" and document_id is not None:
-                self._focus_document(document_id)
+            if action == "toggle" and document_id is not None:
+                self._toggle_document_visibility(document_id)
                 self._play_sound("document", 0.65)
             elif action == "open":
+                self.ai_report_seen = True
                 self._play_sound("click")
             elif action == "scroll":
                 self._play_sound("scroll", 0.7)
@@ -549,6 +567,16 @@ class AuditScene(Scene):
             self._bring_document_to_front(document)
 
             if (
+                self.case_completed
+                and document.document_id == "final"
+                and not document.is_signed
+                and document.contains_signature_target(monitor_position)
+            ):
+                document.sign()
+                self._play_sound("confirm")
+                return
+
+            if (
                 self.selected_stamp_id is not None
                 and document.contains_stamp_target(monitor_position)
             ):
@@ -558,6 +586,7 @@ class AuditScene(Scene):
 
             if document.contains_inspect_button(monitor_position) or click_count >= 2:
                 self.document_inspector.open(document)
+                self.inspected_document_ids.add(document.document_id)
                 self._play_sound("document")
                 return
 
@@ -648,6 +677,8 @@ class AuditScene(Scene):
         self.active_document = None
         self.documents = self._create_documents()
         self.case_completed = False
+        self.ai_report_seen = False
+        self.inspected_document_ids.clear()
         self.document_inspector = DocumentInspector(self.case.evidence_summary)
         self.ai_decision_panel = AIDecisionPanel(self.case)
         self.case_dialog = CaseDialog(self.case)
@@ -726,17 +757,21 @@ class AuditScene(Scene):
     def _render_monitor_content(self, surface: pygame.Surface) -> None:
         self._render_monitor_background(self.monitor_surface)
         self.protocol_panel.render_menu(self.monitor_surface)
-        self.ai_decision_panel.render_panel(self.monitor_surface)
+        self.ai_decision_panel.render_panel(
+            self.monitor_surface,
+            self._visible_document_ids,
+        )
         previous_clip = self.monitor_surface.get_clip()
         self.monitor_surface.set_clip(DOCUMENT_WORKSPACE)
         for document in self.documents:
             document.render(self.monitor_surface)
         self.monitor_surface.set_clip(previous_clip)
+        self._render_case_guidance(self.monitor_surface)
         self._render_case_progress(self.monitor_surface)
         self.database_search.render_launcher(self.monitor_surface)
         self.case_hint.render_button(self.monitor_surface)
         self._render_desk_zoom_controls(self.monitor_surface)
-        if self.case_completed:
+        if self.case_completed and self._get_document("final").is_signed:
             self._render_submit_button(self.monitor_surface)
         self.monitor_surface.blit(self.monitor_glass, (0, 0))
         surface.blit(self.monitor_surface, MONITOR_SCREEN_RECT.topleft)
@@ -802,6 +837,58 @@ class AuditScene(Scene):
         rendered = self.small_font.render(text, False, (213, 218, 130))
         surface.blit(rendered, rendered.get_rect(center=CASE_PROGRESS_RECT.center))
 
+    def _render_case_guidance(self, surface: pygame.Surface) -> None:
+        final_document = self._get_document("final")
+        visible_sources = {
+            source.document_id
+            for source in self.case.data_sources
+            if self._get_document(source.document_id).visible
+        }
+        inspected_sources = visible_sources.intersection(self.inspected_document_ids)
+
+        if self.case_completed:
+            step = 5
+            instruction = (
+                "ENVIE A DECISÃO PELO BOTÃO ABAIXO"
+                if final_document.is_signed
+                else "CLIQUE NA LINHA DE ASSINATURA DA FOLHA"
+            )
+        elif not self.ai_report_seen:
+            step = 1
+            instruction = "ABRA A DECISÃO DA IA E ENTENDA O QUE ELA FEZ"
+        elif len(visible_sources) < 2:
+            step = 2
+            instruction = "COLOQUE PELO MENOS DOIS DOCUMENTOS NA MESA"
+        elif not inspected_sources:
+            step = 3
+            instruction = "USE A LUPA OU DUPLO CLIQUE PARA COMPARAR OS DADOS"
+        else:
+            step = 4
+            instruction = (
+                "CLIQUE NA ÁREA AMARELA DA FOLHA PARA CARIMBAR"
+                if self.selected_stamp_id is not None
+                else "ESCOLHA UM CARIMBO PARA REGISTRAR SUA DECISÃO"
+            )
+
+        pygame.draw.rect(surface, (5, 11, 9), CASE_GUIDANCE_RECT)
+        pygame.draw.rect(surface, (76, 89, 57), CASE_GUIDANCE_RECT, 2)
+        badge = pygame.Rect(
+            CASE_GUIDANCE_RECT.x + 2,
+            CASE_GUIDANCE_RECT.y + 2,
+            112,
+            CASE_GUIDANCE_RECT.height - 4,
+        )
+        pygame.draw.rect(surface, (47, 54, 37), badge)
+        badge_text = self.small_font.render(f"PASSO {step}/5", False, (237, 193, 91))
+        surface.blit(badge_text, badge_text.get_rect(center=badge.center))
+        instruction_text = self.small_font.render(instruction, False, (222, 224, 166))
+        surface.blit(
+            instruction_text,
+            instruction_text.get_rect(
+                midleft=(badge.right + 18, CASE_GUIDANCE_RECT.centery)
+            ),
+        )
+
     def _render_desk_zoom_controls(self, surface: pygame.Surface) -> None:
         controls = (
             ("zoom_out", DESK_ZOOM_OUT_RECT, "−"),
@@ -838,7 +925,10 @@ class AuditScene(Scene):
         if self.newspaper_transition is not None or self.newspaper.is_open:
             return
         if self.case_completed:
-            text = "PAPEL CARIMBADO — CONFIRA A MARCA E ENVIE A DECISÃO"
+            if self._get_document("final").is_signed:
+                text = "FOLHA ASSINADA — ENVIE A DECISÃO"
+            else:
+                text = "DECISÃO CARIMBADA — ASSINE A LINHA DO AUDITOR"
             color = (184, 176, 104)
         elif self.selected_stamp_id is not None:
             label = STAMP_LABELS.get(self.selected_stamp_id, self.selected_stamp_id.upper())
@@ -918,7 +1008,23 @@ class AuditScene(Scene):
         self.documents.append(document)
 
     def _focus_document(self, document_id: str) -> None:
-        self._bring_document_to_front(self._get_document(document_id))
+        document = self._get_document(document_id)
+        document.set_visible(True)
+        self._bring_document_to_front(document)
+
+    def _toggle_document_visibility(self, document_id: str) -> None:
+        document = self._get_document(document_id)
+        if document.document_id == "final":
+            return
+        document.set_visible(not document.visible)
+        if document.visible:
+            self._bring_document_to_front(document)
+        elif self.active_document is document:
+            self.active_document = None
+
+    @property
+    def _visible_document_ids(self) -> set[str]:
+        return {document.document_id for document in self.documents if document.visible}
 
     def _get_document(self, document_id: str) -> CaseDocument:
         for document in self.documents:

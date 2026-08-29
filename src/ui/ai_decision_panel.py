@@ -19,18 +19,18 @@ PAPER = (177, 147, 86)
 
 DECISION_CONTENT_RECT = pygame.Rect(1212, 79, 302, 201)
 OPEN_BUTTON_RECT = pygame.Rect(1220, 230, 286, 43)
-DATA_VIEW_RECT = pygame.Rect(1204, 395, 334, 237)
-DATA_ROWS_RECT = pygame.Rect(1204, 405, 306, 212)
-DATA_SCROLL_UP_RECT = pygame.Rect(1514, 395, 24, 25)
-DATA_SCROLL_TRACK_RECT = pygame.Rect(1514, 424, 24, 179)
-DATA_SCROLL_DOWN_RECT = pygame.Rect(1514, 607, 24, 25)
+DATA_VIEW_RECT = pygame.Rect(1206, 395, 322, 237)
+DATA_ROWS_RECT = pygame.Rect(1212, 405, 286, 212)
+DATA_SCROLL_UP_RECT = pygame.Rect(1506, 395, 22, 25)
+DATA_SCROLL_TRACK_RECT = pygame.Rect(1506, 424, 22, 179)
+DATA_SCROLL_DOWN_RECT = pygame.Rect(1506, 607, 22, 25)
 DATA_ROW_HEIGHT = 68
 DATA_ROW_GAP = 4
 VISIBLE_DATA_ROWS = 3
 
 POPUP_RECT = pygame.Rect(90, 42, 1374, 612)
 CLOSE_RECT = pygame.Rect(1397, 59, 43, 43)
-AI_ID_RECT = pygame.Rect(827, 337, 558, 64)
+AI_ID_RECT = pygame.Rect(807, 331, 556, 126)
 
 
 class AIDecisionPanel:
@@ -82,7 +82,7 @@ class AIDecisionPanel:
                 if source_index >= len(self.case.data_sources):
                     return "scroll", None
                 source = self.case.data_sources[source_index]
-                return "focus", source.document_id
+                return "toggle", source.document_id
         return None
 
     def handle_wheel(self, wheel_y: int, position: tuple[int, int] | None) -> bool:
@@ -159,7 +159,12 @@ class AIDecisionPanel:
                 self.hovered_control = f"row_{index}"
                 return
 
-    def render_panel(self, surface: pygame.Surface) -> None:
+    def render_panel(
+        self,
+        surface: pygame.Surface,
+        visible_document_ids: set[str] | None = None,
+    ) -> None:
+        visible_document_ids = visible_document_ids or set()
         verdict_color = self._verdict_color
         pygame.draw.rect(surface, SCREEN_BLACK, DECISION_CONTENT_RECT)
         pygame.draw.rect(surface, BORDER_DARK, DECISION_CONTENT_RECT, 2)
@@ -201,13 +206,17 @@ class AIDecisionPanel:
             if source_index >= len(self.case.data_sources):
                 break
             source = self.case.data_sources[source_index]
+            on_desk = source.document_id in visible_document_ids
             hovered = self.hovered_control == f"row_{visible_index}"
             pygame.draw.rect(surface, PANEL_MID if hovered else PANEL, rect)
             pygame.draw.rect(surface, INK_BRIGHT if hovered else BORDER_DARK, rect, 2)
-            self._draw_text(surface, f"{source_index + 1:02d}", self.font_tiny, INK_MUTED, (rect.x + 9, rect.y + 5))
-            self._draw_text(surface, source.label.upper(), self.font_tiny, INK, (rect.x + 43, rect.y + 2))
-            self._draw_text(surface, "Abrir documento", self.font_tiny, INK_MUTED, (rect.x + 43, rect.y + 18))
-            self._draw_text(surface, ">", self.font_body_bold, INK_BRIGHT, (rect.right - 23, rect.y + 6))
+            state_rect = pygame.Rect(rect.x + 9, rect.y + 9, 18, 18)
+            pygame.draw.rect(surface, GREEN if on_desk else BORDER_DARK, state_rect, 2)
+            if on_desk:
+                pygame.draw.rect(surface, GREEN, state_rect.inflate(-6, -6))
+            self._draw_text(surface, source.label.upper(), self.font_tiny, INK, (rect.x + 37, rect.y + 4))
+            action = "NA MESA — CLIQUE PARA RETIRAR" if on_desk else "CLIQUE PARA COLOCAR NA MESA"
+            self._draw_text(surface, action, self.font_tiny, GREEN if on_desk else INK_MUTED, (rect.x + 37, rect.y + 24))
         self._draw_data_scrollbar(surface)
 
     def render_popup(self, surface: pygame.Surface, notes: dict[str, str]) -> None:
@@ -274,14 +283,14 @@ class AIDecisionPanel:
             (152, 561),
         )
 
-        self._draw_text(surface, "RASTRO DE DADOS", self.font_body_bold, PAPER, (807, 196))
-        self._draw_text(surface, "DOCUMENTO DECISIVO", self.font_tiny, INK_MUTED, (807, 245))
+        self._draw_text(surface, "COMO A IA CHEGOU NISSO", self.font_body_bold, PAPER, (807, 196))
+        self._draw_text(surface, "1. DADOS CONSULTADOS", self.font_tiny, INK_MUTED, (807, 235))
         self._draw_wrapped_text(
             surface,
             self.case.ai_decision.source_document,
             self.font_body,
             INK,
-            pygame.Rect(807, 270, 550, 54),
+            pygame.Rect(807, 258, 534, 48),
             line_height=24,
             max_lines=2,
         )
@@ -294,26 +303,43 @@ class AIDecisionPanel:
             AI_ID_RECT,
             4 if hovered or marked else 2,
         )
-        self._draw_text(surface, self.case.ai_decision.evidence_label, self.font_tiny, INK_MUTED, (845, 346))
+        self._draw_text(surface, "2. O QUE A IA FEZ", self.font_tiny, INK_MUTED, (825, 342))
         self._draw_text(
             surface,
             self.case.ai_decision.evidence_value,
             self.font_title,
             INK_BRIGHT,
-            (845, 369),
+            (825, 367),
         )
-        self._draw_text(surface, "CLIQUE PARA ANOTAR", self.font_tiny, INK_MUTED, (1217, 362))
+        self._draw_wrapped_text(
+            surface,
+            self.case.ai_decision.evidence_note,
+            self.font_small,
+            INK,
+            pygame.Rect(825, 405, 510, 39),
+            line_height=19,
+            max_lines=2,
+        )
+        annotation = "EVIDÊNCIA ANOTADA" if marked else "CLIQUE PARA ANOTAR"
+        self._draw_text(surface, annotation, self.font_tiny, GREEN if marked else INK_MUTED, (1344, 342), anchor="topright")
 
-        self._draw_text(surface, "FLUXO DA DECISÃO", self.font_tiny, INK_MUTED, (807, 439))
-        flow = (
-            f"1. Consultar {self.case.data_sources[-1].label.lower()}",
-            f"2. Extrair: {self.case.ai_decision.evidence_value}",
-            f"3. Emitir: {self.case.ai_decision.verdict}",
+        self._draw_text(surface, "3. SUA TAREFA", self.font_tiny, INK_MUTED, (807, 481))
+        task_rect = pygame.Rect(807, 505, 556, 72)
+        pygame.draw.rect(surface, SCREEN_BLACK, task_rect)
+        pygame.draw.rect(surface, BORDER_DARK, task_rect, 2)
+        task = (
+            f"Confira nos documentos se {self.case.ai_decision.evidence_value} "
+            f"realmente sustenta a decisão: {self.case.ai_decision.verdict}."
         )
-        for index, line in enumerate(flow):
-            y = 472 + index * 39
-            pygame.draw.rect(surface, BORDER_DARK, (807, y + 2, 20, 20), 2)
-            self._draw_text(surface, line, self.font_small, INK, (842, y))
+        self._draw_wrapped_text(
+            surface,
+            task,
+            self.font_small,
+            INK,
+            task_rect.inflate(-16, -12),
+            line_height=21,
+            max_lines=3,
+        )
 
     def _draw_close(self, surface: pygame.Surface) -> None:
         hovered = self.hovered_control == "close"
