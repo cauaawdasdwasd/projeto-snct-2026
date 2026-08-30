@@ -64,9 +64,9 @@ O projeto está conectado ao repositório
 - Login, área de trabalho, menu Iniciar, ícones, molduras de janela, calculadora
   e cursor usam um conjunto próprio de sprites. O cursor personalizado aparece
   somente dentro do visor do computador; fora dele, o cursor normal é restaurado.
-- Navegador, calculadora, documentos, pastas e cursor usam o pacote pixel art
-  `PXL Retro Computer Icons Set 110`, fornecido pela equipe. O ícone do
-  `Sob Análise` permanece exclusivo do jogo.
+- Sob Análise, navegador, calculadora, documentos, pastas e cursor usam o pacote
+  pixel art `PXL Retro Computer Icons Set 110`, fornecido pela equipe. O
+  `item1`, um computador frontal, funciona como logo do aplicativo da empresa.
 - Login e desktop preservam exatamente a moldura original fornecida pela equipe,
   incluindo livros, post-its e placa. Os quatro módulos de decisão aparecem
   somente depois que o aplicativo `Sob Análise` é aberto.

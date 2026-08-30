@@ -48,13 +48,8 @@ def fit(image: Image.Image, size: tuple[int, int]) -> Image.Image:
 
 
 def process_icons() -> None:
-    sheet = Image.open(OS_DIR / "app_icons_sheet.png").convert("RGBA")
-    half_width = sheet.width // 2
-    half_height = sheet.height // 2
-    audit = fit(sheet.crop((0, 0, half_width, half_height)), (96, 96))
-    audit.save(OS_DIR / "icon_audit.png")
-
     retro_icons = {
+        "audit_item1.png": "icon_audit.png",
         "browser_item67.png": "icon_browser.png",
         "calculator_item83.png": "icon_calculator.png",
         "documents_item24.png": "icon_documents.png",

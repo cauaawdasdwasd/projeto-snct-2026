@@ -3,6 +3,7 @@
 Arquivos selecionados do pacote `itchio-pxl-retro-computer-icons-set-110`,
 fornecido pela equipe na pasta `separated-items`.
 
+- `item1`: logo do aplicativo Sob Análise.
 - `item23`: pasta.
 - `item24`: documentos.
 - `item67`: navegador/internet.
