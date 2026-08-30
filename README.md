@@ -54,6 +54,10 @@ O projeto está conectado ao repositório
   configurações ou consultar os créditos. Todas as opções funcionam por mouse ou
   teclado, e o aparelho acompanha o cursor com um movimento sutil. A interface é
   recortada pela curvatura do vidro e permanece dentro do visor.
+- `INICIAR TURNO` abre a tela de acesso da estação. Os campos de usuário e senha
+  aceitam teclado, `Tab` alterna entre eles e `Enter` avança ou confirma. A dica
+  aponta para o post-it físico de coração, que pode ser girado para revelar as
+  credenciais antes do login.
 - Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,
   alterar a resolução, alternar entre janela e tela cheia e ajustar separadamente
   os volumes da música e dos efeitos. O jogo preserva a imagem original com barras
@@ -90,7 +94,8 @@ O projeto está conectado ao repositório
 - Clique no `X` ou pressione `Esc` para fechar um protocolo.
 - Passe o mouse sobre o post-it de coração para iluminá-lo e clique para pegá-lo.
   Na inspeção, segure o botão esquerdo e mova o mouse para girar o objeto; use a
-  roda para aproximar ou afastar e vire o papel para consultar as credenciais.
+  roda para aproximar ou afastar e vire o papel para consultar as credenciais. O
+  objeto sempre abre no menor nível de zoom disponível.
 - Selecione um carimbo e clique na área indicada da `DECISÃO FINAL`.
 - Confirme a decisão para aplicar a marca permanentemente sobre o papel.
 - O campo `Assinatura do auditor` existe na folha desde o início. Clique nele para abrir a folha ampliada, segure o botão esquerdo e desenhe sua assinatura com a caneta.
@@ -190,6 +195,7 @@ sob_analise/
     │   └── glb_renderer.py       # Renderização GLB isolada com ModernGL
     ├── scenes/
     │   ├── main_menu.py          # Menu inicial
+    │   ├── login.py              # Login digitável e acesso ao post-it 3D
     │   └── audit.py              # Tela principal de auditoria
     └── ui/
         ├── ai_decision_panel.py  # Resumo e popup da decisão da IA

@@ -198,7 +198,7 @@ class MainMenuScene(Scene):
     def _activate_main_command(self, index: int) -> None:
         self._play_sound("forward")
         if index == 0:
-            self.manager.switch_to("audit")
+            self.manager.switch_to("login")
         elif index == 1:
             self.settings.open(self.preferences)
             self.view = "settings"

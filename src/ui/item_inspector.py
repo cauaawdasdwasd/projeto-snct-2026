@@ -27,7 +27,7 @@ class ItemInspector:
         self.last_drag_position: tuple[int, int] | None = None
         self.rotation_x = -0.08
         self.rotation_y = -0.10
-        self.zoom = 1.0
+        self.zoom = MIN_ZOOM
         self.close_hovered = False
         self.title_font = pygame.font.SysFont(
             ("Consolas", "Courier New", "monospace"),
@@ -50,7 +50,7 @@ class ItemInspector:
         self.last_drag_position = None
         self.rotation_x = -0.08
         self.rotation_y = -0.10
-        self.zoom = 1.0
+        self.zoom = MIN_ZOOM
         return self.renderer is not None
 
     def close(self) -> None:
