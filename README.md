@@ -82,7 +82,9 @@ O projeto está conectado ao repositório
   incluindo livros, post-its e placa. Os quatro módulos de decisão aparecem
   somente depois que o aplicativo `Sob Análise` é aberto.
 - `Google` abre o navegador interno reservado para as notícias cômicas futuras.
-  `Calculadora` aceita mouse e teclado e pode ser usada nos casos de contas.
+  `Calculadora` aceita mouse e teclado e pode ser usada nos casos de contas. O
+  botão `ABRIR CALCULADORA`, na barra superior da auditoria, abre a ferramenta
+  sobre o caso atual sem fechar nem reiniciar os documentos.
   `Meus documentos` permite criar pastas e arquivos `.txt`; os textos abrem no
   bloco de notas e podem ser salvos com `Ctrl+S`.
 - Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,

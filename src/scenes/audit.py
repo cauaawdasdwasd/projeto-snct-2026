@@ -56,6 +56,7 @@ DESK_ZOOM_IN_RECT = pygame.Rect(1114, 72, 37, 34)
 CASE_PROGRESS_RECT = pygame.Rect(304, 72, 136, 34)
 CASE_GUIDANCE_RECT = pygame.Rect(304, 114, 847, 38)
 CASE_SUBMIT_RECT = pygame.Rect(786, 579, 370, 51)
+CALCULATOR_BUTTON_RECT = pygame.Rect(446, 72, 230, 34)
 DESK_ZOOM_LEVELS = (0.75, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8)
 NEWS_SHUTDOWN_DURATION = 2.15
 NEWS_REVEAL_DURATION = 0.7
@@ -106,6 +107,8 @@ class AuditScene(Scene):
         self.head_motion_time = 0.0
         self.head_offset = (0, 0)
         self.hovered_desk_control: str | None = None
+        self.calculator_hovered = False
+        self.calculator_requested = False
         self.submit_hovered = False
         self.terminal_overlay = self.assets.load_image("backgrounds/novo_sprite_teste.png")
         self.monitor_surface = pygame.Surface(MONITOR_SCREEN_RECT.size, pygame.SRCALPHA)
@@ -170,6 +173,7 @@ class AuditScene(Scene):
 
     def on_enter(self) -> None:
         self.desktop_requested = False
+        self.calculator_requested = False
         self.pause_menu.close()
         self.credential_note.clear_hover()
         self.item_inspector.close()
@@ -368,6 +372,11 @@ class AuditScene(Scene):
         self.database_search.update_hover(monitor_position)
         self.newspaper.update_hover(monitor_position)
         self._update_desk_controls_hover(monitor_position)
+        self.calculator_hovered = bool(
+            not self._is_modal_open()
+            and monitor_position is not None
+            and CALCULATOR_BUTTON_RECT.collidepoint(monitor_position)
+        )
         self.submit_hovered = bool(
             self.case_completed
             and self._get_document("final").is_signed
@@ -409,6 +418,11 @@ class AuditScene(Scene):
     def consume_desktop_request(self) -> bool:
         requested = self.desktop_requested
         self.desktop_requested = False
+        return requested
+
+    def consume_calculator_request(self) -> bool:
+        requested = self.calculator_requested
+        self.calculator_requested = False
         return requested
 
     def _render_scene(self, surface: pygame.Surface, draw_cursor: bool) -> None:
@@ -652,6 +666,10 @@ class AuditScene(Scene):
             return
 
         if monitor_position is not None:
+            if CALCULATOR_BUTTON_RECT.collidepoint(monitor_position):
+                self.calculator_requested = True
+                self._play_sound("forward", 0.6)
+                return
             if self.database_search.handle_launcher_click(monitor_position):
                 self._play_sound("forward", 0.7)
                 return
@@ -914,6 +932,7 @@ class AuditScene(Scene):
         self.monitor_surface.set_clip(previous_clip)
         self._render_case_guidance(self.monitor_surface)
         self._render_case_progress(self.monitor_surface)
+        self._render_calculator_button(self.monitor_surface)
         self.database_search.render_launcher(self.monitor_surface)
         self.case_hint.render_button(self.monitor_surface)
         self._render_desk_zoom_controls(self.monitor_surface)
@@ -984,6 +1003,37 @@ class AuditScene(Scene):
         text = f"CASO {self.case_index + 1}/{len(CASES)}"
         rendered = self.small_font.render(text, False, (213, 218, 130))
         surface.blit(rendered, rendered.get_rect(center=CASE_PROGRESS_RECT.center))
+
+    def _render_calculator_button(self, surface: pygame.Surface) -> None:
+        background = (25, 34, 26) if self.calculator_hovered else (5, 11, 9)
+        border = (231, 210, 116) if self.calculator_hovered else (76, 89, 57)
+        ink = (247, 239, 159) if self.calculator_hovered else (213, 218, 130)
+        pygame.draw.rect(surface, background, CALCULATOR_BUTTON_RECT)
+        pygame.draw.rect(surface, border, CALCULATOR_BUTTON_RECT, 2)
+
+        icon = pygame.Rect(
+            CALCULATOR_BUTTON_RECT.x + 9,
+            CALCULATOR_BUTTON_RECT.y + 6,
+            20,
+            22,
+        )
+        pygame.draw.rect(surface, border, icon, 2)
+        pygame.draw.rect(surface, ink, (icon.x + 4, icon.y + 4, 12, 4))
+        for row in range(2):
+            for column in range(3):
+                pygame.draw.rect(
+                    surface,
+                    ink,
+                    (icon.x + 4 + column * 5, icon.y + 11 + row * 5, 3, 3),
+                )
+
+        label = self.small_font.render("ABRIR CALCULADORA", False, ink)
+        surface.blit(
+            label,
+            label.get_rect(
+                midleft=(CALCULATOR_BUTTON_RECT.x + 38, CALCULATOR_BUTTON_RECT.centery)
+            ),
+        )
 
     def _render_case_guidance(self, surface: pygame.Surface) -> None:
         final_document = self._get_document("final")

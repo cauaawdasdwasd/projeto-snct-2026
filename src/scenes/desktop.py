@@ -24,7 +24,8 @@ TASKBAR_RECT = pygame.Rect(SCREEN_RECT.x, SCREEN_RECT.bottom - 82, SCREEN_RECT.w
 WORK_AREA_RECT = pygame.Rect(SCREEN_RECT.x, SCREEN_RECT.y, SCREEN_RECT.width, SCREEN_RECT.height - TASKBAR_RECT.height)
 START_RECT = pygame.Rect(315, TASKBAR_RECT.y, 140, TASKBAR_RECT.height)
 START_MENU_RECT = pygame.Rect(315, TASKBAR_RECT.y - 676, 350, 676)
-AUDIT_SOURCE_RECT = pygame.Rect(186, 87, 1554, 883)
+AUDIT_SOURCE_RECT = pygame.Rect(160, 70, 1600, 900)
+AUDIT_STAMP_SOURCE_RECT = pygame.Rect(405, 797, 1118, 173)
 
 XP_ORANGE = (244, 151, 38)
 WINDOW_BG = (236, 233, 216)
@@ -230,12 +231,18 @@ class DesktopScene(Scene):
             return
 
         if self._audit_is_fullscreen():
+            hit = self.window_manager.hit_test(pointer)
+            if hit is not None and hit.app_id != "audit":
+                self.start_open = False
+                self._handle_window_pointer_down(hit, event, pointer)
+                return
             if event.button == 1:
                 control = self._fullscreen_control_at(pointer)
                 if control is not None:
                     self.fullscreen_pressed_control = control
                     return
             if self.audit_scene is not None and self._map_to_audit(pointer) is not None:
+                self.window_manager.focus("audit")
                 self.audit_pointer_capture = event.button in (1, 3)
                 self._forward_audit_event(event, pointer)
             return
@@ -294,6 +301,8 @@ class DesktopScene(Scene):
             if self.audit_scene.consume_desktop_request():
                 self.window_manager.minimize("audit")
                 self._sound("back", 0.5)
+            if self.audit_scene.consume_calculator_request():
+                self._open_app("calculator")
 
     def render(self, surface: pygame.Surface) -> None:
         surface.fill((0, 0, 0))
@@ -301,6 +310,9 @@ class DesktopScene(Scene):
         if self._audit_is_fullscreen():
             self._draw_audit_fullscreen(surface)
             self._draw_fullscreen_controls(surface)
+            for window in self.window_manager.visible_windows():
+                if window.app_id != "audit":
+                    self._draw_window(surface, window)
         else:
             self._draw_desktop_icons(surface)
             for window in self.window_manager.visible_windows():
@@ -616,7 +628,7 @@ class DesktopScene(Scene):
         )
         self.audit_composite.blit(self.audit_surface, (0, 0), AUDIT_SOURCE_RECT)
 
-        footer_y = 696
+        footer_y = 713
         footer = pygame.Rect(0, footer_y, self.audit_composite.width, self.audit_composite.height - footer_y)
         self.audit_composite.fill((16, 20, 18), footer)
         pygame.draw.line(self.audit_composite, (82, 84, 64), (0, footer_y), (footer.right, footer_y), 3)
@@ -624,7 +636,7 @@ class DesktopScene(Scene):
         for y in range(footer_y + 10, footer.bottom, 5):
             pygame.draw.line(self.audit_composite, (10, 14, 12), (0, y), (footer.right, y))
 
-        stamp_source = pygame.Rect(432, 807, 1035, 162)
+        stamp_source = AUDIT_STAMP_SOURCE_RECT
         stamp_destination = (
             stamp_source.x - AUDIT_SOURCE_RECT.x,
             stamp_source.y - AUDIT_SOURCE_RECT.y,
