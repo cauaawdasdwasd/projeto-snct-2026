@@ -13,6 +13,7 @@ ciência e da computação.
 
 - Python 3.11 ou superior
 - `pygame-ce`
+- `ModernGL` e `trimesh` para a inspeção física de objetos 3D
 
 ## Instalação
 
@@ -87,8 +88,9 @@ O projeto está conectado ao repositório
 - Clique em um protocolo para abrir a ficha completa.
 - Use as setas do painel, `A`/`D` ou `←`/`→` para trocar de página.
 - Clique no `X` ou pressione `Esc` para fechar um protocolo.
-- Passe o mouse sobre o post-it de coração para iluminá-lo. Clique nele para virar
-  o papel e consultar as credenciais da estação.
+- Passe o mouse sobre o post-it de coração para iluminá-lo e clique para pegá-lo.
+  Na inspeção, segure o botão esquerdo e mova o mouse para girar o objeto; use a
+  roda para aproximar ou afastar e vire o papel para consultar as credenciais.
 - Selecione um carimbo e clique na área indicada da `DECISÃO FINAL`.
 - Confirme a decisão para aplicar a marca permanentemente sobre o papel.
 - O campo `Assinatura do auditor` existe na folha desde o início. Clique nele para abrir a folha ampliada, segure o botão esquerdo e desenhe sua assinatura com a caneta.
@@ -159,6 +161,7 @@ sob_analise/
 │   ├── cases/case_01/           # Retrato usado nos documentos funcionais
 │   ├── documents/dev/           # Documentos antigos de desenvolvimento
 │   ├── music/                   # Música do menu e duas faixas da auditoria
+│   ├── models/                  # Objetos GLB usados na inspeção física
 │   ├── newspaper/               # Ilustrações das matérias corretas e desastrosas
 │   ├── protocols/               # Retratos dos seis protocolos
 │   ├── stamp_marks/             # Marcas transparentes aplicadas ao papel
@@ -183,6 +186,8 @@ sob_analise/
     │   ├── cases.py              # Casos, fontes, respostas e matérias do jornal
     │   ├── document_renderer.py  # Geração visual dos documentos do caso
     │   └── protocols.py          # Textos e regras dos protocolos
+    ├── rendering/
+    │   └── glb_renderer.py       # Renderização GLB isolada com ModernGL
     ├── scenes/
     │   ├── main_menu.py          # Menu inicial
     │   └── audit.py              # Tela principal de auditoria
@@ -193,6 +198,7 @@ sob_analise/
         ├── case_hint.py          # Dica contextual e atalho para o protocolo
         ├── database_search.py    # Pesquisa digitada na base interna do caso
         ├── document_inspector.py # Zoom, navegação e caderno de evidências
+        ├── item_inspector.py     # Rotação e zoom dos objetos 3D
         ├── newspaper.py          # Jornal final paginado, matérias e placar
         ├── pause_menu.py         # Pausa, retorno ao menu e acesso às configurações
         ├── protocol_panel.py     # Menu paginado e popup dos protocolos

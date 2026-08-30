@@ -1,1 +1,5 @@
 pygame-ce==2.5.8
+moderngl==5.12.0
+numpy==2.3.4
+Pillow==12.3.0
+trimesh==4.12.2

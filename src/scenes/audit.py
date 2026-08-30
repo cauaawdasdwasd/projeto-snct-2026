@@ -18,6 +18,7 @@ from src.ui.case_hint import CaseHint
 from src.ui.credential_note import CredentialNote
 from src.ui.database_search import DatabaseSearch
 from src.ui.document_inspector import DocumentInspector
+from src.ui.item_inspector import ItemInspector
 from src.ui.newspaper import FinalNewspaper
 from src.ui.pause_menu import PauseMenu
 from src.ui.protocol_panel import ProtocolPanel
@@ -138,6 +139,10 @@ class AuditScene(Scene):
         self.credential_note = CredentialNote(
             self.assets.load_image("ui/heart_note.png")
         )
+        self.item_inspector = ItemInspector(
+            self.assets.assets_root / "models" / "heart_note.glb",
+            "Post-it de acesso",
+        )
         self.database_search = DatabaseSearch(self.case, audio)
         self.signature_pad = SignaturePad()
         self.newspaper = FinalNewspaper(self._load_newspaper_images())
@@ -158,14 +163,16 @@ class AuditScene(Scene):
 
     def on_enter(self) -> None:
         self.pause_menu.close()
-        self.credential_note.close()
+        self.credential_note.clear_hover()
+        self.item_inspector.close()
         self.head_offset = (0, 0)
         if self.audio is not None:
             self.audio.play_music_sequence(("audit_1", "audit_2"), fade_ms=700)
 
     def on_exit(self) -> None:
         self.pause_menu.close()
-        self.credential_note.close()
+        self.credential_note.clear_hover()
+        self.item_inspector.close()
         self.database_search.close()
         self.signature_pad.close()
 
@@ -179,8 +186,8 @@ class AuditScene(Scene):
             if handled:
                 self._play_sound("back", 0.65)
             return handled
-        if self.credential_note.is_open:
-            self.credential_note.close()
+        if self.item_inspector.is_open:
+            self.item_inspector.close()
             self._play_sound("back", 0.65)
             return True
         if self.signature_pad.is_open:
@@ -225,13 +232,15 @@ class AuditScene(Scene):
             return
         if self.newspaper_transition is not None:
             return
-        if self.credential_note.is_open:
-            action = self.credential_note.handle_popup_event(
+        if self.item_inspector.is_open:
+            action = self.item_inspector.handle_event(
                 event,
-                self._corrected_scene_position(self.input_manager.mouse_position),
+                self.input_manager.mouse_position,
             )
             if action == "close":
                 self._play_sound("back", 0.65)
+            elif action == "zoom":
+                self._play_sound("scroll", 0.45)
             return
         if self.signature_pad.is_open:
             result = self.signature_pad.handle_event(
@@ -318,9 +327,9 @@ class AuditScene(Scene):
         if self.newspaper_transition is not None:
             self._update_newspaper_transition(dt)
             return
-        if self.credential_note.is_open:
+        if self.item_inspector.is_open:
             self.head_offset = (0, 0)
-            self.credential_note.update_popup_hover(self.input_manager.mouse_position)
+            self.item_inspector.update_hover(self.input_manager.mouse_position)
             return
         self.head_motion_time += dt
         self.head_offset = (
@@ -382,7 +391,7 @@ class AuditScene(Scene):
         self._draw_stamp_status(surface)
         if DEBUG_UI:
             self._draw_debug_text(surface)
-        self.credential_note.render_popup(surface)
+        self.item_inspector.render(surface)
         if self.pause_menu.is_open:
             self.pause_menu.render(surface)
 
@@ -598,7 +607,7 @@ class AuditScene(Scene):
         ):
             self._stop_desk_pan()
             self.head_offset = (0, 0)
-            self.credential_note.open()
+            self.item_inspector.open()
             self._play_sound("paper", 0.55)
             return
 
@@ -904,7 +913,7 @@ class AuditScene(Scene):
         return glass
 
     def _render_active_popup(self, surface: pygame.Surface) -> None:
-        if self.credential_note.is_open or not self._is_modal_open():
+        if self.item_inspector.is_open or not self._is_modal_open():
             return
         self.popup_surface.fill((0, 0, 0, 0))
         if self.newspaper.is_open:
@@ -1135,7 +1144,7 @@ class AuditScene(Scene):
         return (
             self.newspaper_transition is not None
             or self.newspaper.is_open
-            or self.credential_note.is_open
+            or self.item_inspector.is_open
             or self.signature_pad.is_open
             or self.database_search.is_open
             or self.case_hint.is_open
