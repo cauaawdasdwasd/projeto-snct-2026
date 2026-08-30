@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PIL import Image, ImageChops
+from PIL import Image
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,21 +70,6 @@ def process_cursor() -> None:
 
 
 def process_shells() -> None:
-    neutral = Image.open(OS_DIR / "neutral_monitor.png").convert("RGB")
-    neutral = neutral.resize((1920, 1080), RESAMPLE)
-    neutral.save(OS_DIR / "neutral_station.png")
-
-    overlay = neutral.convert("RGBA")
-    screen_box = (160, 55, 1760, 955)
-    screen_region = neutral.crop(screen_box)
-    red, green, blue = screen_region.split()
-    brightness = ImageChops.lighter(ImageChops.lighter(red, green), blue)
-    screen_alpha = brightness.point(lambda value: 0 if value < 28 else 255)
-    alpha = Image.new("L", neutral.size, 255)
-    alpha.paste(screen_alpha, screen_box)
-    overlay.putalpha(alpha)
-    overlay.save(OS_DIR / "neutral_station_overlay.png")
-
     for source_name, output_name in (
         ("desktop_shell.png", "desktop_screen.png"),
         ("login_shell.png", "login_screen.png"),

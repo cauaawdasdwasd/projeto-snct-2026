@@ -41,7 +41,7 @@ newspaper
 
 sistema_operacional
   Copias dos sprites atualmente usados no login e na area de trabalho.
-  Inclui a moldura neutra completa, telas, menu Iniciar, janelas, icones e cursor.
+  Inclui a moldura original completa, telas, menu Iniciar, janelas, icones e cursor.
   O painel fisico com os quatro carimbos nao faz parte desta moldura: ele continua
   exclusivo do aplicativo Sob Analise.
 

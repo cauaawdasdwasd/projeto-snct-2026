@@ -64,9 +64,9 @@ O projeto está conectado ao repositório
 - Login, área de trabalho, menu Iniciar, ícones, molduras de janela, calculadora
   e cursor usam um conjunto próprio de sprites. O cursor personalizado aparece
   somente dentro do visor do computador; fora dele, o cursor normal é restaurado.
-- A estação comum usa uma moldura neutra, sem os quatro módulos de decisão. O
-  console físico com os carimbos aparece somente depois que o aplicativo
-  `Sob Análise` é aberto.
+- Login e desktop preservam exatamente a moldura original fornecida pela equipe,
+  incluindo livros, post-its e placa. Os quatro módulos de decisão aparecem
+  somente depois que o aplicativo `Sob Análise` é aberto.
 - `Google` abre o navegador interno reservado para as notícias cômicas futuras.
   `Calculadora` aceita mouse e teclado e pode ser usada nos casos de contas.
   `Meus documentos` permite criar pastas e arquivos `.txt`; os textos abrem no
@@ -181,7 +181,7 @@ sob_analise/
 │   ├── music/                   # Música do menu e duas faixas da auditoria
 │   ├── models/                  # Objetos GLB usados na inspeção física
 │   ├── newspaper/               # Ilustrações das matérias corretas e desastrosas
-│   ├── os/                      # Monitor neutro, login, desktop, janelas, ícones e cursor
+│   ├── os/                      # Monitor original, login, desktop, janelas, ícones e cursor
 │   ├── protocols/               # Retratos dos seis protocolos
 │   ├── stamp_marks/             # Marcas transparentes aplicadas ao papel
 │   ├── stamps/                  # Botões dos carimbos jogáveis
@@ -258,9 +258,8 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
   que eles cubram Protocolo, Decisão da IA ou Dados Utilizados.
 - A área de documentos possui grade de fósforo, scanlines e ruído pontual gerados
   em coordenadas inteiras para reforçar a aparência de monitor sem borrar o texto.
-- Login e desktop usam uma carcaça de monitor neutra. A moldura original com os
-  quatro módulos de decisão, livros e placa `Sob Análise` pertence somente à cena
-  de auditoria.
+- Login e desktop usam sem alterações o PNG original `NOVO monitor png.png`. O
+  painel com os quatro módulos de decisão é uma camada exclusiva da auditoria.
 - Os sprites-base do sistema ficam em `assets/os`. Para regenerar os recortes e
   tamanhos usados pelo jogo, execute `py -3.11 scripts/process_os_assets.py`.
 - Os documentos são gerados por código para manter IDs e outros dados totalmente

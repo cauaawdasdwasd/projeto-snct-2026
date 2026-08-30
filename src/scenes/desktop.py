@@ -20,8 +20,8 @@ if TYPE_CHECKING:
 
 SCREEN_RECT = pygame.Rect(160, 55, 1600, 900)
 TASKBAR_RECT = pygame.Rect(SCREEN_RECT.x, SCREEN_RECT.bottom - 82, SCREEN_RECT.width, 82)
-START_RECT = pygame.Rect(SCREEN_RECT.x, TASKBAR_RECT.y, 140, TASKBAR_RECT.height)
-START_MENU_RECT = pygame.Rect(SCREEN_RECT.x, TASKBAR_RECT.y - 676, 350, 676)
+START_RECT = pygame.Rect(315, TASKBAR_RECT.y, 140, TASKBAR_RECT.height)
+START_MENU_RECT = pygame.Rect(315, TASKBAR_RECT.y - 676, 350, 676)
 
 XP_ORANGE = (244, 151, 38)
 WINDOW_BG = (236, 233, 216)
@@ -49,8 +49,15 @@ class DesktopScene(Scene):
     ) -> None:
         super().__init__(manager, assets, input_manager)
         self.audio = audio
-        self.station = self.assets.load_image("os/neutral_station_overlay.png")
+        self.station = self.assets.load_image("os/workstation_overlay.png")
         self.desktop_screen = self.assets.load_image("os/desktop_screen.png")
+        start_source = pygame.Rect(
+            0,
+            TASKBAR_RECT.y - SCREEN_RECT.y,
+            START_RECT.width,
+            START_RECT.height,
+        )
+        self.start_button_skin = self.desktop_screen.subsurface(start_source).copy()
         self.start_menu_skin = self.assets.load_image("os/start_menu.png")
         self.window_skin = self.assets.load_image("os/window.png")
         self.calculator_skin = self.assets.load_image("os/calculator.png")
@@ -441,6 +448,7 @@ class DesktopScene(Scene):
             surface.blit(label, label_rect)
 
     def _draw_taskbar(self, surface: pygame.Surface) -> None:
+        surface.blit(self.start_button_skin, START_RECT.topleft)
         if self.hovered_target == "start" or self.start_open:
             glow = pygame.Surface(START_RECT.size, pygame.SRCALPHA)
             glow.fill((255, 255, 255, 38))

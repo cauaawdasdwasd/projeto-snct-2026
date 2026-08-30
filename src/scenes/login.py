@@ -45,7 +45,7 @@ class LoginScene(Scene):
     ) -> None:
         super().__init__(manager, assets, input_manager)
         self.audio = audio
-        self.background = self.assets.load_image("os/neutral_station_overlay.png")
+        self.background = self.assets.load_image("os/workstation_overlay.png")
         self.login_screen = self.assets.load_image("os/login_screen.png")
         self.os_cursor = OSCursor(
             self.assets.load_image("os/cursor.png"),
