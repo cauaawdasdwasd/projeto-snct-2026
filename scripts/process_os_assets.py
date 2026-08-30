@@ -7,6 +7,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[1]
 OS_DIR = ROOT / "assets" / "os"
+RETRO_ICONS_DIR = OS_DIR / "retro_icons"
 RESAMPLE = Image.Resampling.LANCZOS
 
 
@@ -50,21 +51,30 @@ def process_icons() -> None:
     sheet = Image.open(OS_DIR / "app_icons_sheet.png").convert("RGBA")
     half_width = sheet.width // 2
     half_height = sheet.height // 2
-    quadrants = {
-        "icon_audit.png": (0, 0, half_width, half_height),
-        "icon_browser.png": (half_width, 0, sheet.width, half_height),
-        "icon_calculator.png": (0, half_height, half_width, sheet.height),
-        "icon_documents.png": (half_width, half_height, sheet.width, sheet.height),
+    audit = fit(sheet.crop((0, 0, half_width, half_height)), (96, 96))
+    audit.save(OS_DIR / "icon_audit.png")
+
+    retro_icons = {
+        "browser_item67.png": "icon_browser.png",
+        "calculator_item83.png": "icon_calculator.png",
+        "documents_item24.png": "icon_documents.png",
+        "folder_item23.png": "icon_folder.png",
     }
-    for filename, box in quadrants.items():
-        icon = fit(sheet.crop(box), (96, 96))
-        icon.save(OS_DIR / filename)
+    for source_name, output_name in retro_icons.items():
+        icon = Image.open(RETRO_ICONS_DIR / source_name).convert("RGBA")
+        icon.resize((96, 96), Image.Resampling.NEAREST).save(OS_DIR / output_name)
 
 
 def process_cursor() -> None:
-    cursor = trim_alpha(Image.open(OS_DIR / "cursor_source.png"), minimum_pixels=24)
-    cursor.thumbnail((44, 54), RESAMPLE)
-    output = Image.new("RGBA", (48, 58), (0, 0, 0, 0))
+    source = Image.open(RETRO_ICONS_DIR / "cursor_item108.png").convert("RGBA")
+    alpha_bounds = source.getchannel("A").getbbox()
+    if alpha_bounds is None:
+        raise ValueError("Retro cursor asset cannot be empty")
+    cursor = source.crop(alpha_bounds).resize(
+        (26, 46),
+        Image.Resampling.NEAREST,
+    )
+    output = Image.new("RGBA", (32, 50), (0, 0, 0, 0))
     output.alpha_composite(cursor, (0, 0))
     output.save(OS_DIR / "cursor.png")
 

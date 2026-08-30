@@ -42,6 +42,8 @@ newspaper
 sistema_operacional
   Copias dos sprites atualmente usados no login e na area de trabalho.
   Inclui a moldura original completa, telas, menu Iniciar, janelas, icones e cursor.
+  Os icones genericos e o cursor agora usam itens do pacote PXL Retro Computer
+  Icons Set 110; o icone do Sob Analise continua sendo exclusivo do jogo.
   O painel fisico com os quatro carimbos nao faz parte desta moldura: ele continua
   exclusivo do aplicativo Sob Analise.
 

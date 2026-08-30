@@ -64,6 +64,9 @@ O projeto está conectado ao repositório
 - Login, área de trabalho, menu Iniciar, ícones, molduras de janela, calculadora
   e cursor usam um conjunto próprio de sprites. O cursor personalizado aparece
   somente dentro do visor do computador; fora dele, o cursor normal é restaurado.
+- Navegador, calculadora, documentos, pastas e cursor usam o pacote pixel art
+  `PXL Retro Computer Icons Set 110`, fornecido pela equipe. O ícone do
+  `Sob Análise` permanece exclusivo do jogo.
 - Login e desktop preservam exatamente a moldura original fornecida pela equipe,
   incluindo livros, post-its e placa. Os quatro módulos de decisão aparecem
   somente depois que o aplicativo `Sob Análise` é aberto.
@@ -181,7 +184,7 @@ sob_analise/
 │   ├── music/                   # Música do menu e duas faixas da auditoria
 │   ├── models/                  # Objetos GLB usados na inspeção física
 │   ├── newspaper/               # Ilustrações das matérias corretas e desastrosas
-│   ├── os/                      # Monitor original, login, desktop, janelas, ícones e cursor
+│   ├── os/                      # Monitor, sistema, ícones próprios e pacote retrô
 │   ├── protocols/               # Retratos dos seis protocolos
 │   ├── stamp_marks/             # Marcas transparentes aplicadas ao papel
 │   ├── stamps/                  # Botões dos carimbos jogáveis

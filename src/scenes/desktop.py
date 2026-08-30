@@ -66,7 +66,8 @@ class DesktopScene(Scene):
             "audit": self.assets.load_image("os/icon_audit.png"),
             "browser": self.assets.load_image("os/icon_browser.png"),
             "calculator": self.assets.load_image("os/icon_calculator.png"),
-            "folder": self.assets.load_image("os/icon_documents.png"),
+            "documents": self.assets.load_image("os/icon_documents.png"),
+            "folder": self.assets.load_image("os/icon_folder.png"),
         }
         self.os_cursor = OSCursor(
             self.assets.load_image("os/cursor.png"),
@@ -240,7 +241,7 @@ class DesktopScene(Scene):
             DesktopIcon("audit", "Sob Análise", pygame.Rect(182, 92, 168, 142), "audit"),
             DesktopIcon("browser", "Google", pygame.Rect(182, 242, 168, 142), "browser"),
             DesktopIcon("calculator", "Calculadora", pygame.Rect(182, 392, 168, 142), "calculator"),
-            DesktopIcon("explorer", "Meus documentos", pygame.Rect(182, 542, 182, 142), "folder"),
+            DesktopIcon("explorer", "Meus documentos", pygame.Rect(182, 542, 182, 142), "documents"),
         )
 
     def _open_app(self, app_id: str) -> None:
@@ -484,8 +485,8 @@ class DesktopScene(Scene):
                 highlight = pygame.Surface(rect.size, pygame.SRCALPHA)
                 highlight.fill((36, 102, 203, 115))
                 surface.blit(highlight, rect.topleft)
-            kind = "folder" if app_id == "explorer" else app_id
-            icon = pygame.transform.smoothscale(self.app_icon_images[kind], (58, 58))
+            kind = "documents" if app_id == "explorer" else app_id
+            icon = pygame.transform.scale(self.app_icon_images[kind], (58, 58))
             surface.blit(icon, icon.get_rect(midleft=(rect.x + 10, rect.centery)))
             label = {
                 "audit": "Sob Análise",
@@ -672,7 +673,7 @@ class DesktopScene(Scene):
     def _draw_icon_art(self, surface: pygame.Surface, kind: str, center: tuple[int, int], size: int) -> None:
         x, y = center
         if kind == "folder":
-            icon = pygame.transform.smoothscale(self.app_icon_images["folder"], (size + 24, size + 24))
+            icon = pygame.transform.scale(self.app_icon_images["folder"], (size + 24, size + 24))
             surface.blit(icon, icon.get_rect(center=center))
             return
         pygame.draw.rect(surface, WHITE, (x - size // 3, y - size // 2, size * 2 // 3, size))
