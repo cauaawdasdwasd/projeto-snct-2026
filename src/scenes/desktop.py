@@ -73,6 +73,7 @@ class DesktopScene(Scene):
         self.audit_composite = pygame.Surface(AUDIT_SOURCE_RECT.size).convert()
         self.audit_view_rect: pygame.Rect | None = None
         self.audit_pointer_capture = False
+        self.fullscreen_pressed_control: str | None = None
 
         self.os_cursor = OSCursor(self.assets.load_image("os/cursor.png"), SCREEN_RECT)
         self.credential_note = CredentialNote(self.assets.load_image("ui/heart_note.png"))
@@ -117,6 +118,7 @@ class DesktopScene(Scene):
         self.pressed_target = None
         self.naming_kind = None
         self.audit_pointer_capture = False
+        self.fullscreen_pressed_control = None
         self.window_manager.windows.clear()
         self.window_manager.z_order.clear()
         self.window_manager.task_order.clear()
@@ -170,6 +172,10 @@ class DesktopScene(Scene):
 
         focused = self.window_manager.focused_id
         if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_F11 and focused == "audit":
+                self._toggle_window_maximize("audit")
+                self._sound("click", 0.45)
+                return
             if focused == "notepad":
                 self._handle_notepad_key(event)
                 return
@@ -197,6 +203,12 @@ class DesktopScene(Scene):
             if self.audit_pointer_capture and self.audit_scene is not None:
                 self._forward_audit_event(event, pointer)
                 self.audit_pointer_capture = False
+            if self.fullscreen_pressed_control is not None:
+                pressed = self.fullscreen_pressed_control
+                self.fullscreen_pressed_control = None
+                if self._fullscreen_control_at(pointer) == pressed:
+                    self._activate_window_control("audit", pressed)
+                return
             activated = self.window_manager.end_interaction(pointer)
             self.pressed_target = None
             if activated is not None:
@@ -215,6 +227,17 @@ class DesktopScene(Scene):
             self.credential_note.clear_hover()
             self.item_inspector.open()
             self._sound("paper", 0.5)
+            return
+
+        if self._audit_is_fullscreen():
+            if event.button == 1:
+                control = self._fullscreen_control_at(pointer)
+                if control is not None:
+                    self.fullscreen_pressed_control = control
+                    return
+            if self.audit_scene is not None and self._map_to_audit(pointer) is not None:
+                self.audit_pointer_capture = event.button in (1, 3)
+                self._forward_audit_event(event, pointer)
             return
 
         if event.button == 1:
@@ -275,14 +298,18 @@ class DesktopScene(Scene):
     def render(self, surface: pygame.Surface) -> None:
         surface.fill((0, 0, 0))
         surface.blit(self.desktop_screen, SCREEN_RECT.topleft)
-        self._draw_desktop_icons(surface)
-        for window in self.window_manager.visible_windows():
-            self._draw_window(surface, window)
-        self._draw_taskbar(surface)
-        if self.start_open:
-            self._draw_start_menu(surface)
-        if self.naming_kind is not None:
-            self._draw_name_dialog(surface)
+        if self._audit_is_fullscreen():
+            self._draw_audit_fullscreen(surface)
+            self._draw_fullscreen_controls(surface)
+        else:
+            self._draw_desktop_icons(surface)
+            for window in self.window_manager.visible_windows():
+                self._draw_window(surface, window)
+            self._draw_taskbar(surface)
+            if self.start_open:
+                self._draw_start_menu(surface)
+            if self.naming_kind is not None:
+                self._draw_name_dialog(surface)
         surface.blit(self.scanlines, SCREEN_RECT.topleft)
         self.os_cursor.render(surface, self.input_manager.mouse_position, blocked=self.item_inspector.is_open)
         surface.blit(self.station, (0, 0))
@@ -292,7 +319,7 @@ class DesktopScene(Scene):
     def _handle_window_pointer_down(self, hit: WindowHit, event: pygame.event.Event, pointer: tuple[int, int]) -> None:
         self.window_manager.focus(hit.app_id)
         if event.button == 1 and hit.area == "titlebar" and getattr(event, "clicks", 1) >= 2:
-            self.window_manager.toggle_maximize(hit.app_id)
+            self._toggle_window_maximize(hit.app_id)
             self._sound("click", 0.45)
             return
         if event.button == 1 and hit.area in {"control", "titlebar", "resize"}:
@@ -315,7 +342,7 @@ class DesktopScene(Scene):
             self.window_manager.minimize(app_id)
             self._sound("click", 0.4)
         elif control == "maximize":
-            self.window_manager.toggle_maximize(app_id)
+            self._toggle_window_maximize(app_id)
             self._sound("click", 0.45)
         else:
             self._close_app(app_id)
@@ -341,6 +368,33 @@ class DesktopScene(Scene):
             self.audit_pointer_capture = False
         self.window_manager.close(app_id)
         self._sound("back", 0.5)
+
+    def _toggle_window_maximize(self, app_id: str) -> None:
+        self.window_manager.toggle_maximize(app_id)
+        window = self.window_manager.windows.get(app_id)
+        if app_id == "audit" and window is not None and window.maximized:
+            window.rect = SCREEN_RECT.copy()
+            self.start_open = False
+
+    def _audit_is_fullscreen(self) -> bool:
+        window = self.window_manager.windows.get("audit")
+        return bool(window is not None and window.maximized and not window.minimized)
+
+    @staticmethod
+    def _fullscreen_control_rects() -> dict[str, pygame.Rect]:
+        y = SCREEN_RECT.y + 7
+        close = pygame.Rect(SCREEN_RECT.right - 42, y, 36, 28)
+        maximize = close.move(-39, 0)
+        minimize = maximize.move(-39, 0)
+        return {"minimize": minimize, "maximize": maximize, "close": close}
+
+    def _fullscreen_control_at(self, pointer: tuple[int, int] | None) -> str | None:
+        if pointer is None or not self._audit_is_fullscreen():
+            return None
+        for control, rect in self._fullscreen_control_rects().items():
+            if rect.collidepoint(pointer):
+                return control
+        return None
 
     def _window_spec(self, app_id: str) -> tuple[str, pygame.Rect, tuple[int, int]]:
         if app_id == "audit":
@@ -539,17 +593,61 @@ class DesktopScene(Scene):
         if self.audit_scene is None:
             self._text(surface, "Aplicativo indisponível", self.font_body, WHITE, client.center, "center")
             return
-        self._with_audit_pointer(self.input_manager.mouse_position, lambda: self.audit_scene.render_embedded(self.audit_surface))
+        self._render_audit_composite()
         view = self._fit_rect(AUDIT_SOURCE_RECT.size, client)
-        self.audit_composite.blit(self.audit_surface, (0, 0), AUDIT_SOURCE_RECT)
-        footer_y = 696
-        self.audit_composite.fill((2, 5, 4), pygame.Rect(0, footer_y, self.audit_composite.width, self.audit_composite.height - footer_y))
-        stamp_source = pygame.Rect(432, 807, 1035, 162)
-        stamp_destination = (stamp_source.x - AUDIT_SOURCE_RECT.x, stamp_source.y - AUDIT_SOURCE_RECT.y)
-        self.audit_composite.blit(self.audit_surface, stamp_destination, stamp_source)
         scaled = pygame.transform.scale(self.audit_composite, view.size)
         surface.blit(scaled, view.topleft)
         self.audit_view_rect = view
+
+    def _draw_audit_fullscreen(self, surface: pygame.Surface) -> None:
+        if self.audit_scene is None:
+            pygame.draw.rect(surface, (2, 5, 4), SCREEN_RECT)
+            return
+        self._render_audit_composite()
+        scaled = pygame.transform.scale(self.audit_composite, SCREEN_RECT.size)
+        surface.blit(scaled, SCREEN_RECT.topleft)
+        self.audit_view_rect = SCREEN_RECT.copy()
+
+    def _render_audit_composite(self) -> None:
+        assert self.audit_scene is not None
+        self._with_audit_pointer(
+            self.input_manager.mouse_position,
+            lambda: self.audit_scene.render_embedded(self.audit_surface),
+        )
+        self.audit_composite.blit(self.audit_surface, (0, 0), AUDIT_SOURCE_RECT)
+
+        footer_y = 696
+        footer = pygame.Rect(0, footer_y, self.audit_composite.width, self.audit_composite.height - footer_y)
+        self.audit_composite.fill((16, 20, 18), footer)
+        pygame.draw.line(self.audit_composite, (82, 84, 64), (0, footer_y), (footer.right, footer_y), 3)
+        pygame.draw.line(self.audit_composite, (5, 8, 7), (0, footer_y + 5), (footer.right, footer_y + 5), 2)
+        for y in range(footer_y + 10, footer.bottom, 5):
+            pygame.draw.line(self.audit_composite, (10, 14, 12), (0, y), (footer.right, y))
+
+        stamp_source = pygame.Rect(432, 807, 1035, 162)
+        stamp_destination = (
+            stamp_source.x - AUDIT_SOURCE_RECT.x,
+            stamp_source.y - AUDIT_SOURCE_RECT.y,
+        )
+        self.audit_composite.blit(self.audit_surface, stamp_destination, stamp_source)
+
+    def _draw_fullscreen_controls(self, surface: pygame.Surface) -> None:
+        pointer = self.input_manager.mouse_position
+        hovered = self._fullscreen_control_at(pointer)
+        rects = self._fullscreen_control_rects()
+        tray = pygame.Rect(rects["minimize"].x - 5, rects["minimize"].y - 5, 122, 38)
+        backing = pygame.Surface(tray.size, pygame.SRCALPHA)
+        backing.fill((0, 0, 0, 150))
+        surface.blit(backing, tray.topleft)
+        for control, rect in rects.items():
+            state = (
+                "pressed"
+                if self.fullscreen_pressed_control == control
+                else "hover"
+                if hovered == control
+                else "normal"
+            )
+            surface.blit(self.theme.window_controls[state][control], rect.topleft)
 
     def _draw_browser(self, surface: pygame.Surface, window: DesktopWindow) -> None:
         client = window.client_rect
@@ -633,7 +731,6 @@ class DesktopScene(Scene):
             glow = pygame.Surface(START_RECT.size, pygame.SRCALPHA)
             glow.fill((255, 255, 255, 38))
             surface.blit(glow, START_RECT.topleft)
-        self._text(surface, "iniciar", self.font_body_bold, WHITE, (START_RECT.x + 65, START_RECT.y + 28))
         focused = self.window_manager.focused_id
         for app_id, rect in self._taskbar_button_rects():
             window = self.window_manager.windows[app_id]
@@ -685,7 +782,7 @@ class DesktopScene(Scene):
         window = self.window_manager.windows.get("audit")
         if pointer is None or window is None or window.minimized:
             return None
-        view = self._fit_rect(AUDIT_SOURCE_RECT.size, window.client_rect)
+        view = SCREEN_RECT.copy() if self._audit_is_fullscreen() else self._fit_rect(AUDIT_SOURCE_RECT.size, window.client_rect)
         self.audit_view_rect = view
         if not view.collidepoint(pointer):
             return None

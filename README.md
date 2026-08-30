@@ -68,6 +68,9 @@ O projeto está conectado ao repositório
 - Os botões da barra de título minimizam, maximizam/restauram e fecham a janela.
   Um clique no botão de um aplicativo na barra de tarefas alterna entre
   minimizar, restaurar e trazer a janela para frente.
+- Ao maximizar `Sob Análise`, o aplicativo ocupa o visor inteiro sem moldura nem
+  barra de tarefas, preservando a legibilidade da auditoria. `F11` também alterna
+  esse modo; os controles compactos no canto superior direito permitem sair dele.
 - Login, área de trabalho, menu Iniciar, ícones, molduras de janela, calculadora
   e cursor usam sprites próprios e os pacotes fornecidos pela equipe. O cursor
   personalizado aparece somente dentro do visor do computador; fora dele, o

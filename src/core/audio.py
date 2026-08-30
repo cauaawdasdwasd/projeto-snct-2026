@@ -9,6 +9,7 @@ class AudioManager:
     """Small audio facade that keeps the game playable without an audio device."""
 
     MUSIC_END_EVENT = pygame.USEREVENT + 17
+    TYPING_MAXTIME_MS = 120
     MUSIC_PATHS = {
         "menu": "music/menu.mp3",
         "audit_1": "music/audit_1.mp3",
@@ -108,7 +109,10 @@ class AudioManager:
         try:
             if name in {"click", "toggle", "typing"}:
                 sound.stop()
-            channel = sound.play(maxtime=max(0, maxtime_ms))
+            effective_maxtime = maxtime_ms
+            if name == "typing" and effective_maxtime <= 0:
+                effective_maxtime = self.TYPING_MAXTIME_MS
+            channel = sound.play(maxtime=max(0, effective_maxtime))
             if channel is not None:
                 channel.set_volume(max(0.0, min(1.0, volume * self.sfx_volume)))
         except pygame.error:
