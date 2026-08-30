@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import math
 from typing import TYPE_CHECKING
 
 import pygame
@@ -8,6 +7,7 @@ import pygame
 from src.core.scene import Scene
 from src.ui.credential_note import CredentialNote
 from src.ui.item_inspector import ItemInspector
+from src.ui.os_cursor import OSCursor
 
 if TYPE_CHECKING:
     from src.core.assets import AssetManager
@@ -16,28 +16,20 @@ if TYPE_CHECKING:
     from src.core.scene_manager import SceneManager
 
 
-LOGIN_SCREEN_RECT = pygame.Rect(186, 87, 1554, 696)
-USERNAME_RECT = pygame.Rect(1040, 376, 470, 54)
-PASSWORD_RECT = pygame.Rect(1040, 461, 470, 54)
-SUBMIT_RECT = pygame.Rect(PASSWORD_RECT.right - 58, PASSWORD_RECT.y, 58, 58)
+LOGIN_SCREEN_RECT = pygame.Rect(160, 55, 1600, 900)
+USERNAME_RECT = pygame.Rect(1150, 410, 396, 72)
+PASSWORD_RECT = pygame.Rect(1150, 526, 342, 72)
+SUBMIT_RECT = pygame.Rect(1492, 522, 84, 80)
 
 USERNAME = "sob_analise"
 PASSWORD = "05112002LAB"
 MAX_FIELD_LENGTH = 24
 SUCCESS_DELAY = 0.85
 
-SCREEN_TOP = (91, 142, 218)
-SCREEN_BOTTOM = (67, 116, 198)
-PANEL = (255, 255, 255)
-PANEL_ACTIVE = (255, 255, 255)
 INK_BRIGHT = (255, 255, 255)
 INK_MUTED = (218, 230, 249)
 GREEN = (133, 224, 99)
 RED = (255, 224, 117)
-BORDER = (33, 76, 153)
-XP_BLUE = (38, 91, 183)
-XP_BLUE_DARK = (17, 50, 137)
-XP_BLUE_LIGHT = (104, 158, 231)
 XP_ORANGE = (240, 139, 35)
 
 
@@ -53,8 +45,11 @@ class LoginScene(Scene):
     ) -> None:
         super().__init__(manager, assets, input_manager)
         self.audio = audio
-        self.background = self.assets.load_image(
-            "backgrounds/novo_sprite_teste.png"
+        self.background = self.assets.load_image("os/neutral_station_overlay.png")
+        self.login_screen = self.assets.load_image("os/login_screen.png")
+        self.os_cursor = OSCursor(
+            self.assets.load_image("os/cursor.png"),
+            LOGIN_SCREEN_RECT,
         )
         self.credential_note = CredentialNote(
             self.assets.load_image("ui/heart_note.png")
@@ -97,6 +92,12 @@ class LoginScene(Scene):
     def on_exit(self) -> None:
         self.credential_note.clear_hover()
         self.item_inspector.close()
+
+    def custom_cursor_active(self, position: tuple[int, int] | None) -> bool:
+        return self.os_cursor.is_active(
+            position,
+            blocked=self.item_inspector.is_open,
+        )
 
     def handle_escape(self) -> bool:
         if self.item_inspector.is_open:
@@ -176,8 +177,14 @@ class LoginScene(Scene):
                 self.manager.switch_to("desktop")
 
     def render(self, surface: pygame.Surface) -> None:
-        surface.blit(self.background, (0, 0))
+        surface.fill((0, 0, 0))
         self._render_screen(surface)
+        self.os_cursor.render(
+            surface,
+            self.input_manager.mouse_position,
+            blocked=self.item_inspector.is_open,
+        )
+        surface.blit(self.background, (0, 0))
         self.credential_note.render_note_highlight(surface)
         self.item_inspector.render(surface)
 
@@ -242,62 +249,32 @@ class LoginScene(Scene):
         self._play_sound("typing", 0.22)
 
     def _render_screen(self, surface: pygame.Surface) -> None:
-        for offset in range(LOGIN_SCREEN_RECT.height):
-            amount = offset / max(1, LOGIN_SCREEN_RECT.height - 1)
-            color = tuple(
-                round(top + (bottom - top) * amount)
-                for top, bottom in zip(SCREEN_TOP, SCREEN_BOTTOM)
-            )
-            pygame.draw.line(
-                surface,
-                color,
-                (LOGIN_SCREEN_RECT.left, LOGIN_SCREEN_RECT.top + offset),
-                (LOGIN_SCREEN_RECT.right - 1, LOGIN_SCREEN_RECT.top + offset),
-            )
-
-        top_band = pygame.Rect(LOGIN_SCREEN_RECT.x, LOGIN_SCREEN_RECT.y, LOGIN_SCREEN_RECT.width, 58)
-        bottom_band = pygame.Rect(LOGIN_SCREEN_RECT.x, LOGIN_SCREEN_RECT.bottom - 68, LOGIN_SCREEN_RECT.width, 68)
-        pygame.draw.rect(surface, XP_BLUE_DARK, top_band)
-        pygame.draw.rect(surface, XP_BLUE_DARK, bottom_band)
-        pygame.draw.line(surface, XP_BLUE_LIGHT, top_band.bottomleft, top_band.bottomright, 3)
-        pygame.draw.line(surface, (35, 72, 159), bottom_band.topleft, bottom_band.topright, 3)
-        pygame.draw.rect(surface, BORDER, LOGIN_SCREEN_RECT, 2)
+        surface.blit(self.login_screen, LOGIN_SCREEN_RECT.topleft)
         self._text(
             surface,
             "ORBE XP PROFESSIONAL",
             self.font_tiny,
             INK_BRIGHT,
-            (LOGIN_SCREEN_RECT.x + 34, LOGIN_SCREEN_RECT.y + 29),
+            (LOGIN_SCREEN_RECT.x + 38, LOGIN_SCREEN_RECT.y + 35),
         )
-        pulse = (math.sin(self.elapsed * 2.4) + 1.0) * 0.5
-        led = (92 + round(pulse * 35), 185 + round(pulse * 30), 69)
-        pygame.draw.circle(surface, led, (LOGIN_SCREEN_RECT.right - 155, 116), 5)
         self._text(
             surface,
             "REDE DA EMPRESA",
             self.font_tiny,
             INK_BRIGHT,
-            (LOGIN_SCREEN_RECT.right - 139, 106),
+            (LOGIN_SCREEN_RECT.right - 68, LOGIN_SCREEN_RECT.y + 34),
+            "topright",
         )
-
-        divider_x = 946
-        for distance in range(28):
-            alpha = max(0, 80 - distance * 3)
-            color = (150 + alpha, 180 + alpha // 2, 235)
-            pygame.draw.line(surface, color, (divider_x + distance, 183), (divider_x + distance, 673))
-
-        self._draw_xp_mark(surface, (443, 337), 106)
-        self._text(surface, "Bem-vinda", self._font(46, bold=True), INK_BRIGHT, (541, 292))
+        self._text(surface, "Bem-vinda", self._font(52, bold=True), INK_BRIGHT, (362, 290))
         self._text(
             surface,
             "Para começar, entre com sua conta de trabalho.",
             self.font_body,
             INK_BRIGHT,
-            (541, 353),
+            (362, 640),
         )
-        self._text(surface, "ESTAÇÃO 04", self.font_title, INK_BRIGHT, (1040, 224))
-        self._text(surface, "Central de auditoria", self.font_small, INK_MUTED, (1040, 264))
-        self._draw_profile(surface)
+        self._text(surface, "ESTAÇÃO 04", self.font_title, INK_BRIGHT, (1128, 305))
+        self._text(surface, "Central de auditoria", self.font_small, INK_MUTED, (1128, 357))
         self._draw_field(surface, "USUÁRIO", USERNAME_RECT, self.username, "username")
         masked_password = "*" * len(self.password)
         self._draw_field(surface, "SENHA", PASSWORD_RECT, masked_password, "password")
@@ -310,7 +287,7 @@ class LoginScene(Scene):
                 self.message,
                 self.font_small,
                 message_color,
-                (1275, 558),
+                (1320, 646),
                 "center",
             )
         self._text(
@@ -318,39 +295,17 @@ class LoginScene(Scene):
             "DICA DE SENHA: LEMBRE-SE, CONFIE NO SEU CORAÇÃO.",
             self.font_tiny,
             INK_BRIGHT,
-            (LOGIN_SCREEN_RECT.x + 34, LOGIN_SCREEN_RECT.bottom - 40),
+            (350, LOGIN_SCREEN_RECT.bottom - 45),
         )
         self._text(
             surface,
             "Após entrar, abra o aplicativo Sob Análise na área de trabalho.",
             self.font_tiny,
             INK_MUTED,
-            (LOGIN_SCREEN_RECT.right - 34, LOGIN_SCREEN_RECT.bottom - 40),
+            (LOGIN_SCREEN_RECT.right - 38, LOGIN_SCREEN_RECT.bottom - 45),
             "topright",
         )
         surface.blit(self.scanlines, LOGIN_SCREEN_RECT.topleft)
-
-    def _draw_profile(self, surface: pygame.Surface) -> None:
-        rect = pygame.Rect(968, 211, 58, 58)
-        pygame.draw.rect(surface, INK_BRIGHT, rect)
-        pygame.draw.rect(surface, (117, 165, 72), rect.inflate(-5, -5))
-        pygame.draw.circle(surface, (243, 220, 165), (rect.centerx, rect.y + 20), 11)
-        pygame.draw.ellipse(surface, (249, 239, 194), (rect.x + 12, rect.y + 33, rect.width - 24, 18))
-
-    def _draw_xp_mark(self, surface: pygame.Surface, center: tuple[int, int], size: int) -> None:
-        x, y = center
-        half = size // 2
-        gap = 5
-        cell = half - gap
-        colors = ((240, 72, 52), (91, 177, 63), (62, 116, 219), (246, 191, 47))
-        rects = (
-            pygame.Rect(x - half, y - half, cell, cell),
-            pygame.Rect(x + gap, y - half, cell, cell),
-            pygame.Rect(x - half, y + gap, cell, cell),
-            pygame.Rect(x + gap, y + gap, cell, cell),
-        )
-        for color, rect in zip(colors, rects):
-            pygame.draw.rect(surface, color, rect)
 
     def _draw_field(
         self,
@@ -362,8 +317,8 @@ class LoginScene(Scene):
     ) -> None:
         active = self.state == "entry" and self.active_field == field_id
         border = XP_ORANGE if active else (174, 194, 220)
-        pygame.draw.rect(surface, PANEL_ACTIVE if active else PANEL, rect)
-        pygame.draw.rect(surface, border, rect, 3 if active else 2)
+        if active:
+            pygame.draw.rect(surface, border, rect, 3)
         self._text(
             surface,
             label,
@@ -373,47 +328,26 @@ class LoginScene(Scene):
         )
         shown = value or ("Digite o usuário" if field_id == "username" else "Digite a senha")
         color = (25, 37, 59) if value else (115, 127, 143)
-        self._text(surface, shown, self.font_body, color, (rect.x + 18, rect.y + 15))
+        self._text(surface, shown, self.font_body, color, (rect.x + 18, rect.y + 22))
         if active and self.cursor_time < 0.5:
             text_width = self.font_body.size(value)[0]
             cursor_x = min(rect.right - 72, rect.x + 19 + text_width)
             pygame.draw.line(
                 surface,
                 (25, 37, 59),
-                (cursor_x, rect.y + 15),
-                (cursor_x, rect.bottom - 14),
+                (cursor_x, rect.y + 20),
+                (cursor_x, rect.bottom - 18),
                 2,
             )
 
     def _draw_submit(self, surface: pygame.Surface) -> None:
         active = self.state == "entry"
         hovered = active and self.submit_hovered
-        fill = (78, 132, 218) if hovered else XP_BLUE
-        border = INK_BRIGHT if hovered else XP_BLUE_LIGHT if active else BORDER
-        pygame.draw.rect(surface, fill, SUBMIT_RECT)
-        pygame.draw.rect(surface, border, SUBMIT_RECT, 3)
-        center_x, center_y = SUBMIT_RECT.center
-        pygame.draw.line(
-            surface,
-            border,
-            (center_x - 12, center_y),
-            (center_x + 10, center_y),
-            3,
-        )
-        pygame.draw.line(
-            surface,
-            border,
-            (center_x + 2, center_y - 8),
-            (center_x + 10, center_y),
-            3,
-        )
-        pygame.draw.line(
-            surface,
-            border,
-            (center_x + 2, center_y + 8),
-            (center_x + 10, center_y),
-            3,
-        )
+        if active and hovered:
+            glow = pygame.Surface(SUBMIT_RECT.size, pygame.SRCALPHA)
+            glow.fill((255, 255, 255, 55))
+            surface.blit(glow, SUBMIT_RECT.topleft)
+            pygame.draw.rect(surface, INK_BRIGHT, SUBMIT_RECT, 2)
 
     @staticmethod
     def _build_scanlines() -> pygame.Surface:

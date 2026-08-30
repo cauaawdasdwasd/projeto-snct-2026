@@ -38,6 +38,10 @@ class Scene(ABC):
     def camera_motion_enabled(self) -> bool:
         return False
 
+    def custom_cursor_active(self, position: tuple[int, int] | None) -> bool:
+        """Return whether the scene is drawing its own cursor at this position."""
+        return False
+
     @abstractmethod
     def handle_event(self, event: pygame.event.Event) -> None:
         pass

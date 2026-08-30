@@ -61,6 +61,12 @@ O projeto está conectado ao repositório
 - O login abre uma área de trabalho inspirada no Windows XP. O botão `iniciar`,
   o encerramento de sessão e os atalhos do desktop são interativos. Dê dois
   cliques em `Sob Análise` para começar o turno.
+- Login, área de trabalho, menu Iniciar, ícones, molduras de janela, calculadora
+  e cursor usam um conjunto próprio de sprites. O cursor personalizado aparece
+  somente dentro do visor do computador; fora dele, o cursor normal é restaurado.
+- A estação comum usa uma moldura neutra, sem os quatro módulos de decisão. O
+  console físico com os carimbos aparece somente depois que o aplicativo
+  `Sob Análise` é aberto.
 - `Google` abre o navegador interno reservado para as notícias cômicas futuras.
   `Calculadora` aceita mouse e teclado e pode ser usada nos casos de contas.
   `Meus documentos` permite criar pastas e arquivos `.txt`; os textos abrem no
@@ -175,6 +181,7 @@ sob_analise/
 │   ├── music/                   # Música do menu e duas faixas da auditoria
 │   ├── models/                  # Objetos GLB usados na inspeção física
 │   ├── newspaper/               # Ilustrações das matérias corretas e desastrosas
+│   ├── os/                      # Monitor neutro, login, desktop, janelas, ícones e cursor
 │   ├── protocols/               # Retratos dos seis protocolos
 │   ├── stamp_marks/             # Marcas transparentes aplicadas ao papel
 │   ├── stamps/                  # Botões dos carimbos jogáveis
@@ -182,6 +189,7 @@ sob_analise/
 │   └── videos/                  # Futuros tutoriais em vídeo
 ├── scripts/
 │   ├── generate_audio.py         # Regenera a trilha e os efeitos WAV
+│   ├── process_os_assets.py      # Recorta e redimensiona os sprites do sistema
 │   ├── restore_background.py     # Restaura a base original e repara o recorte do visor
 │   └── generate_stamp_marks.py   # Regenera as marcas dos carimbos
 └── src/
@@ -214,6 +222,7 @@ sob_analise/
         ├── document_inspector.py # Zoom, navegação e caderno de evidências
         ├── item_inspector.py     # Rotação e zoom dos objetos 3D
         ├── newspaper.py          # Jornal final paginado, matérias e placar
+        ├── os_cursor.py          # Cursor próprio limitado ao visor da estação
         ├── pause_menu.py         # Pausa, retorno ao menu e acesso às configurações
         ├── protocol_panel.py     # Menu paginado e popup dos protocolos
         ├── settings_panel.py     # Configurações reutilizadas no menu e na pausa
@@ -249,8 +258,11 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
   que eles cubram Protocolo, Decisão da IA ou Dados Utilizados.
 - A área de documentos possui grade de fósforo, scanlines e ruído pontual gerados
   em coordenadas inteiras para reforçar a aparência de monitor sem borrar o texto.
-- A moldura principal foi refeita em pixel art nítida, preservando a geometria da
-  interface e removendo os elementos decorativos que cobriam a área útil.
+- Login e desktop usam uma carcaça de monitor neutra. A moldura original com os
+  quatro módulos de decisão, livros e placa `Sob Análise` pertence somente à cena
+  de auditoria.
+- Os sprites-base do sistema ficam em `assets/os`. Para regenerar os recortes e
+  tamanhos usados pelo jogo, execute `py -3.11 scripts/process_os_assets.py`.
 - Os documentos são gerados por código para manter IDs e outros dados totalmente
   legíveis. Suas miniaturas usam redução de alta qualidade para preservar o mesmo
   rosto e os mesmos traços em todos os níveis de zoom.

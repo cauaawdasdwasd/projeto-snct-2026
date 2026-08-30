@@ -20,6 +20,7 @@ from src.ui.database_search import DatabaseSearch
 from src.ui.document_inspector import DocumentInspector
 from src.ui.item_inspector import ItemInspector
 from src.ui.newspaper import FinalNewspaper
+from src.ui.os_cursor import OSCursor
 from src.ui.pause_menu import PauseMenu
 from src.ui.protocol_panel import ProtocolPanel
 from src.ui.signature_pad import SignaturePad
@@ -143,6 +144,10 @@ class AuditScene(Scene):
             self.assets.assets_root / "models" / "heart_note.glb",
             "Post-it de acesso",
         )
+        self.os_cursor = OSCursor(
+            self.assets.load_image("os/cursor.png"),
+            MONITOR_SCREEN_RECT,
+        )
         self.database_search = DatabaseSearch(self.case, audio)
         self.signature_pad = SignaturePad()
         self.newspaper = FinalNewspaper(self._load_newspaper_images())
@@ -175,6 +180,12 @@ class AuditScene(Scene):
         self.item_inspector.close()
         self.database_search.close()
         self.signature_pad.close()
+
+    def custom_cursor_active(self, position: tuple[int, int] | None) -> bool:
+        return self.os_cursor.is_active(
+            position,
+            blocked=self.item_inspector.is_open,
+        )
 
     def handle_escape(self) -> bool:
         if self.pause_menu.is_open:
@@ -394,6 +405,11 @@ class AuditScene(Scene):
         self.item_inspector.render(surface)
         if self.pause_menu.is_open:
             self.pause_menu.render(surface)
+        self.os_cursor.render(
+            surface,
+            self.input_manager.mouse_position,
+            blocked=self.item_inspector.is_open,
+        )
 
     def _render_status_led(self, surface: pygame.Surface) -> None:
         pulse = (math.sin(self.head_motion_time * 2.4) + 1.0) * 0.5

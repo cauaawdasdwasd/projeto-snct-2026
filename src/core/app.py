@@ -55,6 +55,7 @@ class Application:
         self._camera_rect = pygame.Rect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
         self._camera_position = pygame.Vector2(0, 0)
         self._camera_time = 0.0
+        self._system_cursor_visible = True
         self._update_viewport()
         self._register_scenes()
 
@@ -65,9 +66,11 @@ class Application:
                 self._handle_events()
                 self.input_manager.update_mouse_position()
                 self.scene_manager.update(dt)
+                self._update_cursor_visibility()
                 self._update_camera(dt)
                 self._render()
         finally:
+            pygame.mouse.set_visible(True)
             self.audio.stop()
             pygame.quit()
 
@@ -279,6 +282,17 @@ class Application:
             crop_height,
         )
         self.input_manager.set_camera_rect(self._camera_rect)
+
+    def _update_cursor_visibility(self) -> None:
+        current_scene = self.scene_manager.current_scene
+        custom_active = bool(
+            current_scene is not None
+            and current_scene.custom_cursor_active(self.input_manager.mouse_position)
+        )
+        should_show_system_cursor = not custom_active
+        if should_show_system_cursor != self._system_cursor_visible:
+            pygame.mouse.set_visible(should_show_system_cursor)
+            self._system_cursor_visible = should_show_system_cursor
 
     def _update_viewport(self) -> None:
         window_width, window_height = self.window.get_size()

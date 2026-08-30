@@ -39,6 +39,12 @@ stamp_marks
 newspaper
   Doze ilustracoes do jornal: resultado correto e incorreto de cada caso.
 
+sistema_operacional
+  Copias dos sprites atualmente usados no login e na area de trabalho.
+  Inclui a moldura neutra completa, telas, menu Iniciar, janelas, icones e cursor.
+  O painel fisico com os quatro carimbos nao faz parte desta moldura: ele continua
+  exclusivo do aplicativo Sob Analise.
+
 NAO SAO ARQUIVOS DE SPRITE
 
 Os documentos do centro, os textos, os paineis internos, as barras e os
