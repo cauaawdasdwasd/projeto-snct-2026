@@ -18,7 +18,7 @@ INK_MUTED = (103, 116, 82)
 AMBER = (211, 166, 66)
 LINE = (72, 82, 55)
 
-PAUSE_COMMANDS = ("CONTINUAR", "CONFIGURAÇÕES", "VOLTAR AO MENU")
+PAUSE_COMMANDS = ("CONTINUAR", "CONFIGURAÇÕES", "ÁREA DE TRABALHO")
 
 
 class PauseMenu:
@@ -154,7 +154,7 @@ class PauseMenu:
             self.view = "settings"
         else:
             self.close()
-            return "main_menu"
+            return "desktop"
         return None
 
     def _play_click(self, volume: float = 0.8) -> None:

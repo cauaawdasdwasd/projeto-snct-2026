@@ -1,14 +1,28 @@
 SPRITES ATUAIS - SOB ANALISE
 
-Esta pasta contem copias das 28 imagens PNG efetivamente usadas pela versao
-atual do jogo. Os arquivos originais continuam em assets; alterar uma copia
-desta pasta nao modifica o jogo automaticamente.
+Esta pasta contem copias das imagens PNG usadas pela versao atual do jogo e
+arquivos auxiliares para retrabalho. Os arquivos originais continuam em assets;
+alterar uma copia desta pasta nao modifica o jogo automaticamente.
 
 PASTAS
 
 backgrounds
   novo sprite (teste.png - moldura e cenario ativos da tela de auditoria.
   audit_base_v6.png - versao anterior mantida como referencia.
+
+ARQUIVOS DO MONITOR
+
+monitor png.png
+  Moldura completa de 1920x1080 com o interior transparente.
+
+NOVO monitor png.png
+  Variante de moldura adicionada manualmente pela equipe e preservada sem edicao.
+
+monitor_completo_atual.png
+  Copia com nome explicito da moldura completa usada como referencia.
+
+monitor_interior_atual.png
+  Recorte exato de 1554x696 correspondente a area interna da tela.
 
 cases/case_01
   ana_ribeiro.png - retrato presente nos documentos do primeiro caso.

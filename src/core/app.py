@@ -24,6 +24,7 @@ from src.core.settings import (
     VIRTUAL_WIDTH,
 )
 from src.scenes.audit import AuditScene
+from src.scenes.desktop import DesktopScene
 from src.scenes.login import LoginScene
 from src.scenes.main_menu import MainMenuScene
 
@@ -115,6 +116,15 @@ class Application:
         self.scene_manager.add_scene(
             "login",
             LoginScene(
+                self.scene_manager,
+                self.assets,
+                self.input_manager,
+                self.audio,
+            ),
+        )
+        self.scene_manager.add_scene(
+            "desktop",
+            DesktopScene(
                 self.scene_manager,
                 self.assets,
                 self.input_manager,

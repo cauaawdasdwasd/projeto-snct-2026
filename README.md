@@ -58,6 +58,13 @@ O projeto está conectado ao repositório
   aceitam teclado, `Tab` alterna entre eles e `Enter` avança ou confirma. A dica
   aponta para o post-it físico de coração, que pode ser girado para revelar as
   credenciais antes do login.
+- O login abre uma área de trabalho inspirada no Windows XP. O botão `iniciar`,
+  o encerramento de sessão e os atalhos do desktop são interativos. Dê dois
+  cliques em `Sob Análise` para começar o turno.
+- `Google` abre o navegador interno reservado para as notícias cômicas futuras.
+  `Calculadora` aceita mouse e teclado e pode ser usada nos casos de contas.
+  `Meus documentos` permite criar pastas e arquivos `.txt`; os textos abrem no
+  bloco de notas e podem ser salvos com `Ctrl+S`.
 - Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,
   alterar a resolução, alternar entre janela e tela cheia e ajustar separadamente
   os volumes da música e dos efeitos. O jogo preserva a imagem original com barras
@@ -107,7 +114,7 @@ O projeto está conectado ao repositório
   alternam automaticamente. Há efeitos próprios para interface, documentos,
   papel, dicas, confirmações e carimbos.
 - Pressione `Esc` sem outra janela aberta para pausar. A pausa permite continuar,
-  abrir as configurações ou voltar ao menu principal.
+  abrir as configurações ou voltar à área de trabalho da estação.
 - `Esc` nunca encerra o jogo. Para fechar a aplicação, use o botão da janela ou
   `Alt+F4`.
 
@@ -162,7 +169,7 @@ sob_analise/
 ├── main.py                       # Ponto de entrada
 ├── requirements.txt             # Dependências Python
 ├── assets/
-│   ├── backgrounds/             # Moldura e cenário da auditoria (novo_sprite_teste.png)
+│   ├── backgrounds/             # Moldura, menu e papel de parede do desktop
 │   ├── cases/case_01/           # Retrato usado nos documentos funcionais
 │   ├── documents/dev/           # Documentos antigos de desenvolvimento
 │   ├── music/                   # Música do menu e duas faixas da auditoria
@@ -195,8 +202,9 @@ sob_analise/
     │   └── glb_renderer.py       # Renderização GLB isolada com ModernGL
     ├── scenes/
     │   ├── main_menu.py          # Menu inicial
-    │   ├── login.py              # Login digitável e acesso ao post-it 3D
-    │   └── audit.py              # Tela principal de auditoria
+    │   ├── login.py              # Login estilo XP e acesso ao post-it 3D
+    │   ├── desktop.py            # Desktop, Iniciar, apps e calculadora funcional
+    │   └── audit.py              # Aplicativo principal de auditoria
     └── ui/
         ├── ai_decision_panel.py  # Resumo e popup da decisão da IA
         ├── case_dialog.py        # Chamado e confirmação do carimbo

@@ -17,8 +17,8 @@ if TYPE_CHECKING:
 
 
 LOGIN_SCREEN_RECT = pygame.Rect(186, 87, 1554, 696)
-USERNAME_RECT = pygame.Rect(716, 438, 488, 58)
-PASSWORD_RECT = pygame.Rect(716, 532, 488, 58)
+USERNAME_RECT = pygame.Rect(1040, 376, 470, 54)
+PASSWORD_RECT = pygame.Rect(1040, 461, 470, 54)
 SUBMIT_RECT = pygame.Rect(PASSWORD_RECT.right - 58, PASSWORD_RECT.y, 58, 58)
 
 USERNAME = "sob_analise"
@@ -26,17 +26,19 @@ PASSWORD = "05112002LAB"
 MAX_FIELD_LENGTH = 24
 SUCCESS_DELAY = 0.85
 
-SCREEN_TOP = (18, 34, 38)
-SCREEN_BOTTOM = (8, 18, 20)
-PANEL = (8, 15, 17)
-PANEL_ACTIVE = (15, 24, 24)
-INK = (211, 218, 190)
-INK_BRIGHT = (245, 239, 172)
-INK_MUTED = (121, 139, 119)
-AMBER = (218, 165, 62)
-GREEN = (107, 177, 89)
-RED = (210, 91, 75)
-BORDER = (75, 94, 75)
+SCREEN_TOP = (91, 142, 218)
+SCREEN_BOTTOM = (67, 116, 198)
+PANEL = (255, 255, 255)
+PANEL_ACTIVE = (255, 255, 255)
+INK_BRIGHT = (255, 255, 255)
+INK_MUTED = (218, 230, 249)
+GREEN = (133, 224, 99)
+RED = (255, 224, 117)
+BORDER = (33, 76, 153)
+XP_BLUE = (38, 91, 183)
+XP_BLUE_DARK = (17, 50, 137)
+XP_BLUE_LIGHT = (104, 158, 231)
+XP_ORANGE = (240, 139, 35)
 
 
 class LoginScene(Scene):
@@ -73,9 +75,8 @@ class LoginScene(Scene):
 
         self.font_tiny = self._font(16)
         self.font_small = self._font(20)
-        self.font_body = self._font(25)
-        self.font_body_bold = self._font(27, bold=True)
-        self.font_title = self._font(42, bold=True)
+        self.font_body = self._font(23)
+        self.font_title = self._font(43, bold=True)
         self.scanlines = self._build_scanlines()
 
     def on_enter(self) -> None:
@@ -172,7 +173,7 @@ class LoginScene(Scene):
             self.success_time += dt
             if self.success_time >= SUCCESS_DELAY:
                 self.item_inspector.release()
-                self.manager.switch_to("audit")
+                self.manager.switch_to("desktop")
 
     def render(self, surface: pygame.Surface) -> None:
         surface.blit(self.background, (0, 0))
@@ -254,42 +255,49 @@ class LoginScene(Scene):
                 (LOGIN_SCREEN_RECT.right - 1, LOGIN_SCREEN_RECT.top + offset),
             )
 
+        top_band = pygame.Rect(LOGIN_SCREEN_RECT.x, LOGIN_SCREEN_RECT.y, LOGIN_SCREEN_RECT.width, 58)
+        bottom_band = pygame.Rect(LOGIN_SCREEN_RECT.x, LOGIN_SCREEN_RECT.bottom - 68, LOGIN_SCREEN_RECT.width, 68)
+        pygame.draw.rect(surface, XP_BLUE_DARK, top_band)
+        pygame.draw.rect(surface, XP_BLUE_DARK, bottom_band)
+        pygame.draw.line(surface, XP_BLUE_LIGHT, top_band.bottomleft, top_band.bottomright, 3)
+        pygame.draw.line(surface, (35, 72, 159), bottom_band.topleft, bottom_band.topright, 3)
         pygame.draw.rect(surface, BORDER, LOGIN_SCREEN_RECT, 2)
         self._text(
             surface,
-            "REDE INTERNA // ACESSO RESTRITO",
+            "ORBE XP PROFESSIONAL",
             self.font_tiny,
-            INK_MUTED,
+            INK_BRIGHT,
             (LOGIN_SCREEN_RECT.x + 34, LOGIN_SCREEN_RECT.y + 29),
         )
         pulse = (math.sin(self.elapsed * 2.4) + 1.0) * 0.5
-        led = (78 + round(pulse * 35), 145 + round(pulse * 36), 65)
-        pygame.draw.circle(surface, led, (LOGIN_SCREEN_RECT.right - 148, 124), 5)
+        led = (92 + round(pulse * 35), 185 + round(pulse * 30), 69)
+        pygame.draw.circle(surface, led, (LOGIN_SCREEN_RECT.right - 155, 116), 5)
         self._text(
             surface,
-            "ESTAÇÃO 04",
+            "REDE DA EMPRESA",
             self.font_tiny,
-            GREEN,
-            (LOGIN_SCREEN_RECT.right - 132, 114),
-        )
-        pygame.draw.line(
-            surface,
-            BORDER,
-            (LOGIN_SCREEN_RECT.x + 32, 151),
-            (LOGIN_SCREEN_RECT.right - 32, 151),
-            2,
+            INK_BRIGHT,
+            (LOGIN_SCREEN_RECT.right - 139, 106),
         )
 
-        self._draw_profile(surface)
-        self._text(surface, "BEM-VINDA", self.font_title, INK_BRIGHT, (960, 324), "center")
+        divider_x = 946
+        for distance in range(28):
+            alpha = max(0, 80 - distance * 3)
+            color = (150 + alpha, 180 + alpha // 2, 235)
+            pygame.draw.line(surface, color, (divider_x + distance, 183), (divider_x + distance, 673))
+
+        self._draw_xp_mark(surface, (443, 337), 106)
+        self._text(surface, "Bem-vinda", self._font(46, bold=True), INK_BRIGHT, (541, 292))
         self._text(
             surface,
-            "Entre com sua conta de trabalho",
-            self.font_small,
-            INK_MUTED,
-            (960, 370),
-            "center",
+            "Para começar, entre com sua conta de trabalho.",
+            self.font_body,
+            INK_BRIGHT,
+            (541, 353),
         )
+        self._text(surface, "ESTAÇÃO 04", self.font_title, INK_BRIGHT, (1040, 224))
+        self._text(surface, "Central de auditoria", self.font_small, INK_MUTED, (1040, 264))
+        self._draw_profile(surface)
         self._draw_field(surface, "USUÁRIO", USERNAME_RECT, self.username, "username")
         masked_password = "*" * len(self.password)
         self._draw_field(surface, "SENHA", PASSWORD_RECT, masked_password, "password")
@@ -302,25 +310,47 @@ class LoginScene(Scene):
                 self.message,
                 self.font_small,
                 message_color,
-                (960, 625),
+                (1275, 558),
                 "center",
             )
         self._text(
             surface,
             "DICA DE SENHA: LEMBRE-SE, CONFIE NO SEU CORAÇÃO.",
             self.font_tiny,
-            AMBER,
-            (960, 684),
-            "center",
+            INK_BRIGHT,
+            (LOGIN_SCREEN_RECT.x + 34, LOGIN_SCREEN_RECT.bottom - 40),
+        )
+        self._text(
+            surface,
+            "Após entrar, abra o aplicativo Sob Análise na área de trabalho.",
+            self.font_tiny,
+            INK_MUTED,
+            (LOGIN_SCREEN_RECT.right - 34, LOGIN_SCREEN_RECT.bottom - 40),
+            "topright",
         )
         surface.blit(self.scanlines, LOGIN_SCREEN_RECT.topleft)
 
     def _draw_profile(self, surface: pygame.Surface) -> None:
-        center = (960, 225)
-        pygame.draw.circle(surface, (7, 14, 15), center, 58)
-        pygame.draw.circle(surface, BORDER, center, 58, 3)
-        pygame.draw.circle(surface, (150, 163, 140), (960, 209), 19)
-        pygame.draw.ellipse(surface, (150, 163, 140), (921, 234, 78, 39))
+        rect = pygame.Rect(968, 211, 58, 58)
+        pygame.draw.rect(surface, INK_BRIGHT, rect)
+        pygame.draw.rect(surface, (117, 165, 72), rect.inflate(-5, -5))
+        pygame.draw.circle(surface, (243, 220, 165), (rect.centerx, rect.y + 20), 11)
+        pygame.draw.ellipse(surface, (249, 239, 194), (rect.x + 12, rect.y + 33, rect.width - 24, 18))
+
+    def _draw_xp_mark(self, surface: pygame.Surface, center: tuple[int, int], size: int) -> None:
+        x, y = center
+        half = size // 2
+        gap = 5
+        cell = half - gap
+        colors = ((240, 72, 52), (91, 177, 63), (62, 116, 219), (246, 191, 47))
+        rects = (
+            pygame.Rect(x - half, y - half, cell, cell),
+            pygame.Rect(x + gap, y - half, cell, cell),
+            pygame.Rect(x - half, y + gap, cell, cell),
+            pygame.Rect(x + gap, y + gap, cell, cell),
+        )
+        for color, rect in zip(colors, rects):
+            pygame.draw.rect(surface, color, rect)
 
     def _draw_field(
         self,
@@ -331,25 +361,25 @@ class LoginScene(Scene):
         field_id: str,
     ) -> None:
         active = self.state == "entry" and self.active_field == field_id
-        border = AMBER if active else BORDER
+        border = XP_ORANGE if active else (174, 194, 220)
         pygame.draw.rect(surface, PANEL_ACTIVE if active else PANEL, rect)
         pygame.draw.rect(surface, border, rect, 3 if active else 2)
         self._text(
             surface,
             label,
             self.font_tiny,
-            AMBER if active else INK_MUTED,
+            INK_BRIGHT,
             (rect.x, rect.y - 25),
         )
         shown = value or ("Digite o usuário" if field_id == "username" else "Digite a senha")
-        color = INK_BRIGHT if value else INK_MUTED
+        color = (25, 37, 59) if value else (115, 127, 143)
         self._text(surface, shown, self.font_body, color, (rect.x + 18, rect.y + 15))
         if active and self.cursor_time < 0.5:
             text_width = self.font_body.size(value)[0]
             cursor_x = min(rect.right - 72, rect.x + 19 + text_width)
             pygame.draw.line(
                 surface,
-                INK_BRIGHT,
+                (25, 37, 59),
                 (cursor_x, rect.y + 15),
                 (cursor_x, rect.bottom - 14),
                 2,
@@ -358,8 +388,8 @@ class LoginScene(Scene):
     def _draw_submit(self, surface: pygame.Surface) -> None:
         active = self.state == "entry"
         hovered = active and self.submit_hovered
-        fill = (56, 52, 30) if hovered else (28, 31, 23)
-        border = INK_BRIGHT if hovered else AMBER if active else BORDER
+        fill = (78, 132, 218) if hovered else XP_BLUE
+        border = INK_BRIGHT if hovered else XP_BLUE_LIGHT if active else BORDER
         pygame.draw.rect(surface, fill, SUBMIT_RECT)
         pygame.draw.rect(surface, border, SUBMIT_RECT, 3)
         center_x, center_y = SUBMIT_RECT.center
@@ -404,7 +434,7 @@ class LoginScene(Scene):
     @staticmethod
     def _font(size: int, bold: bool = False) -> pygame.font.Font:
         return pygame.font.SysFont(
-            ("Consolas", "Courier New", "monospace"),
+            ("Tahoma", "Verdana", "Arial"),
             size,
             bold=bold,
         )
@@ -418,7 +448,7 @@ class LoginScene(Scene):
         position: tuple[int, int],
         anchor: str = "topleft",
     ) -> None:
-        rendered = font.render(text, False, color)
+        rendered = font.render(text, True, color)
         rect = rendered.get_rect()
         setattr(rect, anchor, position)
         surface.blit(rendered, rect)

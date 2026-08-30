@@ -227,8 +227,8 @@ class AuditScene(Scene):
     def handle_event(self, event: pygame.event.Event) -> None:
         if self.pause_menu.is_open:
             action = self.pause_menu.handle_event(event, self.input_manager.mouse_position)
-            if action == "main_menu":
-                self.manager.switch_to("main_menu")
+            if action == "desktop":
+                self.manager.switch_to("desktop")
             return
         if self.newspaper_transition is not None:
             return
