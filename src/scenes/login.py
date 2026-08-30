@@ -24,14 +24,26 @@ SUBMIT_RECT = pygame.Rect(1492, 522, 84, 80)
 
 USERNAME = "sob_analise"
 PASSWORD = "05112002LAB"
+VALID_CREDENTIALS = (
+    (USERNAME.casefold(), PASSWORD.casefold()),
+    ("admin", "admin"),
+)
 MAX_FIELD_LENGTH = 24
 SUCCESS_DELAY = 0.85
+
+WELCOME_CENTER_X = 470
+FORM_CENTER_X = USERNAME_RECT.centerx
 
 INK_BRIGHT = (255, 255, 255)
 INK_MUTED = (218, 230, 249)
 GREEN = (133, 224, 99)
 RED = (255, 224, 117)
 XP_ORANGE = (240, 139, 35)
+
+
+def credentials_are_valid(username: str, password: str) -> bool:
+    candidate = (username.strip().casefold(), password.casefold())
+    return candidate in VALID_CREDENTIALS
 
 
 class LoginScene(Scene):
@@ -74,7 +86,7 @@ class LoginScene(Scene):
         self.font_tiny = self._font(16)
         self.font_small = self._font(20)
         self.font_body = self._font(23)
-        self.font_title = self._font(43, bold=True)
+        self.font_title = self._font(34, bold=True)
         self.scanlines = self._build_scanlines()
 
     def on_enter(self) -> None:
@@ -225,10 +237,7 @@ class LoginScene(Scene):
             self._play_sound("click", 0.45)
 
     def _attempt_login(self) -> None:
-        if (
-            self.username.casefold() == USERNAME.casefold()
-            and self.password.casefold() == PASSWORD.casefold()
-        ):
+        if credentials_are_valid(self.username, self.password):
             self.state = "success"
             self.message = "ACESSO AUTORIZADO"
             self.success_time = 0.0
@@ -277,19 +286,41 @@ class LoginScene(Scene):
             "REDE DA EMPRESA",
             self.font_tiny,
             INK_BRIGHT,
-            (LOGIN_SCREEN_RECT.right - 68, LOGIN_SCREEN_RECT.y + 34),
+            (LOGIN_SCREEN_RECT.right - 92, LOGIN_SCREEN_RECT.y + 35),
             "topright",
         )
-        self._text(surface, "Bem-vinda", self._font(52, bold=True), INK_BRIGHT, (362, 290))
+        self._text(
+            surface,
+            "Bem-vinda",
+            self._font(52, bold=True),
+            INK_BRIGHT,
+            (WELCOME_CENTER_X, 290),
+            "midtop",
+        )
         self._text(
             surface,
             "Para começar, entre com sua conta de trabalho.",
             self.font_body,
             INK_BRIGHT,
-            (362, 640),
+            (WELCOME_CENTER_X, 640),
+            "midtop",
         )
-        self._text(surface, "ESTAÇÃO 04", self.font_title, INK_BRIGHT, (1128, 305))
-        self._text(surface, "Central de auditoria", self.font_small, INK_MUTED, (1128, 357))
+        self._text(
+            surface,
+            "ESTAÇÃO 04",
+            self.font_title,
+            INK_BRIGHT,
+            (FORM_CENTER_X, 318),
+            "midtop",
+        )
+        self._text(
+            surface,
+            "Central de auditoria",
+            self.font_small,
+            INK_MUTED,
+            (FORM_CENTER_X, 360),
+            "midtop",
+        )
         self._draw_field(surface, "USUÁRIO", USERNAME_RECT, self.username, "username")
         masked_password = "*" * len(self.password)
         self._draw_field(surface, "SENHA", PASSWORD_RECT, masked_password, "password")

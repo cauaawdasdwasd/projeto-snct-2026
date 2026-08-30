@@ -57,7 +57,8 @@ O projeto está conectado ao repositório
 - `INICIAR TURNO` abre a tela de acesso da estação. Os campos de usuário e senha
   aceitam teclado, `Tab` alterna entre eles e `Enter` avança ou confirma. A dica
   aponta para o post-it físico de coração, que pode ser girado para revelar as
-  credenciais antes do login.
+  credenciais antes do login. Para testes rápidos, o acesso alternativo
+  `admin` / `admin` também é aceito.
 - O login abre uma área de trabalho inspirada no Windows XP. O botão `iniciar`,
   o encerramento de sessão e os atalhos do desktop são interativos. Dê dois
   cliques em `Sob Análise` para abrir o aplicativo da empresa.
