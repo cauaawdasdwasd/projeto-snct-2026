@@ -105,6 +105,14 @@ class Application:
         return True
 
     def _register_scenes(self) -> None:
+        audit_scene = AuditScene(
+            self.scene_manager,
+            self.assets,
+            self.input_manager,
+            self.audio,
+            self.get_preferences,
+            self.apply_preferences,
+        )
         self.scene_manager.add_scene(
             "main_menu",
             MainMenuScene(
@@ -132,18 +140,12 @@ class Application:
                 self.assets,
                 self.input_manager,
                 self.audio,
+                audit_scene,
             ),
         )
         self.scene_manager.add_scene(
             "audit",
-            AuditScene(
-                self.scene_manager,
-                self.assets,
-                self.input_manager,
-                self.audio,
-                self.get_preferences,
-                self.apply_preferences,
-            ),
+            audit_scene,
         )
         self.scene_manager.switch_to("main_menu")
 

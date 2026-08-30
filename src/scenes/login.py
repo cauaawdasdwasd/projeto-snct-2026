@@ -6,6 +6,7 @@ import pygame
 
 from src.core.scene import Scene
 from src.ui.credential_note import CredentialNote
+from src.ui.desktop_window import RetroWindowTheme
 from src.ui.item_inspector import ItemInspector
 from src.ui.os_cursor import OSCursor
 
@@ -47,6 +48,7 @@ class LoginScene(Scene):
         self.audio = audio
         self.background = self.assets.load_image("os/workstation_overlay.png")
         self.login_screen = self.assets.load_image("os/login_screen.png")
+        self.theme = RetroWindowTheme(self.assets)
         self.os_cursor = OSCursor(
             self.assets.load_image("os/cursor.png"),
             LOGIN_SCREEN_RECT,
@@ -67,6 +69,7 @@ class LoginScene(Scene):
         self.success_time = 0.0
         self.cursor_time = 0.0
         self.submit_hovered = False
+        self.submit_pressed = False
 
         self.font_tiny = self._font(16)
         self.font_small = self._font(20)
@@ -84,6 +87,7 @@ class LoginScene(Scene):
         self.success_time = 0.0
         self.cursor_time = 0.0
         self.submit_hovered = False
+        self.submit_pressed = False
         self.credential_note.clear_hover()
         self.item_inspector.close()
         if self.audio is not None:
@@ -126,7 +130,21 @@ class LoginScene(Scene):
             )
             return
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-            self._handle_click(pointer)
+            if pointer is not None and SUBMIT_RECT.collidepoint(pointer):
+                self.submit_pressed = True
+                self._play_sound("click", 0.4)
+            else:
+                self._handle_click(pointer)
+            return
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            should_submit = bool(
+                self.submit_pressed
+                and pointer is not None
+                and SUBMIT_RECT.collidepoint(pointer)
+            )
+            self.submit_pressed = False
+            if should_submit:
+                self._attempt_login()
             return
         if event.type != pygame.KEYDOWN:
             return
@@ -200,9 +218,6 @@ class LoginScene(Scene):
             self.active_field = "username"
             self.cursor_time = 0.0
             self._play_sound("click", 0.45)
-            return
-        if SUBMIT_RECT.collidepoint(pointer):
-            self._attempt_login()
             return
         if PASSWORD_RECT.collidepoint(pointer):
             self.active_field = "password"
@@ -316,6 +331,7 @@ class LoginScene(Scene):
         field_id: str,
     ) -> None:
         active = self.state == "entry" and self.active_field == field_id
+        self.theme.draw_field(surface, rect, active=active)
         border = XP_ORANGE if active else (174, 194, 220)
         if active:
             pygame.draw.rect(surface, border, rect, 3)
@@ -343,11 +359,13 @@ class LoginScene(Scene):
     def _draw_submit(self, surface: pygame.Surface) -> None:
         active = self.state == "entry"
         hovered = active and self.submit_hovered
-        if active and hovered:
-            glow = pygame.Surface(SUBMIT_RECT.size, pygame.SRCALPHA)
-            glow.fill((255, 255, 255, 55))
-            surface.blit(glow, SUBMIT_RECT.topleft)
-            pygame.draw.rect(surface, INK_BRIGHT, SUBMIT_RECT, 2)
+        state = "inactive" if not active else "pressed" if self.submit_pressed else "hover" if hovered else "normal"
+        self.theme.draw_button(surface, SUBMIT_RECT, state)
+        arrow_color = (25, 37, 59) if active else (125, 125, 125)
+        center_x, center_y = SUBMIT_RECT.center
+        pygame.draw.line(surface, arrow_color, (center_x - 13, center_y), (center_x + 12, center_y), 4)
+        pygame.draw.line(surface, arrow_color, (center_x + 1, center_y - 11), (center_x + 13, center_y), 4)
+        pygame.draw.line(surface, arrow_color, (center_x + 1, center_y + 11), (center_x + 13, center_y), 4)
 
     @staticmethod
     def _build_scanlines() -> pygame.Surface:

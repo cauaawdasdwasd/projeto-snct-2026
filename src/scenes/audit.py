@@ -165,8 +165,11 @@ class AuditScene(Scene):
         self.inspected_document_ids: set[str] = set()
         self.newspaper_transition: str | None = None
         self.newspaper_transition_time = 0.0
+        self.embedded_mode = False
+        self.desktop_requested = False
 
     def on_enter(self) -> None:
+        self.desktop_requested = False
         self.pause_menu.close()
         self.credential_note.clear_hover()
         self.item_inspector.close()
@@ -175,6 +178,7 @@ class AuditScene(Scene):
             self.audio.play_music_sequence(("audit_1", "audit_2"), fade_ms=700)
 
     def on_exit(self) -> None:
+        self.desktop_requested = False
         self.pause_menu.close()
         self.credential_note.clear_hover()
         self.item_inspector.close()
@@ -239,7 +243,10 @@ class AuditScene(Scene):
         if self.pause_menu.is_open:
             action = self.pause_menu.handle_event(event, self.input_manager.mouse_position)
             if action == "desktop":
-                self.manager.switch_to("desktop")
+                if self.embedded_mode:
+                    self.desktop_requested = True
+                else:
+                    self.manager.switch_to("desktop")
             return
         if self.newspaper_transition is not None:
             return
@@ -389,6 +396,22 @@ class AuditScene(Scene):
             )
 
     def render(self, surface: pygame.Surface) -> None:
+        self._render_scene(surface, draw_cursor=not self.embedded_mode)
+
+    def render_embedded(self, surface: pygame.Surface) -> None:
+        """Render the audit app without a second cursor over the desktop cursor."""
+        self._render_scene(surface, draw_cursor=False)
+
+    def set_embedded_mode(self, enabled: bool) -> None:
+        self.embedded_mode = enabled
+        self.desktop_requested = False
+
+    def consume_desktop_request(self) -> bool:
+        requested = self.desktop_requested
+        self.desktop_requested = False
+        return requested
+
+    def _render_scene(self, surface: pygame.Surface, draw_cursor: bool) -> None:
         surface.fill(SCREEN_BASE_COLOR)
         self._render_monitor_content(surface)
         surface.blit(self.terminal_overlay, (0, 0))
@@ -405,11 +428,12 @@ class AuditScene(Scene):
         self.item_inspector.render(surface)
         if self.pause_menu.is_open:
             self.pause_menu.render(surface)
-        self.os_cursor.render(
-            surface,
-            self.input_manager.mouse_position,
-            blocked=self.item_inspector.is_open,
-        )
+        if draw_cursor:
+            self.os_cursor.render(
+                surface,
+                self.input_manager.mouse_position,
+                blocked=self.item_inspector.is_open,
+            )
 
     def _render_status_led(self, surface: pygame.Surface) -> None:
         pulse = (math.sin(self.head_motion_time * 2.4) + 1.0) * 0.5

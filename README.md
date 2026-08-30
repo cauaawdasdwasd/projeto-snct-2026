@@ -60,10 +60,18 @@ O projeto está conectado ao repositório
   credenciais antes do login.
 - O login abre uma área de trabalho inspirada no Windows XP. O botão `iniciar`,
   o encerramento de sessão e os atalhos do desktop são interativos. Dê dois
-  cliques em `Sob Análise` para começar o turno.
+  cliques em `Sob Análise` para abrir o aplicativo da empresa.
+- `Sob Análise`, navegador, calculadora, Explorador e Bloco de Notas funcionam
+  como janelas do sistema e podem permanecer abertos ao mesmo tempo. Arraste a
+  barra de título para mover, arraste qualquer borda ou canto para redimensionar
+  e dê dois cliques no título para maximizar ou restaurar.
+- Os botões da barra de título minimizam, maximizam/restauram e fecham a janela.
+  Um clique no botão de um aplicativo na barra de tarefas alterna entre
+  minimizar, restaurar e trazer a janela para frente.
 - Login, área de trabalho, menu Iniciar, ícones, molduras de janela, calculadora
-  e cursor usam um conjunto próprio de sprites. O cursor personalizado aparece
-  somente dentro do visor do computador; fora dele, o cursor normal é restaurado.
+  e cursor usam sprites próprios e os pacotes fornecidos pela equipe. O cursor
+  personalizado aparece somente dentro do visor do computador; fora dele, o
+  cursor normal é restaurado.
 - Sob Análise, navegador, calculadora, documentos, pastas e cursor usam o pacote
   pixel art `PXL Retro Computer Icons Set 110`, fornecido pela equipe. O
   `item1`, um computador frontal, funciona como logo do aplicativo da empresa.
@@ -263,6 +271,13 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
   em coordenadas inteiras para reforçar a aparência de monitor sem borrar o texto.
 - Login e desktop usam sem alterações o PNG original `NOVO monitor png.png`. O
   painel com os quatro módulos de decisão é uma camada exclusiva da auditoria.
+- A auditoria é renderizada em uma superfície própria e encaixada na área cliente
+  da janela `Sob Análise`. Cliques, roda do mouse, teclado, arraste de documentos
+  e carimbos são convertidos para as coordenadas internas do aplicativo.
+- As molduras e os controles clássicos ficam em `assets/os/retro_gui`; os
+  sprites de minimizar, maximizar e fechar ficam em `assets/os/window_buttons`.
+  Cada pasta possui um `SOURCE.md` com a pendência de confirmar a licença antes
+  de uma distribuição pública.
 - Os sprites-base do sistema ficam em `assets/os`. Para regenerar os recortes e
   tamanhos usados pelo jogo, execute `py -3.11 scripts/process_os_assets.py`.
 - Os documentos são gerados por código para manter IDs e outros dados totalmente
