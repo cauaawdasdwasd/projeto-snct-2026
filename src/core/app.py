@@ -9,6 +9,7 @@ from src.core.audio import AudioManager
 from src.core.input_manager import InputManager
 from src.core.preferences import UserPreferences
 from src.core.scene_manager import SceneManager
+from src.rendering.screen_effect import ScreenEffect
 from src.core.settings import (
     ASSETS_DIR,
     CAMERA_BREATH_X,
@@ -43,6 +44,7 @@ class Application:
         self.is_running = True
 
         self.assets = AssetManager(ASSETS_DIR)
+        self.screen_effect = ScreenEffect(self.assets)
         self.audio = AudioManager(self.assets)
         self.audio.set_music_volume(self.preferences.music_volume)
         self.audio.set_sfx_volume(self.preferences.sfx_volume)
@@ -177,6 +179,12 @@ class Application:
 
         self.window.fill(LETTERBOX_COLOR)
         current_scene = self.scene_manager.current_scene
+        if current_scene is not None and current_scene.screen_effect_rect is not None:
+            self.screen_effect.apply(
+                self.virtual_surface,
+                self.preferences.screen_filter,
+                current_scene.screen_effect_rect,
+            )
         head_offset = getattr(current_scene, "head_offset", (0, 0))
         camera_view = self.virtual_surface.subsurface(self._camera_rect)
         if camera_view.get_size() == self._viewport_rect.size:

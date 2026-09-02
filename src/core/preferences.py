@@ -13,6 +13,7 @@ RESOLUTIONS_BY_ASPECT: dict[str, tuple[tuple[int, int], ...]] = {
     "4:3": ((1024, 768), (1280, 960), (1600, 1200)),
 }
 DISPLAY_MODES = ("windowed", "fullscreen")
+SCREEN_FILTERS = ("off", "crt", "vhs")
 
 
 @dataclass
@@ -22,6 +23,7 @@ class UserPreferences:
     aspect_ratio: str = "16:9"
     resolution: tuple[int, int] = (1280, 720)
     display_mode: str = "windowed"
+    screen_filter: str = "crt"
     music_volume: float = 0.2
     sfx_volume: float = 0.75
 
@@ -39,6 +41,9 @@ class UserPreferences:
 
         if self.display_mode not in DISPLAY_MODES:
             self.display_mode = "windowed"
+
+        if self.screen_filter not in SCREEN_FILTERS:
+            self.screen_filter = "crt"
 
         self.music_volume = max(0.0, min(1.0, float(self.music_volume)))
         self.sfx_volume = max(0.0, min(1.0, float(self.sfx_volume)))
@@ -58,6 +63,7 @@ class UserPreferences:
                 aspect_ratio=payload.get("aspect_ratio", "16:9"),
                 resolution=tuple(payload.get("resolution", (1280, 720))),
                 display_mode=payload.get("display_mode", "windowed"),
+                screen_filter=payload.get("screen_filter", "crt"),
                 music_volume=payload.get("music_volume", 0.2),
                 sfx_volume=payload.get("sfx_volume", 0.75),
             )

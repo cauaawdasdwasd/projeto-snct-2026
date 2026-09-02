@@ -28,6 +28,23 @@ class AudioManager:
         "confirm": "sfx/confirm.wav",
         "scroll": "sfx/scroll.wav",
     }
+    OPTIONAL_SOUND_PATHS = {
+        "window_open": "vendor_local/sfx/window_open.wav",
+        "window_close": "vendor_local/sfx/window_close.wav",
+        "toggle_on": "vendor_local/sfx/toggle_on.wav",
+        "toggle_off": "vendor_local/sfx/toggle_off.wav",
+        "error": "vendor_local/sfx/error.wav",
+        "success": "vendor_local/sfx/success.wav",
+    }
+    SOUND_FALLBACKS = {
+        "window_open": "forward",
+        "window_close": "back",
+        "toggle_on": "toggle",
+        "toggle_off": "toggle",
+        "error": "back",
+        "success": "confirm",
+    }
+    AMBIENCE_PATH = "vendor_local/ambience/computer_room.ogg"
 
     def __init__(self, assets: AssetManager) -> None:
         self.assets = assets
@@ -37,6 +54,8 @@ class AudioManager:
         self.music_sequence: tuple[str, ...] = ()
         self.music_index = 0
         self.sounds: dict[str, pygame.mixer.Sound] = {}
+        self.ambience: pygame.mixer.Sound | None = None
+        self.ambience_channel: pygame.mixer.Channel | None = None
         self._start_mixer()
         if self.enabled:
             self._load_sounds()
@@ -52,11 +71,16 @@ class AudioManager:
             self.enabled = False
 
     def _load_sounds(self) -> None:
-        for name, asset_path in self.SOUND_PATHS.items():
+        sound_paths = {**self.SOUND_PATHS, **self.OPTIONAL_SOUND_PATHS}
+        for name, asset_path in sound_paths.items():
             try:
                 self.sounds[name] = self.assets.load_sound(asset_path)
             except (FileNotFoundError, pygame.error):
                 continue
+        try:
+            self.ambience = self.assets.load_sound(self.AMBIENCE_PATH)
+        except (FileNotFoundError, pygame.error):
+            self.ambience = None
 
     def start_music(self) -> None:
         self.play_music_sequence(("menu",), fade_ms=700)
@@ -105,6 +129,8 @@ class AudioManager:
             return
         sound = self.sounds.get(name)
         if sound is None:
+            sound = self.sounds.get(self.SOUND_FALLBACKS.get(name, ""))
+        if sound is None:
             return
         try:
             if name in {"click", "toggle", "typing"}:
@@ -122,11 +148,30 @@ class AudioManager:
         self.music_volume = max(0.0, min(1.0, volume))
         if self.enabled:
             pygame.mixer.music.set_volume(self.music_volume)
+        self._update_ambience_volume()
 
     def set_sfx_volume(self, volume: float) -> None:
         self.sfx_volume = max(0.0, min(1.0, volume))
 
+    def start_ambience(self) -> None:
+        if not self.enabled or self.ambience is None:
+            return
+        if self.ambience_channel is not None and self.ambience_channel.get_busy():
+            return
+        self.ambience_channel = self.ambience.play(loops=-1, fade_ms=900)
+        self._update_ambience_volume()
+
+    def stop_ambience(self) -> None:
+        if self.ambience_channel is not None:
+            self.ambience_channel.fadeout(500)
+            self.ambience_channel = None
+
+    def _update_ambience_volume(self) -> None:
+        if self.ambience_channel is not None:
+            self.ambience_channel.set_volume(self.music_volume * 0.28)
+
     def stop(self) -> None:
         if self.enabled:
+            self.stop_ambience()
             pygame.mixer.music.set_endevent()
             pygame.mixer.music.fadeout(350)

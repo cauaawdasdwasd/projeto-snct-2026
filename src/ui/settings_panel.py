@@ -5,7 +5,12 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from src.core.preferences import DISPLAY_MODES, RESOLUTIONS_BY_ASPECT, UserPreferences
+from src.core.preferences import (
+    DISPLAY_MODES,
+    RESOLUTIONS_BY_ASPECT,
+    SCREEN_FILTERS,
+    UserPreferences,
+)
 
 if TYPE_CHECKING:
     from src.core.audio import AudioManager
@@ -25,6 +30,7 @@ ROW_LABELS = (
     "PROPORÇÃO DA JANELA",
     "RESOLUÇÃO",
     "MODO DE EXIBIÇÃO",
+    "FILTRO DO MONITOR",
     "VOLUME DA MÚSICA",
     "VOLUME DOS EFEITOS",
 )
@@ -144,6 +150,11 @@ class SettingsPanel:
             self.pending_preferences.aspect_ratio,
             f"{self.pending_preferences.resolution[0]} x {self.pending_preferences.resolution[1]}",
             "TELA CHEIA" if self.pending_preferences.display_mode == "fullscreen" else "JANELA",
+            {
+                "off": "DESLIGADO",
+                "crt": "CRT SUAVE",
+                "vhs": "VHS SUAVE",
+            }[self.pending_preferences.screen_filter],
             self._volume_label(self.pending_preferences.music_volume),
             self._volume_label(self.pending_preferences.sfx_volume),
         )
@@ -237,16 +248,21 @@ class SettingsPanel:
                 (current + direction) % len(DISPLAY_MODES)
             ]
         elif index == 3:
+            current = SCREEN_FILTERS.index(self.pending_preferences.screen_filter)
+            self.pending_preferences.screen_filter = SCREEN_FILTERS[
+                (current + direction) % len(SCREEN_FILTERS)
+            ]
+        elif index == 4:
             self.pending_preferences.music_volume = self._step_volume(
                 self.pending_preferences.music_volume,
                 direction,
             )
-        elif index == 4:
+        elif index == 5:
             self.pending_preferences.sfx_volume = self._step_volume(
                 self.pending_preferences.sfx_volume,
                 direction,
             )
-        self._play_click(0.55)
+        self._play_sound("toggle_on" if direction > 0 else "toggle_off", 0.55)
 
     def _apply(self) -> None:
         self._play_click()

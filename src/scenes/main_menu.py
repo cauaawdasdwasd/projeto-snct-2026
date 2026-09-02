@@ -96,7 +96,12 @@ class MainMenuScene(Scene):
         self.view = "main"
         self.main_selection = 0
         if self.audio is not None:
+            self.audio.stop_ambience()
             self.audio.play_music_sequence(("menu",), fade_ms=700)
+
+    @property
+    def screen_effect_rect(self) -> pygame.Rect:
+        return CRT_SCREEN_RECT
 
     def handle_escape(self) -> bool:
         if self.view != "main":
@@ -228,7 +233,7 @@ class MainMenuScene(Scene):
         pygame.draw.rect(surface, RED, (455, 431, round(500 * reveal), 6))
 
         self._text(surface, "TURNO DISPONÍVEL", self.font_tiny, INK_MUTED, (458, 478))
-        self._text(surface, "06 DECISÕES PENDENTES", self.font_body_bold, INK, (455, 504))
+        self._text(surface, "05 DECISÕES PENDENTES", self.font_body_bold, INK, (455, 504))
         pygame.draw.line(surface, LINE, (995, 294), (995, 716), 2)
 
         self._text(surface, "OPERAÇÕES", self.font_tiny, INK_MUTED, (1035, 306))

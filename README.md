@@ -89,11 +89,14 @@ O projeto está conectado ao repositório
   `Meus documentos` permite criar pastas e arquivos `.txt`; os textos abrem no
   bloco de notas e podem ser salvos com `Ctrl+S`.
 - Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,
-  alterar a resolução, alternar entre janela e tela cheia e ajustar separadamente
-  os volumes da música e dos efeitos. O jogo preserva a imagem original com barras
-  quando a janela não é `16:9`, sem esticar a interface.
-- Leia o chamado e clique em `ABRIR CASO`.
-- A faixa `PASSO 1/5` indica a próxima ação: abrir a decisão da IA, escolher
+  alterar a resolução, alternar entre janela e tela cheia, escolher entre os
+  filtros `DESLIGADO`, `CRT SUAVE` e `VHS SUAVE` e ajustar separadamente os volumes
+  da música e dos efeitos. Os filtros ficam limitados ao visor e não deslocam a
+  interface. O jogo preserva a imagem original com barras quando a janela não é
+  `16:9`, sem esticar a interface.
+- O turno começa por um treinamento guiado. Clique em `COMEÇAR AUDITORIA` e
+  siga o alvo luminoso; ações fora do passo atual ficam bloqueadas.
+- A faixa `PASSO 1/4` indica a próxima ação: abrir a decisão da IA, escolher
   documentos, comparar dados, carimbar e assinar.
 - A mesa começa apenas com a folha de auditoria. Em `DADOS UTILIZADOS`, clique numa
   fonte para colocá-la na mesa; clique novamente para retirá-la. O indicador verde
@@ -114,7 +117,9 @@ O projeto está conectado ao repositório
 - Na inspeção, use a roda do mouse ou os botões `+` e `-` para controlar o zoom.
 - Clique na porcentagem do zoom da inspeção para voltar a `100%`.
 - Com o documento ampliado, arraste o papel para examinar outras regiões.
-- Clique em campos relevantes, como os IDs, para anotá-los no caderno de evidências.
+- Clique diretamente em um dado no papel e depois em outro para compará-los. Uma
+  linha liga os campos e informa `IGUAIS` ou `DIFERENTES`; não é necessário abrir
+  a inspeção ampliada para conferir os valores.
 - Clique em `ABRIR DECISÃO` para ver, em sequência, os dados consultados, o que a IA
   fez com eles e qual comparação precisa ser auditada.
 - Em `DADOS UTILIZADOS`, use a roda do mouse, as setas da barra ou arraste o
@@ -131,11 +136,13 @@ O projeto está conectado ao repositório
 - O campo `Assinatura do auditor` existe na folha desde o início. Clique nele para abrir a folha ampliada, segure o botão esquerdo e desenhe sua assinatura com a caneta.
 - Na tela de assinatura, use `LIMPAR`, `CANCELAR` ou `CONFIRMAR ASSINATURA`. O campo pode ser reaberto para corrigir o traço antes do envio.
 - Confira o papel carimbado e assinado e clique em `ENVIAR / PRÓXIMO CASO`.
-- Ao concluir o sexto caso, o monitor desliga e o noticiário do dia é revelado.
+- O treinamento não entra no placar nem no jornal. Ao concluir os cinco casos do
+  turno atual, o monitor desliga e o noticiário do dia é revelado.
 - No jornal, use os botões laterais, `A`/`D` ou `←`/`→` para folhear as matérias.
 - A música muda entre o menu e o turno. Durante a auditoria, duas faixas se
-  alternam automaticamente. Há efeitos próprios para interface, documentos,
-  papel, dicas, confirmações e carimbos.
+  alternam automaticamente. O desktop também possui uma camada baixa de ambiente
+  industrial. Há efeitos próprios para interface, janelas, documentos, papel,
+  dicas, confirmações e carimbos.
 - Pressione `Esc` sem outra janela aberta para pausar. A pausa permite continuar,
   abrir as configurações ou voltar à área de trabalho da estação.
 - `Esc` nunca encerra o jogo. Para fechar a aplicação, use o botão da janela ou
@@ -143,14 +150,14 @@ O projeto está conectado ao repositório
 
 ## Casos jogáveis
 
-O turno atual tem seis casos, um para cada protocolo. Todos exigem cruzar vários
-documentos e encontrar a informação decisiva entre dados que parecem coerentes:
+O turno começa com um treinamento e depois tem cinco casos pontuados. Todos exigem
+cruzar documentos e encontrar a informação decisiva entre dados que parecem
+coerentes:
 
-1. **Correspondência suficiente:** a IA separa corretamente dois códigos quase
+1. **Treinamento - O ou zero?:** a IA separa corretamente dois códigos quase
    idênticos; o jogador precisa confirmar que o registro disciplinar é de Artur,
-   não de Ana, antes de aceitar a promoção. A base interna permite pesquisar os
-   homônimos, o pedido e o registro de segurança.
-2. **Lote 28800:** a capacidade declarada pela HEIN só fecha quando doze crachás de
+   não de Ana, antes de aceitar a promoção. Esse resultado não entra no jornal.
+2. **Lote 28800:** primeiro caso pontuado. A capacidade declarada pela HEIN só fecha quando doze crachás de
    visitante entram na conta. Log de máquinas, datas de nascimento e um termo de
    visita revelam estudantes operando a linha de uniformes escolares.
 3. **Triagem 204:** uma candidata de dados é eliminada por um requisito que veio

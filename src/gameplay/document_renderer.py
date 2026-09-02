@@ -34,6 +34,7 @@ class EvidenceRegion:
     key: str
     rect: pygame.Rect
     note: str
+    value: str
 
 
 @dataclass(frozen=True)
@@ -63,8 +64,8 @@ class DocumentRenderer:
         case: AuditCase,
         employee_portrait: pygame.Surface | None = None,
     ) -> tuple[RenderedDocument, ...]:
-        if len(case.documents) != 4:
-            raise ValueError(f"Case {case.case_id} must contain four source documents")
+        if not 2 <= len(case.documents) <= 4:
+            raise ValueError(f"Case {case.case_id} must contain between two and four source documents")
         if any(document.show_portrait for document in case.documents) and employee_portrait is None:
             raise ValueError(f"Case {case.case_id} requires a portrait")
 
@@ -125,7 +126,7 @@ class DocumentRenderer:
             if field.evidence_key is not None:
                 if field.evidence_note is None:
                     raise ValueError(f"Evidence {field.evidence_key} needs a note")
-                evidence.append(EvidenceRegion(field.evidence_key, field_rect, field.evidence_note))
+                evidence.append(EvidenceRegion(field.evidence_key, field_rect, field.evidence_note, field.value))
 
         pygame.draw.rect(surface, PAPER_LIGHT, body_rect)
         pygame.draw.rect(surface, accent, body_rect, 3)
@@ -147,15 +148,16 @@ class DocumentRenderer:
         self._draw_text(surface, "FOLHA DE AUDITORIA", self.font_title, INK, (34, 106))
         pygame.draw.line(surface, AMBER, (32, 151), (588, 151), 3)
 
-        self._draw_plain_field(surface, "CASO", f"{case.sequence:03d}/2026", (38, 180), 250)
+        case_label = "TREINAMENTO" if case.is_tutorial else f"{case.sequence:03d}/2026"
+        self._draw_plain_field(surface, "CASO", case_label, (38, 180), 250)
         self._draw_plain_field(surface, case.subject_label, case.subject_name, (314, 180), 268)
         self._draw_plain_field(surface, "OBJETO", case.decision_object, (38, 255), 544)
 
         self._draw_text(surface, "VERIFICAÇÕES DO AUDITOR", self.font_body_bold, INK, (40, 353))
         checklist = (
-            "Identidade e correspondência dos dados",
-            "Critérios, datas e cálculos utilizados",
-            "Permissão, viés e limite da automação",
+            "Relatório da IA lido",
+            "Documentos-chave comparados",
+            "Dados decisivos conferidos",
         )
         for index, label in enumerate(checklist):
             y = 392 + index * 39

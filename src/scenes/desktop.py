@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
+import json
 from typing import TYPE_CHECKING
 
 import pygame
 
 from src.core.scene import Scene
+from src.core.settings import DESKTOP_LAYOUT_PATH
 from src.ui.credential_note import CredentialNote
 from src.ui.desktop_window import DesktopWindow, DesktopWindowManager, RetroWindowTheme, WindowHit
 from src.ui.item_inspector import ItemInspector
@@ -34,11 +36,19 @@ WHITE = (255, 255, 255)
 
 
 class DesktopIcon:
-    def __init__(self, app_id: str, label: str, rect: pygame.Rect, kind: str) -> None:
+    def __init__(
+        self,
+        app_id: str,
+        label: str,
+        rect: pygame.Rect,
+        kind: str,
+        entry_index: int | None = None,
+    ) -> None:
         self.app_id = app_id
         self.label = label
         self.rect = rect
         self.kind = kind
+        self.entry_index = entry_index
 
 
 class DesktopScene(Scene):
@@ -88,7 +98,7 @@ class DesktopScene(Scene):
         self.font_body = self._font(22)
         self.font_body_bold = self._font(22, bold=True)
         self.font_title = self._font(25, bold=True)
-        self.icons = self._build_icons()
+        self.icons = list(self._build_icons())
         self.scanlines = self._build_scanlines()
 
         self.start_open = False
@@ -111,6 +121,13 @@ class DesktopScene(Scene):
         self.editing_index: int | None = None
         self.notepad_text = ""
         self.status_message = ""
+        self.icon_press_id: str | None = None
+        self.icon_press_origin: tuple[int, int] | None = None
+        self.icon_drag_offset = (0, 0)
+        self.icon_dragging = False
+        self.context_menu_position: tuple[int, int] | None = None
+        self.naming_desktop_position: tuple[int, int] | None = None
+        self._load_desktop_state()
 
     def on_enter(self) -> None:
         self.start_open = False
@@ -118,6 +135,10 @@ class DesktopScene(Scene):
         self.hovered_target = None
         self.pressed_target = None
         self.naming_kind = None
+        self.naming_desktop_position = None
+        self.icon_press_id = None
+        self.icon_dragging = False
+        self.context_menu_position = None
         self.audit_pointer_capture = False
         self.fullscreen_pressed_control = None
         self.window_manager.windows.clear()
@@ -130,12 +151,19 @@ class DesktopScene(Scene):
             self.audit_scene.set_embedded_mode(True)
         if self.audio is not None:
             self.audio.play_music_sequence(("menu",), fade_ms=450)
+            self.audio.start_ambience()
+
+    @property
+    def screen_effect_rect(self) -> pygame.Rect:
+        return SCREEN_RECT
 
     def on_exit(self) -> None:
         self.credential_note.clear_hover()
         self.item_inspector.close()
         if self.audit_scene is not None and "audit" in self.window_manager.windows:
             self.audit_scene.on_exit()
+        if self.audio is not None:
+            self.audio.stop_ambience()
 
     def custom_cursor_active(self, position: tuple[int, int] | None) -> bool:
         return self.os_cursor.is_active(position, blocked=self.item_inspector.is_open)
@@ -148,6 +176,7 @@ class DesktopScene(Scene):
         if self.naming_kind is not None:
             self.naming_kind = None
             self.name_buffer = ""
+            self.naming_desktop_position = None
             self._sound("back", 0.55)
             return True
         if self.start_open:
@@ -187,6 +216,10 @@ class DesktopScene(Scene):
                 return
 
         if event.type == pygame.MOUSEMOTION:
+            if self.icon_press_id is not None and pointer is not None:
+                self._move_pressed_icon(pointer)
+                self.hovered_target = f"icon:{self.icon_press_id}"
+                return
             self.window_manager.update_pointer(pointer)
             self.hovered_target = self._target_at(pointer)
             if self.window_manager.interaction_app is not None:
@@ -201,6 +234,9 @@ class DesktopScene(Scene):
             return
 
         if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            if self.icon_press_id is not None:
+                self._finish_icon_press(pointer)
+                return
             if self.audit_pointer_capture and self.audit_scene is not None:
                 self._forward_audit_event(event, pointer)
                 self.audit_pointer_capture = False
@@ -224,6 +260,10 @@ class DesktopScene(Scene):
 
         if event.type != pygame.MOUSEBUTTONDOWN or pointer is None:
             return
+        if self.context_menu_position is not None:
+            if event.button == 1 and self._handle_context_menu_click(pointer):
+                return
+            self.context_menu_position = None
         if self.credential_note.contains_note(pointer):
             self.credential_note.clear_hover()
             self.item_inspector.open()
@@ -266,6 +306,12 @@ class DesktopScene(Scene):
             self.start_open = False
             self._handle_window_pointer_down(hit, event, pointer)
             return
+        if event.button == 3 and WORK_AREA_RECT.collidepoint(pointer):
+            self.start_open = False
+            self.selected_icon = None
+            self._open_context_menu(pointer)
+            self._sound("click", 0.32)
+            return
         if event.button != 1:
             return
         if not SCREEN_RECT.collidepoint(pointer) or TASKBAR_RECT.collidepoint(pointer):
@@ -276,14 +322,11 @@ class DesktopScene(Scene):
         for icon in self.icons:
             if not icon.rect.collidepoint(pointer):
                 continue
-            now = pygame.time.get_ticks()
-            is_double = self.last_icon_click == icon.app_id and now - self.last_icon_click_time <= 470
             self.selected_icon = icon.app_id
-            self.last_icon_click = icon.app_id
-            self.last_icon_click_time = now
-            self._sound("click", 0.38)
-            if is_double:
-                self._open_app(icon.app_id)
+            self.icon_press_id = icon.app_id
+            self.icon_press_origin = pointer
+            self.icon_drag_offset = (pointer[0] - icon.rect.x, pointer[1] - icon.rect.y)
+            self.icon_dragging = False
             return
         self.selected_icon = None
 
@@ -322,6 +365,8 @@ class DesktopScene(Scene):
                 self._draw_start_menu(surface)
             if self.naming_kind is not None:
                 self._draw_name_dialog(surface)
+            elif self.context_menu_position is not None:
+                self._draw_context_menu(surface)
         surface.blit(self.scanlines, SCREEN_RECT.topleft)
         self.os_cursor.render(surface, self.input_manager.mouse_position, blocked=self.item_inspector.is_open)
         surface.blit(self.station, (0, 0))
@@ -366,7 +411,7 @@ class DesktopScene(Scene):
         was_open = app_id in self.window_manager.windows
         title, rect, min_size = self._window_spec(app_id)
         self.window_manager.open(app_id, title, rect, min_size)
-        self._sound("forward", 0.55)
+        self._sound("window_open", 0.55)
         if app_id == "audit" and self.audit_scene is not None and not was_open:
             self.audit_scene.set_embedded_mode(True)
             self.audit_scene.on_enter()
@@ -379,7 +424,7 @@ class DesktopScene(Scene):
             self.audit_scene.on_exit()
             self.audit_pointer_capture = False
         self.window_manager.close(app_id)
-        self._sound("back", 0.5)
+        self._sound("window_close", 0.5)
 
     def _toggle_window_maximize(self, app_id: str) -> None:
         self.window_manager.toggle_maximize(app_id)
@@ -465,16 +510,24 @@ class DesktopScene(Scene):
         if event.key == pygame.K_ESCAPE:
             self.naming_kind = None
             self.name_buffer = ""
+            self.naming_desktop_position = None
             return
         if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
             name = self.name_buffer.strip()
             if name:
                 if self.naming_kind == "text" and not name.lower().endswith(".txt"):
                     name += ".txt"
-                self.entries.append({"kind": self.naming_kind or "text", "name": name[:28], "content": ""})
+                entry = {"kind": self.naming_kind or "text", "name": name[:28], "content": ""}
+                if self.naming_desktop_position is not None:
+                    entry["desktop_x"] = str(self.naming_desktop_position[0])
+                    entry["desktop_y"] = str(self.naming_desktop_position[1])
+                self.entries.append(entry)
+                self._sync_entry_icons()
+                self._save_desktop_state()
                 self._sound("confirm", 0.55)
             self.naming_kind = None
             self.name_buffer = ""
+            self.naming_desktop_position = None
             return
         if event.key == pygame.K_BACKSPACE:
             self.name_buffer = self.name_buffer[:-1]
@@ -580,6 +633,24 @@ class DesktopScene(Scene):
             label_rect = label.get_rect(midtop=(icon.rect.centerx, icon.rect.y + 106))
             surface.blit(self.font_small.render(icon.label, True, (0, 0, 0)), label_rect.move(2, 2))
             surface.blit(label, label_rect)
+
+    def _draw_context_menu(self, surface: pygame.Surface) -> None:
+        menu = self._context_menu_rect()
+        if menu is None:
+            return
+        pygame.draw.rect(surface, (246, 245, 238), menu)
+        pygame.draw.rect(surface, (255, 255, 255), menu, 2)
+        pygame.draw.line(surface, (86, 86, 86), menu.topright, menu.bottomright, 2)
+        pygame.draw.line(surface, (86, 86, 86), menu.bottomleft, menu.bottomright, 2)
+        pointer = self.input_manager.mouse_position
+        for action, label, rect in self._context_menu_items():
+            hovered = pointer is not None and rect.collidepoint(pointer)
+            if hovered:
+                pygame.draw.rect(surface, (45, 91, 190), rect)
+            color = WHITE if hovered else WINDOW_INK
+            self._text(surface, label, self.font_small, color, (rect.x + 34, rect.y + 9))
+            if action in {"new_folder", "new_text"}:
+                self._draw_icon_art(surface, "folder" if action == "new_folder" else "text", (rect.x + 17, rect.centery), 18)
 
     def _draw_window(self, surface: pygame.Surface, window: DesktopWindow) -> None:
         focused = self.window_manager.focused_id == window.app_id
@@ -894,10 +965,179 @@ class DesktopScene(Scene):
             DesktopIcon("explorer", "Meus documentos", pygame.Rect(182, 542, 182, 142), "documents"),
         )
 
-    def _begin_naming(self, kind: str) -> None:
+    def _begin_naming(
+        self,
+        kind: str,
+        desktop_position: tuple[int, int] | None = None,
+    ) -> None:
         self.naming_kind = kind
         self.name_buffer = ""
+        self.naming_desktop_position = desktop_position
         self._sound("forward", 0.45)
+
+    def _icon_by_id(self, app_id: str) -> DesktopIcon | None:
+        return next((icon for icon in self.icons if icon.app_id == app_id), None)
+
+    def _move_pressed_icon(self, pointer: tuple[int, int]) -> None:
+        icon = self._icon_by_id(self.icon_press_id or "")
+        if icon is None or self.icon_press_origin is None:
+            return
+        if not self.icon_dragging:
+            dx = pointer[0] - self.icon_press_origin[0]
+            dy = pointer[1] - self.icon_press_origin[1]
+            self.icon_dragging = dx * dx + dy * dy >= 36
+        if not self.icon_dragging:
+            return
+        x = max(WORK_AREA_RECT.left, min(pointer[0] - self.icon_drag_offset[0], WORK_AREA_RECT.right - icon.rect.width))
+        y = max(WORK_AREA_RECT.top, min(pointer[1] - self.icon_drag_offset[1], WORK_AREA_RECT.bottom - icon.rect.height))
+        icon.rect.topleft = (x, y)
+
+    def _finish_icon_press(self, pointer: tuple[int, int] | None) -> None:
+        icon = self._icon_by_id(self.icon_press_id or "")
+        dragged = self.icon_dragging
+        self.icon_press_id = None
+        self.icon_press_origin = None
+        self.icon_dragging = False
+        if icon is None:
+            return
+        if dragged:
+            self._save_desktop_state()
+            self._sound("paper", 0.25)
+            return
+        if pointer is None or not icon.rect.collidepoint(pointer):
+            return
+        now = pygame.time.get_ticks()
+        is_double = self.last_icon_click == icon.app_id and now - self.last_icon_click_time <= 470
+        self.last_icon_click = icon.app_id
+        self.last_icon_click_time = now
+        self._sound("click", 0.38)
+        if is_double:
+            self._activate_desktop_icon(icon)
+
+    def _activate_desktop_icon(self, icon: DesktopIcon) -> None:
+        if icon.entry_index is None:
+            self._open_app(icon.app_id)
+            return
+        if not 0 <= icon.entry_index < len(self.entries):
+            return
+        entry = self.entries[icon.entry_index]
+        if entry["kind"] == "folder":
+            self._open_app("explorer")
+            return
+        self.editing_index = icon.entry_index
+        self.notepad_text = entry["content"]
+        title, target, min_size = self._window_spec("notepad")
+        self.window_manager.open("notepad", title, target, min_size)
+        self._sound("document", 0.45)
+
+    def _open_context_menu(self, pointer: tuple[int, int]) -> None:
+        width, height = 286, 4 * 42 + 10
+        x = min(pointer[0], WORK_AREA_RECT.right - width)
+        y = min(pointer[1], WORK_AREA_RECT.bottom - height)
+        self.context_menu_position = (max(WORK_AREA_RECT.left, x), max(WORK_AREA_RECT.top, y))
+
+    def _context_menu_rect(self) -> pygame.Rect | None:
+        if self.context_menu_position is None:
+            return None
+        return pygame.Rect(*self.context_menu_position, 286, 178)
+
+    def _context_menu_items(self) -> tuple[tuple[str, str, pygame.Rect], ...]:
+        menu = self._context_menu_rect()
+        if menu is None:
+            return ()
+        labels = (
+            ("new_folder", "Nova pasta"),
+            ("new_text", "Novo documento de texto"),
+            ("arrange", "Organizar ícones"),
+            ("refresh", "Atualizar"),
+        )
+        return tuple(
+            (action, label, pygame.Rect(menu.x + 5, menu.y + 5 + index * 42, menu.width - 10, 40))
+            for index, (action, label) in enumerate(labels)
+        )
+
+    def _handle_context_menu_click(self, pointer: tuple[int, int]) -> bool:
+        menu = self._context_menu_rect()
+        if menu is None:
+            return False
+        for action, _label, rect in self._context_menu_items():
+            if not rect.collidepoint(pointer):
+                continue
+            position = (menu.x, menu.y)
+            self.context_menu_position = None
+            if action == "new_folder":
+                self._begin_naming("folder", position)
+            elif action == "new_text":
+                self._begin_naming("text", position)
+            elif action == "arrange":
+                self._arrange_icons()
+            else:
+                self.status_message = "Área de trabalho atualizada"
+                self._sound("click", 0.32)
+            return True
+        if not menu.collidepoint(pointer):
+            self.context_menu_position = None
+        return True
+
+    def _arrange_icons(self) -> None:
+        for index, icon in enumerate(self.icons):
+            column, row = divmod(index, 5)
+            icon.rect.topleft = (WORK_AREA_RECT.x + 22 + column * 190, WORK_AREA_RECT.y + 28 + row * 148)
+        self._save_desktop_state()
+        self._sound("confirm", 0.4)
+
+    def _sync_entry_icons(self) -> None:
+        self.icons = [icon for icon in self.icons if icon.entry_index is None]
+        for index, entry in enumerate(self.entries):
+            if "desktop_x" not in entry or "desktop_y" not in entry:
+                continue
+            try:
+                position = (int(entry["desktop_x"]), int(entry["desktop_y"]))
+            except (TypeError, ValueError):
+                continue
+            kind = "folder" if entry["kind"] == "folder" else "documents"
+            self.icons.append(DesktopIcon(f"entry:{index}", entry["name"], pygame.Rect(*position, 182, 142), kind, index))
+
+    def _load_desktop_state(self) -> None:
+        try:
+            payload = json.loads(DESKTOP_LAYOUT_PATH.read_text(encoding="utf-8"))
+        except (OSError, ValueError, TypeError):
+            return
+        entries = payload.get("entries")
+        if isinstance(entries, list):
+            valid_entries = [
+                entry
+                for entry in entries
+                if isinstance(entry, dict)
+                and entry.get("kind") in {"folder", "text"}
+                and isinstance(entry.get("name"), str)
+                and isinstance(entry.get("content", ""), str)
+            ]
+            if valid_entries:
+                self.entries = valid_entries
+        positions = payload.get("icon_positions", {})
+        if isinstance(positions, dict):
+            for icon in self.icons:
+                position = positions.get(icon.app_id)
+                if isinstance(position, list) and len(position) == 2:
+                    icon.rect.topleft = (int(position[0]), int(position[1]))
+        self._sync_entry_icons()
+
+    def _save_desktop_state(self) -> None:
+        for icon in self.icons:
+            if icon.entry_index is not None and 0 <= icon.entry_index < len(self.entries):
+                self.entries[icon.entry_index]["desktop_x"] = str(icon.rect.x)
+                self.entries[icon.entry_index]["desktop_y"] = str(icon.rect.y)
+        payload = {
+            "version": 1,
+            "icon_positions": {icon.app_id: [icon.rect.x, icon.rect.y] for icon in self.icons if icon.entry_index is None},
+            "entries": self.entries,
+        }
+        try:
+            DESKTOP_LAYOUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+            DESKTOP_LAYOUT_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        except OSError:
+            pass
 
     def _draw_icon_art(self, surface: pygame.Surface, kind: str, center: tuple[int, int], size: int) -> None:
         x, y = center

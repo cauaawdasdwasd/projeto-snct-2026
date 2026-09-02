@@ -21,6 +21,7 @@ CAMERA_RESPONSE = 2.4
 BASE_DIR = Path(__file__).resolve().parents[2]
 ASSETS_DIR = BASE_DIR / "assets"
 USER_SETTINGS_PATH = BASE_DIR / "data" / "user_settings.json"
+DESKTOP_LAYOUT_PATH = BASE_DIR / "data" / "desktop_layout.json"
 
 LETTERBOX_COLOR = (0, 0, 0)
 DEBUG_UI = False

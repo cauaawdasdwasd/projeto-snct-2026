@@ -103,7 +103,12 @@ class LoginScene(Scene):
         self.credential_note.clear_hover()
         self.item_inspector.close()
         if self.audio is not None:
+            self.audio.stop_ambience()
             self.audio.play_music_sequence(("menu",), fade_ms=450)
+
+    @property
+    def screen_effect_rect(self) -> pygame.Rect:
+        return LOGIN_SCREEN_RECT
 
     def on_exit(self) -> None:
         self.credential_note.clear_hover()
@@ -242,13 +247,13 @@ class LoginScene(Scene):
             self.message = "ACESSO AUTORIZADO"
             self.success_time = 0.0
             self.credential_note.clear_hover()
-            self._play_sound("confirm", 0.75)
+            self._play_sound("success", 0.75)
             return
         self.password = ""
         self.active_field = "password"
         self.cursor_time = 0.0
         self.message = "USUÁRIO OU SENHA INCORRETOS"
-        self._play_sound("back", 0.7)
+        self._play_sound("error", 0.7)
 
     def _append_text(self, text: str) -> None:
         value = self.username if self.active_field == "username" else self.password

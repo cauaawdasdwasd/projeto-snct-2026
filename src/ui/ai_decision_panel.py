@@ -214,8 +214,13 @@ class AIDecisionPanel:
             pygame.draw.rect(surface, GREEN if on_desk else BORDER_DARK, state_rect, 2)
             if on_desk:
                 pygame.draw.rect(surface, GREEN, state_rect.inflate(-6, -6))
-            self._draw_text(surface, source.label.upper(), self.font_tiny, INK, (rect.x + 37, rect.y + 4))
-            action = "NA MESA — CLIQUE PARA RETIRAR" if on_desk else "CLIQUE PARA COLOCAR NA MESA"
+            is_key = source.document_id in self.case.key_document_ids
+            label_color = INK_BRIGHT if is_key else INK
+            self._draw_text(surface, source.label.upper(), self.font_tiny, label_color, (rect.x + 37, rect.y + 4))
+            if on_desk:
+                action = "ESSENCIAL • NA MESA" if is_key else "NA MESA • CLIQUE PARA RETIRAR"
+            else:
+                action = "ESSENCIAL • COLOCAR NA MESA" if is_key else "CLIQUE PARA COLOCAR NA MESA"
             self._draw_text(surface, action, self.font_tiny, GREEN if on_desk else INK_MUTED, (rect.x + 37, rect.y + 24))
         self._draw_data_scrollbar(surface)
 
@@ -232,9 +237,14 @@ class AIDecisionPanel:
         pygame.draw.rect(surface, PANEL_MID, header_rect)
         pygame.draw.line(surface, BORDER, header_rect.bottomleft, header_rect.bottomright, 3)
         self._draw_text(surface, "RELATÓRIO DE DECISÃO DA IA", self.font_header, INK_BRIGHT, (129, 76))
+        report_reference = (
+            "TREINAMENTO / ESTAÇÃO 04"
+            if self.case.is_tutorial
+            else f"CASO {self.case.sequence:03d}/2026"
+        )
         self._draw_text(
             surface,
-            f"{self.case.ai_decision.model_name}  |  CASO {self.case.sequence:03d}/2026",
+            f"{self.case.ai_decision.model_name}  |  {report_reference}",
             self.font_small,
             INK_MUTED,
             (132, 116),
@@ -270,6 +280,7 @@ class AIDecisionPanel:
             line_height=25,
             max_lines=3,
         )
+
         self._draw_text(surface, "CONFIANÇA DO MODELO", self.font_tiny, INK_MUTED, (152, 482))
         pygame.draw.rect(surface, BORDER_DARK, (152, 514, 430, 27))
         confidence = max(0, min(100, int(self.case.ai_decision.confidence.rstrip("%"))))
@@ -283,8 +294,8 @@ class AIDecisionPanel:
             (152, 561),
         )
 
-        self._draw_text(surface, "COMO A IA CHEGOU NISSO", self.font_body_bold, PAPER, (807, 196))
-        self._draw_text(surface, "1. DADOS CONSULTADOS", self.font_tiny, INK_MUTED, (807, 235))
+        self._draw_text(surface, "COMO A IA DECIDIU", self.font_body_bold, PAPER, (807, 196))
+        self._draw_text(surface, "1. DADOS QUE ELA USOU", self.font_tiny, INK_MUTED, (807, 235))
         self._draw_wrapped_text(
             surface,
             self.case.ai_decision.source_document,
@@ -303,7 +314,7 @@ class AIDecisionPanel:
             AI_ID_RECT,
             4 if hovered or marked else 2,
         )
-        self._draw_text(surface, "2. O QUE A IA FEZ", self.font_tiny, INK_MUTED, (825, 342))
+        self._draw_text(surface, "2. CONCLUSÃO DA IA", self.font_tiny, INK_MUTED, (825, 342))
         self._draw_text(
             surface,
             self.case.ai_decision.evidence_value,
@@ -323,14 +334,11 @@ class AIDecisionPanel:
         annotation = "EVIDÊNCIA ANOTADA" if marked else "CLIQUE PARA ANOTAR"
         self._draw_text(surface, annotation, self.font_tiny, GREEN if marked else INK_MUTED, (1344, 342), anchor="topright")
 
-        self._draw_text(surface, "3. SUA TAREFA", self.font_tiny, INK_MUTED, (807, 481))
+        self._draw_text(surface, "3. O QUE VOCÊ PRECISA RESPONDER", self.font_tiny, INK_MUTED, (807, 481))
         task_rect = pygame.Rect(807, 505, 556, 72)
         pygame.draw.rect(surface, SCREEN_BLACK, task_rect)
         pygame.draw.rect(surface, BORDER_DARK, task_rect, 2)
-        task = (
-            f"Confira nos documentos se {self.case.ai_decision.evidence_value} "
-            f"realmente sustenta a decisão: {self.case.ai_decision.verdict}."
-        )
+        task = self.case.review_question
         self._draw_wrapped_text(
             surface,
             task,
@@ -340,6 +348,25 @@ class AIDecisionPanel:
             line_height=21,
             max_lines=3,
         )
+
+    def row_rect_for_document(self, document_id: str) -> pygame.Rect | None:
+        source_index = next(
+            (
+                index
+                for index, source in enumerate(self.case.data_sources)
+                if source.document_id == document_id
+            ),
+            None,
+        )
+        if source_index is None:
+            return None
+        if source_index < self.data_scroll_offset:
+            self._set_scroll_offset(source_index)
+        elif source_index >= self.data_scroll_offset + VISIBLE_DATA_ROWS:
+            self._set_scroll_offset(source_index - VISIBLE_DATA_ROWS + 1)
+        visible_index = source_index - self.data_scroll_offset
+        rows = self._visible_row_rects()
+        return rows[visible_index] if 0 <= visible_index < len(rows) else None
 
     def _draw_close(self, surface: pygame.Surface) -> None:
         hovered = self.hovered_control == "close"

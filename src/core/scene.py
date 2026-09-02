@@ -38,6 +38,11 @@ class Scene(ABC):
     def camera_motion_enabled(self) -> bool:
         return False
 
+    @property
+    def screen_effect_rect(self) -> pygame.Rect | None:
+        """Area occupied by the display, excluding its physical frame."""
+        return None
+
     def custom_cursor_active(self, position: tuple[int, int] | None) -> bool:
         """Return whether the scene is drawing its own cursor at this position."""
         return False
