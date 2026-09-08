@@ -5,7 +5,12 @@ from typing import TYPE_CHECKING
 
 import pygame
 
-from src.core.preferences import DISPLAY_MODES, RESOLUTIONS_BY_ASPECT, UserPreferences
+from src.core.preferences import (
+    DISPLAY_MODES,
+    RESOLUTIONS_BY_ASPECT,
+    SCREEN_FILTERS,
+    UserPreferences,
+)
 
 if TYPE_CHECKING:
     from src.core.audio import AudioManager
@@ -25,6 +30,7 @@ ROW_LABELS = (
     "PROPORÇÃO DA JANELA",
     "RESOLUÇÃO",
     "MODO DE EXIBIÇÃO",
+    "FILTRO DO MONITOR",
     "VOLUME DA MÚSICA",
     "VOLUME DOS EFEITOS",
 )
@@ -124,7 +130,7 @@ class SettingsPanel:
                 self._apply()
                 return "applied"
             if self.selection == len(ROW_LABELS) + 1:
-                self._play_click()
+                self._play_sound("back")
                 return "back"
         return None
 
@@ -144,6 +150,11 @@ class SettingsPanel:
             self.pending_preferences.aspect_ratio,
             f"{self.pending_preferences.resolution[0]} x {self.pending_preferences.resolution[1]}",
             "TELA CHEIA" if self.pending_preferences.display_mode == "fullscreen" else "JANELA",
+            {
+                "off": "DESLIGADO",
+                "crt": "CRT SUAVE",
+                "vhs": "VHS SUAVE",
+            }[self.pending_preferences.screen_filter],
             self._volume_label(self.pending_preferences.music_volume),
             self._volume_label(self.pending_preferences.sfx_volume),
         )
@@ -215,7 +226,7 @@ class SettingsPanel:
             return "applied"
         if self.back_rect.collidepoint(pointer):
             self.selection = len(ROW_LABELS) + 1
-            self._play_click()
+            self._play_sound("back")
             return "back"
         return None
 
@@ -237,16 +248,21 @@ class SettingsPanel:
                 (current + direction) % len(DISPLAY_MODES)
             ]
         elif index == 3:
+            current = SCREEN_FILTERS.index(self.pending_preferences.screen_filter)
+            self.pending_preferences.screen_filter = SCREEN_FILTERS[
+                (current + direction) % len(SCREEN_FILTERS)
+            ]
+        elif index == 4:
             self.pending_preferences.music_volume = self._step_volume(
                 self.pending_preferences.music_volume,
                 direction,
             )
-        elif index == 4:
+        elif index == 5:
             self.pending_preferences.sfx_volume = self._step_volume(
                 self.pending_preferences.sfx_volume,
                 direction,
             )
-        self._play_click(0.55)
+        self._play_sound("toggle_on" if direction > 0 else "toggle_off", 0.55)
 
     def _apply(self) -> None:
         self._play_click()
@@ -288,8 +304,11 @@ class SettingsPanel:
         self._text(surface, label, self.font_body, INK_BRIGHT if active else INK, rect.center, "center")
 
     def _play_click(self, volume: float = 0.8) -> None:
+        self._play_sound("click", volume)
+
+    def _play_sound(self, name: str, volume: float = 0.8) -> None:
         if self.audio is not None:
-            self.audio.play("click", volume)
+            self.audio.play(name, volume)
 
     @staticmethod
     def _font(size: int, bold: bool = False) -> pygame.font.Font:

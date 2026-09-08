@@ -13,6 +13,7 @@ ciência e da computação.
 
 - Python 3.11 ou superior
 - `pygame-ce`
+- `ModernGL` e `trimesh` para a inspeção física de objetos 3D
 
 ## Instalação
 
@@ -53,12 +54,49 @@ O projeto está conectado ao repositório
   configurações ou consultar os créditos. Todas as opções funcionam por mouse ou
   teclado, e o aparelho acompanha o cursor com um movimento sutil. A interface é
   recortada pela curvatura do vidro e permanece dentro do visor.
+- `INICIAR TURNO` abre a tela de acesso da estação. Os campos de usuário e senha
+  aceitam teclado, `Tab` alterna entre eles e `Enter` avança ou confirma. A dica
+  aponta para o post-it físico de coração, que pode ser girado para revelar as
+  credenciais antes do login. Para testes rápidos, o acesso alternativo
+  `admin` / `admin` também é aceito.
+- O login abre uma área de trabalho inspirada no Windows XP. O botão `iniciar`,
+  o encerramento de sessão e os atalhos do desktop são interativos. Dê dois
+  cliques em `Sob Análise` para abrir o aplicativo da empresa.
+- `Sob Análise`, navegador, calculadora, Explorador e Bloco de Notas funcionam
+  como janelas do sistema e podem permanecer abertos ao mesmo tempo. Arraste a
+  barra de título para mover, arraste qualquer borda ou canto para redimensionar
+  e dê dois cliques no título para maximizar ou restaurar.
+- Os botões da barra de título minimizam, maximizam/restauram e fecham a janela.
+  Um clique no botão de um aplicativo na barra de tarefas alterna entre
+  minimizar, restaurar e trazer a janela para frente.
+- Ao maximizar `Sob Análise`, o aplicativo ocupa o visor inteiro sem moldura nem
+  barra de tarefas, preservando a legibilidade da auditoria. `F11` também alterna
+  esse modo; os controles compactos no canto superior direito permitem sair dele.
+- Login, área de trabalho, menu Iniciar, ícones, molduras de janela, calculadora
+  e cursor usam sprites próprios e os pacotes fornecidos pela equipe. O cursor
+  personalizado aparece somente dentro do visor do computador; fora dele, o
+  cursor normal é restaurado.
+- Sob Análise, navegador, calculadora, documentos, pastas e cursor usam o pacote
+  pixel art `PXL Retro Computer Icons Set 110`, fornecido pela equipe. O
+  `item1`, um computador frontal, funciona como logo do aplicativo da empresa.
+- Login e desktop preservam exatamente a moldura original fornecida pela equipe,
+  incluindo livros, post-its e placa. Os quatro módulos de decisão aparecem
+  somente depois que o aplicativo `Sob Análise` é aberto.
+- `Google` abre o navegador interno reservado para as notícias cômicas futuras.
+  `Calculadora` aceita mouse e teclado e pode ser usada nos casos de contas. O
+  botão `ABRIR CALCULADORA`, na barra superior da auditoria, abre a ferramenta
+  sobre o caso atual sem fechar nem reiniciar os documentos.
+  `Meus documentos` permite criar pastas e arquivos `.txt`; os textos abrem no
+  bloco de notas e podem ser salvos com `Ctrl+S`.
 - Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,
-  alterar a resolução, alternar entre janela e tela cheia e ajustar separadamente
-  os volumes da música e dos efeitos. O jogo preserva a imagem original com barras
-  quando a janela não é `16:9`, sem esticar a interface.
-- Leia o chamado e clique em `ABRIR CASO`.
-- A faixa `PASSO 1/5` indica a próxima ação: abrir a decisão da IA, escolher
+  alterar a resolução, alternar entre janela e tela cheia, escolher entre os
+  filtros `DESLIGADO`, `CRT SUAVE` e `VHS SUAVE` e ajustar separadamente os volumes
+  da música e dos efeitos. Os filtros ficam limitados ao visor e não deslocam a
+  interface. O jogo preserva a imagem original com barras quando a janela não é
+  `16:9`, sem esticar a interface.
+- O turno começa por um treinamento guiado. Clique em `COMEÇAR AUDITORIA` e
+  siga o alvo luminoso; ações fora do passo atual ficam bloqueadas.
+- A faixa `PASSO 1/4` indica a próxima ação: abrir a decisão da IA, escolher
   documentos, comparar dados, carimbar e assinar.
 - A mesa começa apenas com a folha de auditoria. Em `DADOS UTILIZADOS`, clique numa
   fonte para colocá-la na mesa; clique novamente para retirá-la. O indicador verde
@@ -79,7 +117,9 @@ O projeto está conectado ao repositório
 - Na inspeção, use a roda do mouse ou os botões `+` e `-` para controlar o zoom.
 - Clique na porcentagem do zoom da inspeção para voltar a `100%`.
 - Com o documento ampliado, arraste o papel para examinar outras regiões.
-- Clique em campos relevantes, como os IDs, para anotá-los no caderno de evidências.
+- Clique diretamente em um dado no papel e depois em outro para compará-los. Uma
+  linha liga os campos e informa `IGUAIS` ou `DIFERENTES`; não é necessário abrir
+  a inspeção ampliada para conferir os valores.
 - Clique em `ABRIR DECISÃO` para ver, em sequência, os dados consultados, o que a IA
   fez com eles e qual comparação precisa ser auditada.
 - Em `DADOS UTILIZADOS`, use a roda do mouse, as setas da barra ou arraste o
@@ -87,31 +127,37 @@ O projeto está conectado ao repositório
 - Clique em um protocolo para abrir a ficha completa.
 - Use as setas do painel, `A`/`D` ou `←`/`→` para trocar de página.
 - Clique no `X` ou pressione `Esc` para fechar um protocolo.
+- Passe o mouse sobre o post-it de coração para iluminá-lo e clique para pegá-lo.
+  Na inspeção, segure o botão esquerdo e mova o mouse para girar o objeto; use a
+  roda para aproximar ou afastar e vire o papel para consultar as credenciais. O
+  objeto sempre abre no menor nível de zoom disponível.
 - Selecione um carimbo e clique na área indicada da `DECISÃO FINAL`.
 - Confirme a decisão para aplicar a marca permanentemente sobre o papel.
 - O campo `Assinatura do auditor` existe na folha desde o início. Clique nele para abrir a folha ampliada, segure o botão esquerdo e desenhe sua assinatura com a caneta.
 - Na tela de assinatura, use `LIMPAR`, `CANCELAR` ou `CONFIRMAR ASSINATURA`. O campo pode ser reaberto para corrigir o traço antes do envio.
 - Confira o papel carimbado e assinado e clique em `ENVIAR / PRÓXIMO CASO`.
-- Ao concluir o sexto caso, o monitor desliga e o noticiário do dia é revelado.
+- O treinamento não entra no placar nem no jornal. Ao concluir os cinco casos do
+  turno atual, o monitor desliga e o noticiário do dia é revelado.
 - No jornal, use os botões laterais, `A`/`D` ou `←`/`→` para folhear as matérias.
 - A música muda entre o menu e o turno. Durante a auditoria, duas faixas se
-  alternam automaticamente. Há efeitos próprios para interface, documentos,
-  papel, dicas, confirmações e carimbos.
+  alternam automaticamente. O desktop também possui uma camada baixa de ambiente
+  industrial. Há efeitos próprios para interface, janelas, documentos, papel,
+  dicas, confirmações e carimbos.
 - Pressione `Esc` sem outra janela aberta para pausar. A pausa permite continuar,
-  abrir as configurações ou voltar ao menu principal.
+  abrir as configurações ou voltar à área de trabalho da estação.
 - `Esc` nunca encerra o jogo. Para fechar a aplicação, use o botão da janela ou
   `Alt+F4`.
 
 ## Casos jogáveis
 
-O turno atual tem seis casos, um para cada protocolo. Todos exigem cruzar vários
-documentos e encontrar a informação decisiva entre dados que parecem coerentes:
+O turno começa com um treinamento e depois tem cinco casos pontuados. Todos exigem
+cruzar documentos e encontrar a informação decisiva entre dados que parecem
+coerentes:
 
-1. **Correspondência suficiente:** a IA separa corretamente dois códigos quase
+1. **Treinamento - O ou zero?:** a IA separa corretamente dois códigos quase
    idênticos; o jogador precisa confirmar que o registro disciplinar é de Artur,
-   não de Ana, antes de aceitar a promoção. A base interna permite pesquisar os
-   homônimos, o pedido e o registro de segurança.
-2. **Lote 28800:** a capacidade declarada pela HEIN só fecha quando doze crachás de
+   não de Ana, antes de aceitar a promoção. Esse resultado não entra no jornal.
+2. **Lote 28800:** primeiro caso pontuado. A capacidade declarada pela HEIN só fecha quando doze crachás de
    visitante entram na conta. Log de máquinas, datas de nascimento e um termo de
    visita revelam estudantes operando a linha de uniformes escolares.
 3. **Triagem 204:** uma candidata de dados é eliminada por um requisito que veio
@@ -153,18 +199,21 @@ sob_analise/
 ├── main.py                       # Ponto de entrada
 ├── requirements.txt             # Dependências Python
 ├── assets/
-│   ├── backgrounds/             # Moldura e cenário da auditoria (novo_sprite_teste.png)
+│   ├── backgrounds/             # Moldura, menu e papel de parede do desktop
 │   ├── cases/case_01/           # Retrato usado nos documentos funcionais
 │   ├── documents/dev/           # Documentos antigos de desenvolvimento
 │   ├── music/                   # Música do menu e duas faixas da auditoria
+│   ├── models/                  # Objetos GLB usados na inspeção física
 │   ├── newspaper/               # Ilustrações das matérias corretas e desastrosas
+│   ├── os/                      # Monitor, sistema, ícones próprios e pacote retrô
 │   ├── protocols/               # Retratos dos seis protocolos
 │   ├── stamp_marks/             # Marcas transparentes aplicadas ao papel
 │   ├── stamps/                  # Botões dos carimbos jogáveis
-│   ├── sfx/                     # Efeitos sonoros da interface
+│   ├── sfx/                     # Cliques retrô, digitação, transições, papel e carimbo
 │   └── videos/                  # Futuros tutoriais em vídeo
 ├── scripts/
 │   ├── generate_audio.py         # Regenera a trilha e os efeitos WAV
+│   ├── process_os_assets.py      # Recorta e redimensiona os sprites do sistema
 │   ├── restore_background.py     # Restaura a base original e repara o recorte do visor
 │   └── generate_stamp_marks.py   # Regenera as marcas dos carimbos
 └── src/
@@ -181,9 +230,13 @@ sob_analise/
     │   ├── cases.py              # Casos, fontes, respostas e matérias do jornal
     │   ├── document_renderer.py  # Geração visual dos documentos do caso
     │   └── protocols.py          # Textos e regras dos protocolos
+    ├── rendering/
+    │   └── glb_renderer.py       # Renderização GLB isolada com ModernGL
     ├── scenes/
     │   ├── main_menu.py          # Menu inicial
-    │   └── audit.py              # Tela principal de auditoria
+    │   ├── login.py              # Login estilo XP e acesso ao post-it 3D
+    │   ├── desktop.py            # Desktop, Iniciar, apps e calculadora funcional
+    │   └── audit.py              # Aplicativo principal de auditoria
     └── ui/
         ├── ai_decision_panel.py  # Resumo e popup da decisão da IA
         ├── case_dialog.py        # Chamado e confirmação do carimbo
@@ -191,7 +244,9 @@ sob_analise/
         ├── case_hint.py          # Dica contextual e atalho para o protocolo
         ├── database_search.py    # Pesquisa digitada na base interna do caso
         ├── document_inspector.py # Zoom, navegação e caderno de evidências
+        ├── item_inspector.py     # Rotação e zoom dos objetos 3D
         ├── newspaper.py          # Jornal final paginado, matérias e placar
+        ├── os_cursor.py          # Cursor próprio limitado ao visor da estação
         ├── pause_menu.py         # Pausa, retorno ao menu e acesso às configurações
         ├── protocol_panel.py     # Menu paginado e popup dos protocolos
         ├── settings_panel.py     # Configurações reutilizadas no menu e na pausa
@@ -227,8 +282,17 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
   que eles cubram Protocolo, Decisão da IA ou Dados Utilizados.
 - A área de documentos possui grade de fósforo, scanlines e ruído pontual gerados
   em coordenadas inteiras para reforçar a aparência de monitor sem borrar o texto.
-- A moldura principal foi refeita em pixel art nítida, preservando a geometria da
-  interface e removendo os elementos decorativos que cobriam a área útil.
+- Login e desktop usam sem alterações o PNG original `NOVO monitor png.png`. O
+  painel com os quatro módulos de decisão é uma camada exclusiva da auditoria.
+- A auditoria é renderizada em uma superfície própria e encaixada na área cliente
+  da janela `Sob Análise`. Cliques, roda do mouse, teclado, arraste de documentos
+  e carimbos são convertidos para as coordenadas internas do aplicativo.
+- As molduras e os controles clássicos ficam em `assets/os/retro_gui`; os
+  sprites de minimizar, maximizar e fechar ficam em `assets/os/window_buttons`.
+  Cada pasta possui um `SOURCE.md` com a pendência de confirmar a licença antes
+  de uma distribuição pública.
+- Os sprites-base do sistema ficam em `assets/os`. Para regenerar os recortes e
+  tamanhos usados pelo jogo, execute `py -3.11 scripts/process_os_assets.py`.
 - Os documentos são gerados por código para manter IDs e outros dados totalmente
   legíveis. Suas miniaturas usam redução de alta qualidade para preservar o mesmo
   rosto e os mesmos traços em todos os níveis de zoom.

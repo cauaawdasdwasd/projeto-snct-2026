@@ -2,25 +2,43 @@ from __future__ import annotations
 
 import math
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
+import unicodedata
 
 import pygame
 
 from src.core.preferences import UserPreferences
 from src.core.scene import Scene
 from src.core.settings import DEBUG_LAYOUT_RECTS, DEBUG_UI
-from src.gameplay.cases import CASES, CaseResult
-from src.gameplay.document_renderer import DocumentRenderer
-from src.ui.ai_decision_panel import AIDecisionPanel
-from src.ui.case_dialog import CaseDialog, STAMP_LABELS
+from src.gameplay.cases import CASES, PLAYABLE_CASES, TUTORIAL_CASE, CaseResult
+from src.gameplay.document_renderer import DocumentRenderer, EvidenceRegion
+from src.ui.ai_decision_panel import (
+    CLOSE_RECT as AI_REPORT_CLOSE_RECT,
+    OPEN_BUTTON_RECT as AI_REPORT_OPEN_RECT,
+    AIDecisionPanel,
+)
+from src.ui.case_dialog import (
+    BRIEFING_START_RECT,
+    CONFIRM_YES_RECT,
+    CaseDialog,
+    STAMP_LABELS,
+)
 from src.ui.case_document import CaseDocument
 from src.ui.case_hint import CaseHint
+from src.ui.credential_note import CredentialNote
 from src.ui.database_search import DatabaseSearch
 from src.ui.document_inspector import DocumentInspector
+from src.ui.item_inspector import ItemInspector
 from src.ui.newspaper import FinalNewspaper
+from src.ui.os_cursor import OSCursor
 from src.ui.pause_menu import PauseMenu
 from src.ui.protocol_panel import ProtocolPanel
-from src.ui.signature_pad import SignaturePad
+from src.ui.signature_pad import (
+    CONFIRM_RECT as SIGNATURE_CONFIRM_RECT,
+    DRAW_RECT as SIGNATURE_DRAW_RECT,
+    SignaturePad,
+)
 from src.ui.stamp_button import StampButton
 
 if TYPE_CHECKING:
@@ -33,6 +51,9 @@ if TYPE_CHECKING:
 SCREEN_BASE_COLOR = (4, 7, 6)
 MONITOR_BASE_COLOR = (4, 12, 10)
 WORKSPACE_SCREEN_COLOR = (6, 18, 15)
+COMPARE_PENDING = (237, 193, 91)
+COMPARE_EQUAL = (101, 191, 91)
+COMPARE_DIFFERENT = (224, 82, 67)
 
 MONITOR_SCREEN_RECT = pygame.Rect(186, 87, 1554, 696)
 DOCUMENT_WORKSPACE = pygame.Rect(294, 63, 867, 630)
@@ -51,8 +72,9 @@ DESK_ZOOM_OUT_RECT = pygame.Rect(1008, 72, 38, 34)
 DESK_ZOOM_LABEL_RECT = pygame.Rect(1052, 72, 56, 34)
 DESK_ZOOM_IN_RECT = pygame.Rect(1114, 72, 37, 34)
 CASE_PROGRESS_RECT = pygame.Rect(304, 72, 136, 34)
-CASE_GUIDANCE_RECT = pygame.Rect(304, 114, 847, 38)
+CASE_GUIDANCE_RECT = pygame.Rect(304, 114, 847, 64)
 CASE_SUBMIT_RECT = pygame.Rect(786, 579, 370, 51)
+CALCULATOR_BUTTON_RECT = pygame.Rect(446, 72, 230, 34)
 DESK_ZOOM_LEVELS = (0.75, 0.9, 1.0, 1.2, 1.4, 1.6, 1.8)
 NEWS_SHUTDOWN_DURATION = 2.15
 NEWS_REVEAL_DURATION = 0.7
@@ -67,12 +89,20 @@ STAMP_LAYOUT = (
 )
 
 DOCUMENT_POSITIONS = (
-    (312, 157),
-    (455, 253),
-    (598, 157),
-    (741, 253),
+    (312, 184),
+    (455, 280),
+    (598, 184),
+    (741, 280),
     (564, 207),
 )
+
+
+@dataclass(frozen=True)
+class EvidenceSelection:
+    document_id: str
+    key: str
+    value: str
+    note: str
 
 
 class AuditScene(Scene):
@@ -94,21 +124,25 @@ class AuditScene(Scene):
         super().__init__(manager, assets, input_manager)
         self.audio = audio
         self.preferences_provider = preferences_provider or UserPreferences
-        self.case_index = 0
+        self.tutorial_active = True
+        self.case_index = -1
         self.case_results: list[CaseResult] = []
-        self.case = CASES[self.case_index]
+        self.case = TUTORIAL_CASE
         self.desk_zoom = 1.0
         self.desk_panning = False
         self.last_desk_pan_position: tuple[int, int] | None = None
         self.head_motion_time = 0.0
         self.head_offset = (0, 0)
         self.hovered_desk_control: str | None = None
+        self.calculator_hovered = False
+        self.calculator_requested = False
         self.submit_hovered = False
         self.terminal_overlay = self.assets.load_image("backgrounds/novo_sprite_teste.png")
         self.monitor_surface = pygame.Surface(MONITOR_SCREEN_RECT.size, pygame.SRCALPHA)
         self.popup_surface = pygame.Surface(MONITOR_SCREEN_RECT.size, pygame.SRCALPHA)
         self.monitor_glass = self._build_monitor_glass()
         self.small_font = pygame.font.SysFont(("Consolas", "Courier New", "monospace"), 19)
+        self.guide_font = pygame.font.SysFont(("Consolas", "Courier New", "monospace"), 16)
         self.status_font = pygame.font.SysFont(
             ("Consolas", "Courier New", "monospace"),
             20,
@@ -134,6 +168,17 @@ class AuditScene(Scene):
         self.document_inspector = DocumentInspector(self.case.evidence_summary)
         self.case_dialog = CaseDialog(self.case)
         self.case_hint = CaseHint(self.case)
+        self.credential_note = CredentialNote(
+            self.assets.load_image("ui/heart_note.png")
+        )
+        self.item_inspector = ItemInspector(
+            self.assets.assets_root / "models" / "heart_note.glb",
+            "Post-it de acesso",
+        )
+        self.os_cursor = OSCursor(
+            self.assets.load_image("os/cursor.png"),
+            MONITOR_SCREEN_RECT,
+        )
         self.database_search = DatabaseSearch(self.case, audio)
         self.signature_pad = SignaturePad()
         self.newspaper = FinalNewspaper(self._load_newspaper_images())
@@ -144,6 +189,9 @@ class AuditScene(Scene):
         )
 
         self.evidence_notes: dict[str, str] = {}
+        self.comparison_anchor: EvidenceSelection | None = None
+        self.comparison_result: tuple[EvidenceSelection, EvidenceSelection, bool] | None = None
+        self.hovered_evidence: EvidenceSelection | None = None
         self.active_document: CaseDocument | None = None
         self.selected_stamp_id: str | None = None
         self.case_completed = False
@@ -151,17 +199,32 @@ class AuditScene(Scene):
         self.inspected_document_ids: set[str] = set()
         self.newspaper_transition: str | None = None
         self.newspaper_transition_time = 0.0
+        self.embedded_mode = False
+        self.desktop_requested = False
 
     def on_enter(self) -> None:
+        self.desktop_requested = False
+        self.calculator_requested = False
         self.pause_menu.close()
+        self.credential_note.clear_hover()
+        self.item_inspector.close()
         self.head_offset = (0, 0)
         if self.audio is not None:
             self.audio.play_music_sequence(("audit_1", "audit_2"), fade_ms=700)
 
     def on_exit(self) -> None:
+        self.desktop_requested = False
         self.pause_menu.close()
+        self.credential_note.clear_hover()
+        self.item_inspector.close()
         self.database_search.close()
         self.signature_pad.close()
+
+    def custom_cursor_active(self, position: tuple[int, int] | None) -> bool:
+        return self.os_cursor.is_active(
+            position,
+            blocked=self.item_inspector.is_open,
+        )
 
     def handle_escape(self) -> bool:
         if self.pause_menu.is_open:
@@ -169,26 +232,42 @@ class AuditScene(Scene):
         if self.newspaper_transition is not None:
             return True
         if self.newspaper.is_open:
-            return self.newspaper.handle_escape()
+            handled = self.newspaper.handle_escape()
+            if handled:
+                self._play_sound("back", 0.65)
+            return handled
+        if self.item_inspector.is_open:
+            self.item_inspector.close()
+            self._play_sound("back", 0.65)
+            return True
         if self.signature_pad.is_open:
             self.signature_pad.close()
+            self._play_sound("back", 0.65)
             return True
         if self.database_search.is_open:
             self.database_search.close()
+            self._play_sound("back", 0.65)
             return True
         if self.case_hint.is_open:
             self.case_hint.close()
+            self._play_sound("back", 0.65)
             return True
         if self.case_dialog.is_open:
-            return self.case_dialog.handle_escape()
+            handled = self.case_dialog.handle_escape()
+            if handled:
+                self._play_sound("back", 0.65)
+            return handled
         if self.protocol_panel.is_popup_open:
             self.protocol_panel.close_popup()
+            self._play_sound("back", 0.65)
             return True
         if self.document_inspector.is_open:
             self.document_inspector.close()
+            self._play_sound("back", 0.65)
             return True
         if self.ai_decision_panel.popup_open:
             self.ai_decision_panel.close()
+            self._play_sound("back", 0.65)
             return True
         self._stop_desk_pan()
         self.head_offset = (0, 0)
@@ -198,10 +277,23 @@ class AuditScene(Scene):
     def handle_event(self, event: pygame.event.Event) -> None:
         if self.pause_menu.is_open:
             action = self.pause_menu.handle_event(event, self.input_manager.mouse_position)
-            if action == "main_menu":
-                self.manager.switch_to("main_menu")
+            if action == "desktop":
+                if self.embedded_mode:
+                    self.desktop_requested = True
+                else:
+                    self.manager.switch_to("desktop")
             return
         if self.newspaper_transition is not None:
+            return
+        if self.item_inspector.is_open:
+            action = self.item_inspector.handle_event(
+                event,
+                self.input_manager.mouse_position,
+            )
+            if action == "close":
+                self._play_sound("back", 0.65)
+            elif action == "zoom":
+                self._play_sound("scroll", 0.45)
             return
         if self.signature_pad.is_open:
             result = self.signature_pad.handle_event(
@@ -214,7 +306,7 @@ class AuditScene(Scene):
             elif result is not None and result[0] == "clear":
                 self._play_sound("paper", 0.55)
             elif result is not None and result[0] == "cancel":
-                self._play_sound("click", 0.7)
+                self._play_sound("back", 0.7)
             return
         if self.database_search.is_open:
             self.database_search.handle_event(
@@ -250,7 +342,12 @@ class AuditScene(Scene):
 
         if event.type == pygame.KEYDOWN:
             if self.newspaper.is_open:
-                self.newspaper.handle_key_down(event.key)
+                previous_page = self.newspaper.page_index
+                if self.newspaper.handle_key_down(event.key):
+                    if self.newspaper.page_index < previous_page:
+                        self._play_sound("back", 0.65)
+                    elif self.newspaper.page_index > previous_page:
+                        self._play_sound("forward", 0.65)
                 return
             if (
                 event.key == pygame.K_f
@@ -258,7 +355,7 @@ class AuditScene(Scene):
                 and not self._is_modal_open()
             ):
                 if self.database_search.open():
-                    self._play_sound("click")
+                    self._play_sound("forward", 0.7)
                 return
             if not self._is_modal_open():
                 self.protocol_panel.handle_key_down(event.key)
@@ -283,12 +380,20 @@ class AuditScene(Scene):
         if self.newspaper_transition is not None:
             self._update_newspaper_transition(dt)
             return
+        if self.item_inspector.is_open:
+            self.head_offset = (0, 0)
+            self.item_inspector.update_hover(self.input_manager.mouse_position)
+            return
         self.head_motion_time += dt
         self.head_offset = (
             round(math.sin(self.head_motion_time * 0.72) * HEAD_SWAY_X),
             round(math.sin(self.head_motion_time * 0.51 + 1.1) * HEAD_SWAY_Y),
         )
         scene_position = self.input_manager.mouse_position
+        self.credential_note.update_note_hover(
+            self._corrected_scene_position(scene_position),
+            enabled=not self._is_modal_open(),
+        )
         monitor_position = self.scene_to_monitor(scene_position)
 
         self.protocol_panel.update_hover(monitor_position)
@@ -298,6 +403,11 @@ class AuditScene(Scene):
         self.database_search.update_hover(monitor_position)
         self.newspaper.update_hover(monitor_position)
         self._update_desk_controls_hover(monitor_position)
+        self.calculator_hovered = bool(
+            not self._is_modal_open()
+            and monitor_position is not None
+            and CALCULATOR_BUTTON_RECT.collidepoint(monitor_position)
+        )
         self.submit_hovered = bool(
             self.case_completed
             and self._get_document("final").is_signed
@@ -326,20 +436,50 @@ class AuditScene(Scene):
             )
 
     def render(self, surface: pygame.Surface) -> None:
+        self._render_scene(surface, draw_cursor=not self.embedded_mode)
+
+    def render_embedded(self, surface: pygame.Surface) -> None:
+        """Render the audit app without a second cursor over the desktop cursor."""
+        self._render_scene(surface, draw_cursor=False)
+
+    def set_embedded_mode(self, enabled: bool) -> None:
+        self.embedded_mode = enabled
+        self.desktop_requested = False
+
+    def consume_desktop_request(self) -> bool:
+        requested = self.desktop_requested
+        self.desktop_requested = False
+        return requested
+
+    def consume_calculator_request(self) -> bool:
+        requested = self.calculator_requested
+        self.calculator_requested = False
+        return requested
+
+    def _render_scene(self, surface: pygame.Surface, draw_cursor: bool) -> None:
         surface.fill(SCREEN_BASE_COLOR)
         self._render_monitor_content(surface)
         surface.blit(self.terminal_overlay, (0, 0))
+        self.credential_note.render_note_highlight(surface)
         self._render_status_led(surface)
         if DEBUG_UI and DEBUG_LAYOUT_RECTS:
             self._draw_layout_rects(surface)
         self._render_active_popup(surface)
         self._render_newspaper_transition(surface)
         self._render_stamp_buttons(surface)
+        self._render_tutorial_focus(surface)
         self._draw_stamp_status(surface)
         if DEBUG_UI:
             self._draw_debug_text(surface)
+        self.item_inspector.render(surface)
         if self.pause_menu.is_open:
             self.pause_menu.render(surface)
+        if draw_cursor:
+            self.os_cursor.render(
+                surface,
+                self.input_manager.mouse_position,
+                blocked=self.item_inspector.is_open,
+            )
 
     def _render_status_led(self, surface: pygame.Surface) -> None:
         pulse = (math.sin(self.head_motion_time * 2.4) + 1.0) * 0.5
@@ -362,6 +502,15 @@ class AuditScene(Scene):
             position[1] - MONITOR_SCREEN_RECT.y - head_offset[1],
         )
 
+    def _corrected_scene_position(
+        self,
+        position: tuple[int, int] | None,
+    ) -> tuple[int, int] | None:
+        if position is None:
+            return None
+        head_offset = self._effective_head_offset()
+        return position[0] - head_offset[0], position[1] - head_offset[1]
+
     def _effective_head_offset(self) -> tuple[int, int]:
         """Match input coordinates to the integer shift used after scaling."""
         scale = self.input_manager.viewport.scale
@@ -379,9 +528,11 @@ class AuditScene(Scene):
             else None
         )
         rendered_documents = self.document_renderer.render_case(self.case, portrait)
+        source_count = len(rendered_documents) - 1
+        positions = (*DOCUMENT_POSITIONS[:source_count], DOCUMENT_POSITIONS[-1])
         documents = [
             CaseDocument(rendered, position)
-            for rendered, position in zip(rendered_documents, DOCUMENT_POSITIONS, strict=True)
+            for rendered, position in zip(rendered_documents, positions, strict=True)
         ]
         for document in documents:
             document.set_visible(document.document_id == "final")
@@ -478,27 +629,42 @@ class AuditScene(Scene):
         if scene_position is None:
             return
         monitor_position = self.scene_to_monitor(scene_position)
+        if not self._tutorial_click_allowed(scene_position):
+            self._play_sound("error", 0.35)
+            return
 
         if self.newspaper.is_open:
             if monitor_position is not None:
+                previous_page = self.newspaper.page_index
                 action = self.newspaper.handle_mouse_down(monitor_position)
                 if action == "restart":
+                    self._play_sound("forward", 0.7)
                     self._restart_turn()
+                elif action == "previous" and self.newspaper.page_index < previous_page:
+                    self._play_sound("back", 0.65)
+                elif action == "next" and self.newspaper.page_index > previous_page:
+                    self._play_sound("forward", 0.65)
+                elif action == "close":
+                    self._play_sound("back", 0.65)
             return
 
         if self.case_hint.is_open:
             if monitor_position is not None:
                 action = self.case_hint.handle_mouse_down(monitor_position)
                 if action == "open_protocol":
-                    self._play_sound("click")
+                    self._play_sound("forward", 0.65)
                     self.protocol_panel.open_protocol(self.case.protocol_focus)
+                elif action == "close":
+                    self._play_sound("back", 0.65)
             return
 
         if self.case_dialog.is_open:
             if monitor_position is not None:
                 action = self.case_dialog.handle_mouse_down(monitor_position)
-                if action in ("start", "cancel"):
-                    self._play_sound("click")
+                if action == "start":
+                    self._play_sound("forward", 0.7)
+                elif action == "cancel":
+                    self._play_sound("back", 0.7)
                 self._handle_case_dialog_action(action)
             return
 
@@ -527,13 +693,31 @@ class AuditScene(Scene):
                     self._play_sound("click")
             return
 
+        if self.credential_note.contains_note(
+            self._corrected_scene_position(scene_position)
+        ):
+            self._stop_desk_pan()
+            self.head_offset = (0, 0)
+            self.item_inspector.open()
+            self._play_sound("paper", 0.55)
+            return
+
         if monitor_position is not None:
+            if CALCULATOR_BUTTON_RECT.collidepoint(monitor_position):
+                self.calculator_requested = True
+                self._play_sound("forward", 0.6)
+                return
             if self.database_search.handle_launcher_click(monitor_position):
-                self._play_sound("click")
+                self._play_sound("forward", 0.7)
                 return
             hint_action = self.case_hint.handle_mouse_down(monitor_position)
             if hint_action is not None:
-                self._play_sound("hint" if hint_action == "open" else "click")
+                if hint_action == "open":
+                    self._play_sound("hint")
+                elif hint_action == "close":
+                    self._play_sound("back", 0.65)
+                else:
+                    self._play_sound("forward", 0.65)
                 return
 
         if monitor_position is not None and self._handle_desk_control(monitor_position):
@@ -546,7 +730,6 @@ class AuditScene(Scene):
             and monitor_position is not None
             and CASE_SUBMIT_RECT.collidepoint(monitor_position)
         ):
-            self._play_sound("confirm")
             self._advance_case_or_show_newspaper()
             return
 
@@ -561,7 +744,7 @@ class AuditScene(Scene):
         clicked_stamp = self._get_clicked_stamp(scene_position)
         if clicked_stamp is not None:
             self._select_stamp(clicked_stamp)
-            self._play_sound("click")
+            self._play_sound("toggle", 0.6)
             return
 
         if monitor_position is None:
@@ -572,10 +755,10 @@ class AuditScene(Scene):
             action, document_id = ai_action
             if action == "toggle" and document_id is not None:
                 self._toggle_document_visibility(document_id)
-                self._play_sound("document", 0.65)
+                self._play_sound("toggle", 0.6)
             elif action == "open":
                 self.ai_report_seen = True
-                self._play_sound("click")
+                self._play_sound("forward", 0.7)
             elif action == "scroll":
                 self._play_sound("scroll", 0.7)
             return
@@ -601,14 +784,19 @@ class AuditScene(Scene):
                     self.case_dialog.request_confirmation(self.selected_stamp_id)
                 return
 
+            evidence = document.evidence_at_monitor(monitor_position)
+            if evidence is not None and click_count < 2:
+                self._handle_evidence_comparison(document, evidence)
+                return
+
             if document.contains_inspect_button(monitor_position) or click_count >= 2:
                 self.document_inspector.open(document)
                 self.inspected_document_ids.add(document.document_id)
-                self._play_sound("document")
+                self._play_sound("document", 0.62)
                 return
 
             document.start_drag(monitor_position)
-            self._play_sound("paper", 0.55)
+            self._play_sound("document", 0.42)
             self.active_document = document
             return
 
@@ -620,11 +808,13 @@ class AuditScene(Scene):
         self.ai_decision_panel.handle_mouse_motion(monitor_position)
         self.case_dialog.update_hover(monitor_position)
         self.case_hint.update_hover(monitor_position)
+        self.hovered_evidence = self._find_evidence_at(monitor_position)
 
         if self.document_inspector.is_open:
             self.document_inspector.handle_mouse_motion(monitor_position)
             return
         if self.desk_panning:
+            self.hovered_evidence = None
             if (
                 scene_position is not None
                 and MONITOR_SCREEN_RECT.collidepoint(scene_position)
@@ -672,25 +862,30 @@ class AuditScene(Scene):
         self._clear_stamp_selection()
         self.case_dialog.pending_stamp_id = None
         self.case_dialog.mode = None
-        self.case_results.append(
-            CaseResult(
-                case=self.case,
-                selected_stamp=stamp_id,
-                correct=stamp_id == self.case.correct_stamp,
+        if not self.tutorial_active:
+            self.case_results.append(
+                CaseResult(
+                    case=self.case,
+                    selected_stamp=stamp_id,
+                    correct=stamp_id == self.case.correct_stamp,
+                )
             )
-        )
 
     def _reset_case(self) -> None:
-        if self.case_results and self.case_results[-1].case.case_id == self.case.case_id:
+        if not self.tutorial_active and self.case_results and self.case_results[-1].case.case_id == self.case.case_id:
             self.case_results.pop()
-        self._load_case(self.case_index)
+        self._load_case(self.case_index, tutorial=self.tutorial_active)
 
-    def _load_case(self, case_index: int) -> None:
-        self.case_index = case_index
-        self.case = CASES[self.case_index]
+    def _load_case(self, case_index: int, *, tutorial: bool = False) -> None:
+        self.tutorial_active = tutorial
+        self.case_index = -1 if tutorial else case_index
+        self.case = TUTORIAL_CASE if tutorial else PLAYABLE_CASES[self.case_index]
         self.desk_zoom = 1.0
         self._stop_desk_pan()
         self.evidence_notes.clear()
+        self.comparison_anchor = None
+        self.comparison_result = None
+        self.hovered_evidence = None
         self.active_document = None
         self.documents = self._create_documents()
         self.case_completed = False
@@ -708,20 +903,24 @@ class AuditScene(Scene):
         self.submit_hovered = False
 
     def _advance_case_or_show_newspaper(self) -> None:
-        if self.case_index >= len(CASES) - 1:
-            self._play_sound("confirm")
+        if self.tutorial_active:
+            self._load_case(0)
+            self._play_sound("forward", 0.7)
+            return
+        if self.case_index >= len(PLAYABLE_CASES) - 1:
+            self._play_sound("forward", 0.75)
             self.newspaper_transition = "shutdown"
             self.newspaper_transition_time = 0.0
             return
         self._load_case(self.case_index + 1)
-        self._play_sound("paper", 0.75)
+        self._play_sound("forward", 0.7)
 
     def _restart_turn(self) -> None:
         self.newspaper.close()
         self.newspaper_transition = None
         self.newspaper_transition_time = 0.0
         self.case_results.clear()
-        self._load_case(0)
+        self._load_case(-1, tutorial=True)
 
     def _update_newspaper_transition(self, dt: float) -> None:
         self.newspaper_transition_time += dt
@@ -783,9 +982,11 @@ class AuditScene(Scene):
         self.monitor_surface.set_clip(DOCUMENT_WORKSPACE)
         for document in self.documents:
             document.render(self.monitor_surface)
+        self._render_evidence_comparison(self.monitor_surface)
         self.monitor_surface.set_clip(previous_clip)
         self._render_case_guidance(self.monitor_surface)
         self._render_case_progress(self.monitor_surface)
+        self._render_calculator_button(self.monitor_surface)
         self.database_search.render_launcher(self.monitor_surface)
         self.case_hint.render_button(self.monitor_surface)
         self._render_desk_zoom_controls(self.monitor_surface)
@@ -825,7 +1026,7 @@ class AuditScene(Scene):
         return glass
 
     def _render_active_popup(self, surface: pygame.Surface) -> None:
-        if not self._is_modal_open():
+        if self.item_inspector.is_open or not self._is_modal_open():
             return
         self.popup_surface.fill((0, 0, 0, 0))
         if self.newspaper.is_open:
@@ -850,12 +1051,174 @@ class AuditScene(Scene):
         for stamp_button in self.stamp_buttons:
             stamp_button.render(surface)
 
+    def _render_tutorial_focus(self, surface: pygame.Surface) -> None:
+        focus = self._tutorial_focus_rect()
+        if focus is None:
+            return
+        focus = focus.clip(surface.get_rect())
+        if focus.width <= 0 or focus.height <= 0:
+            return
+
+        spotlight = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
+        spotlight.fill((0, 0, 0, 46))
+        pygame.draw.rect(spotlight, (0, 0, 0, 0), focus.inflate(16, 16))
+        surface.blit(spotlight, (0, 0))
+
+        pulse = (math.sin(self.head_motion_time * 5.2) + 1.0) * 0.5
+        expansion = 5 + round(pulse * 7)
+        color = (250, 220, 92)
+        glow_rect = focus.inflate(expansion * 2, expansion * 2)
+        glow = pygame.Surface(glow_rect.size, pygame.SRCALPHA)
+        pygame.draw.rect(glow, (*color, 32 + round(pulse * 28)), glow.get_rect(), 5)
+        surface.blit(glow, glow_rect.topleft)
+        pygame.draw.rect(surface, color, focus.inflate(6, 6), 3)
+
+        bob = round(pulse * 7)
+        if focus.left >= 55:
+            tip = (focus.left - 8, focus.centery)
+            base_x = focus.left - 31 - bob
+            arrow = ((tip[0], tip[1]), (base_x, tip[1] - 11), (base_x, tip[1] + 11))
+        else:
+            tip = (focus.right + 8, focus.centery)
+            base_x = focus.right + 31 + bob
+            arrow = ((tip[0], tip[1]), (base_x, tip[1] - 11), (base_x, tip[1] + 11))
+        pygame.draw.polygon(surface, (20, 23, 16), tuple((x + 3, y + 3) for x, y in arrow))
+        pygame.draw.polygon(surface, color, arrow)
+
+    def _tutorial_focus_rect(self) -> pygame.Rect | None:
+        if (
+            not self.tutorial_active
+            or self.pause_menu.is_open
+            or self.newspaper_transition is not None
+            or self.newspaper.is_open
+            or self.item_inspector.is_open
+            or self.database_search.is_open
+            or self.case_hint.is_open
+            or self.protocol_panel.is_popup_open
+            or self.document_inspector.is_open
+        ):
+            return None
+        if self.signature_pad.is_open:
+            target = SIGNATURE_CONFIRM_RECT if self.signature_pad.has_ink else SIGNATURE_DRAW_RECT
+            return self._monitor_rect_to_scene(target)
+        if self.case_dialog.mode == "briefing":
+            return self._monitor_rect_to_scene(BRIEFING_START_RECT)
+        if self.case_dialog.mode == "confirm":
+            return self._monitor_rect_to_scene(CONFIRM_YES_RECT)
+        if self.ai_decision_panel.popup_open:
+            return self._monitor_rect_to_scene(AI_REPORT_CLOSE_RECT)
+        if not self.ai_report_seen:
+            return self._monitor_rect_to_scene(AI_REPORT_OPEN_RECT)
+
+        visible_sources = self._visible_document_ids
+        missing_document = next(
+            (
+                document_id
+                for document_id in self.case.key_document_ids
+                if document_id not in visible_sources
+            ),
+            None,
+        )
+        if missing_document is not None:
+            row = self.ai_decision_panel.row_rect_for_document(missing_document)
+            return self._monitor_rect_to_scene(row) if row is not None else None
+
+        missing_evidence = next(
+            (
+                key
+                for key in self.case.evidence_summary.required_keys
+                if key not in self.evidence_notes
+            ),
+            None,
+        )
+        if missing_evidence is not None:
+            selection = next(
+                (
+                    EvidenceSelection(document.document_id, region.key, region.value, region.note)
+                    for document in self.documents
+                    for region in document.evidence_regions
+                    if region.key == missing_evidence
+                ),
+                None,
+            )
+            rect = self._selection_rect(selection) if selection is not None else None
+            return self._monitor_rect_to_scene(rect) if rect is not None else None
+
+        final_document = self._get_document("final")
+        if not self.case_completed:
+            if self.selected_stamp_id is None:
+                correct_stamp = next(
+                    (button for button in self.stamp_buttons if button.stamp_id == self.case.correct_stamp),
+                    None,
+                )
+                return correct_stamp.rect if correct_stamp is not None else None
+            if final_document.stamp_target is not None:
+                return self._monitor_rect_to_scene(final_document.evidence_preview_rect_for_source(final_document.stamp_target))
+        if not final_document.is_signed and final_document.signature_target is not None:
+            return self._monitor_rect_to_scene(final_document.evidence_preview_rect_for_source(final_document.signature_target))
+        if final_document.is_signed:
+            return self._monitor_rect_to_scene(CASE_SUBMIT_RECT)
+        return None
+
+    def _tutorial_click_allowed(self, scene_position: tuple[int, int]) -> bool:
+        if not self.tutorial_active:
+            return True
+        if self.signature_pad.is_open:
+            monitor_position = self.scene_to_monitor(scene_position)
+            return bool(
+                monitor_position is not None
+                and (
+                    SIGNATURE_DRAW_RECT.collidepoint(monitor_position)
+                    or (
+                        self.signature_pad.has_ink
+                        and SIGNATURE_CONFIRM_RECT.collidepoint(monitor_position)
+                    )
+                )
+            )
+        focus = self._tutorial_focus_rect()
+        return focus is None or focus.inflate(10, 10).collidepoint(scene_position)
+
     def _render_case_progress(self, surface: pygame.Surface) -> None:
         pygame.draw.rect(surface, (13, 18, 16), CASE_PROGRESS_RECT)
         pygame.draw.rect(surface, (84, 94, 58), CASE_PROGRESS_RECT, 2)
-        text = f"CASO {self.case_index + 1}/{len(CASES)}"
+        text = (
+            "TUTORIAL"
+            if self.tutorial_active
+            else f"CASO {self.case_index + 1}/{len(PLAYABLE_CASES)}"
+        )
         rendered = self.small_font.render(text, False, (213, 218, 130))
         surface.blit(rendered, rendered.get_rect(center=CASE_PROGRESS_RECT.center))
+
+    def _render_calculator_button(self, surface: pygame.Surface) -> None:
+        background = (25, 34, 26) if self.calculator_hovered else (5, 11, 9)
+        border = (231, 210, 116) if self.calculator_hovered else (76, 89, 57)
+        ink = (247, 239, 159) if self.calculator_hovered else (213, 218, 130)
+        pygame.draw.rect(surface, background, CALCULATOR_BUTTON_RECT)
+        pygame.draw.rect(surface, border, CALCULATOR_BUTTON_RECT, 2)
+
+        icon = pygame.Rect(
+            CALCULATOR_BUTTON_RECT.x + 9,
+            CALCULATOR_BUTTON_RECT.y + 6,
+            20,
+            22,
+        )
+        pygame.draw.rect(surface, border, icon, 2)
+        pygame.draw.rect(surface, ink, (icon.x + 4, icon.y + 4, 12, 4))
+        for row in range(2):
+            for column in range(3):
+                pygame.draw.rect(
+                    surface,
+                    ink,
+                    (icon.x + 4 + column * 5, icon.y + 11 + row * 5, 3, 3),
+                )
+
+        label = self.small_font.render("ABRIR CALCULADORA", False, ink)
+        surface.blit(
+            label,
+            label.get_rect(
+                midleft=(CALCULATOR_BUTTON_RECT.x + 38, CALCULATOR_BUTTON_RECT.centery)
+            ),
+        )
 
     def _render_case_guidance(self, surface: pygame.Surface) -> None:
         final_document = self._get_document("final")
@@ -864,10 +1227,13 @@ class AuditScene(Scene):
             for source in self.case.data_sources
             if self._get_document(source.document_id).visible
         }
-        inspected_sources = visible_sources.intersection(self.inspected_document_ids)
+        key_ids = set(self.case.key_document_ids)
+        missing_key_ids = key_ids - visible_sources
+        required_keys = set(self.case.evidence_summary.required_keys)
+        found_keys = required_keys.intersection(self.evidence_notes)
 
         if self.case_completed:
-            step = 5
+            step = 4
             instruction = (
                 "ENVIE A DECISÃO PELO BOTÃO ABAIXO"
                 if final_document.is_signed
@@ -875,13 +1241,26 @@ class AuditScene(Scene):
             )
         elif not self.ai_report_seen:
             step = 1
-            instruction = "ABRA A DECISÃO DA IA E ENTENDA O QUE ELA FEZ"
-        elif len(visible_sources) < 2:
+            instruction = "ABRA A DECISÃO DA IA"
+        elif missing_key_ids:
             step = 2
-            instruction = "COLOQUE PELO MENOS DOIS DOCUMENTOS NA MESA"
-        elif not inspected_sources:
+            missing_labels = [
+                source.label
+                for source in self.case.data_sources
+                if source.document_id in missing_key_ids
+            ]
+            shown_labels = missing_labels[:2]
+            remainder = len(missing_labels) - len(shown_labels)
+            instruction = "COLOQUE NA MESA: " + ", ".join(shown_labels)
+            if remainder:
+                instruction += f" +{remainder}"
+        elif found_keys != required_keys:
             step = 3
-            instruction = "USE A LUPA OU DUPLO CLIQUE PARA COMPARAR OS DADOS"
+            instruction = (
+                "SELECIONE OUTRO DADO PARA COMPARAR"
+                if self.comparison_anchor is not None
+                else f"COMPARE OS DADOS DECISIVOS: {len(found_keys)}/{len(required_keys)} ENCONTRADOS"
+            )
         else:
             step = 4
             instruction = (
@@ -899,14 +1278,18 @@ class AuditScene(Scene):
             CASE_GUIDANCE_RECT.height - 4,
         )
         pygame.draw.rect(surface, (47, 54, 37), badge)
-        badge_text = self.small_font.render(f"PASSO {step}/5", False, (237, 193, 91))
+        badge_text = self.small_font.render(f"PASSO {step}/4", False, (237, 193, 91))
         surface.blit(badge_text, badge_text.get_rect(center=badge.center))
-        instruction_text = self.small_font.render(instruction, False, (222, 224, 166))
+        question_text = self.guide_font.render(
+            f"PERGUNTA: {self.case.review_question.upper()}",
+            False,
+            (237, 236, 183),
+        )
+        surface.blit(question_text, (badge.right + 15, CASE_GUIDANCE_RECT.y + 8))
+        instruction_text = self.guide_font.render(instruction, False, (159, 169, 108))
         surface.blit(
             instruction_text,
-            instruction_text.get_rect(
-                midleft=(badge.right + 18, CASE_GUIDANCE_RECT.centery)
-            ),
+            (badge.right + 15, CASE_GUIDANCE_RECT.y + 36),
         )
 
     def _render_desk_zoom_controls(self, surface: pygame.Surface) -> None:
@@ -929,8 +1312,10 @@ class AuditScene(Scene):
 
     def _render_submit_button(self, surface: pygame.Surface) -> None:
         label = (
-            "CONCLUIR TURNO"
-            if self.case_index == len(CASES) - 1
+            "FINALIZAR TREINAMENTO"
+            if self.tutorial_active
+            else "CONCLUIR TURNO"
+            if self.case_index == len(PLAYABLE_CASES) - 1
             else "ENVIAR / PRÓXIMO CASO"
         )
         fill = (51, 58, 43) if self.submit_hovered else (22, 29, 24)
@@ -971,6 +1356,7 @@ class AuditScene(Scene):
         self.selected_stamp_id = selected_stamp.stamp_id
         for stamp_button in self.stamp_buttons:
             stamp_button.set_selected(stamp_button is selected_stamp)
+        self._bring_document_to_front(self._get_document("final"))
 
     def _clear_stamp_selection(self) -> None:
         self.selected_stamp_id = None
@@ -1027,6 +1413,133 @@ class AuditScene(Scene):
         self.documents.remove(document)
         self.documents.append(document)
 
+    def _handle_evidence_comparison(
+        self,
+        document: CaseDocument,
+        evidence: EvidenceRegion,
+    ) -> None:
+        selection = EvidenceSelection(
+            document.document_id,
+            evidence.key,
+            evidence.value,
+            evidence.note,
+        )
+        self.evidence_notes[evidence.key] = evidence.note
+        document.set_evidence_marked(evidence.key, True)
+
+        if self.comparison_anchor is None:
+            self.comparison_anchor = selection
+            self.comparison_result = None
+            self._play_sound("toggle_on", 0.45)
+            return
+        if self.comparison_anchor == selection:
+            self.comparison_anchor = None
+            self._play_sound("toggle_off", 0.4)
+            return
+
+        first = self.comparison_anchor
+        equal = self._normalize_comparison_value(first.value) == self._normalize_comparison_value(selection.value)
+        self.comparison_result = (first, selection, equal)
+        self.comparison_anchor = None
+        self._play_sound("success" if equal else "error", 0.55)
+
+    def _find_evidence_at(
+        self,
+        monitor_position: tuple[int, int] | None,
+    ) -> EvidenceSelection | None:
+        if monitor_position is None or not DOCUMENT_WORKSPACE.collidepoint(monitor_position):
+            return None
+        for document in reversed(self.documents):
+            evidence = document.evidence_at_monitor(monitor_position)
+            if evidence is not None:
+                return EvidenceSelection(document.document_id, evidence.key, evidence.value, evidence.note)
+        return None
+
+    def _render_evidence_comparison(self, surface: pygame.Surface) -> None:
+        hovered = self.hovered_evidence
+        if hovered is not None and self.comparison_result is None:
+            hovered_rect = self._selection_rect(hovered)
+            if hovered_rect is not None:
+                pygame.draw.rect(surface, (242, 235, 171), hovered_rect.inflate(4, 4), 2)
+
+        if self.comparison_anchor is not None:
+            anchor_rect = self._selection_rect(self.comparison_anchor)
+            if anchor_rect is None:
+                return
+            pygame.draw.rect(surface, COMPARE_PENDING, anchor_rect.inflate(5, 5), 3)
+            pointer = self.scene_to_monitor(self.input_manager.mouse_position)
+            if pointer is not None and DOCUMENT_WORKSPACE.collidepoint(pointer):
+                self._draw_dashed_line(surface, anchor_rect.center, pointer, COMPARE_PENDING)
+            label = self.guide_font.render("SELECIONE OUTRO DADO", False, (255, 244, 178))
+            label_rect = label.get_rect(midbottom=(anchor_rect.centerx, anchor_rect.y - 7))
+            label_rect.clamp_ip(DOCUMENT_WORKSPACE.inflate(-8, -8))
+            pygame.draw.rect(surface, (9, 14, 12), label_rect.inflate(12, 7))
+            surface.blit(label, label_rect)
+            return
+
+        if self.comparison_result is None:
+            return
+        first, second, equal = self.comparison_result
+        first_rect = self._selection_rect(first)
+        second_rect = self._selection_rect(second)
+        if first_rect is None or second_rect is None:
+            return
+        color = COMPARE_EQUAL if equal else COMPARE_DIFFERENT
+        pygame.draw.line(surface, (8, 12, 10), first_rect.center, second_rect.center, 8)
+        pygame.draw.line(surface, color, first_rect.center, second_rect.center, 4)
+        for rect in (first_rect, second_rect):
+            pygame.draw.rect(surface, color, rect.inflate(5, 5), 3)
+            pygame.draw.circle(surface, color, rect.center, 5)
+
+        midpoint = (
+            (first_rect.centerx + second_rect.centerx) // 2,
+            (first_rect.centery + second_rect.centery) // 2,
+        )
+        text = "IGUAIS" if equal else "DIFERENTES"
+        badge_text = self.status_font.render(text, False, (244, 244, 211))
+        badge = badge_text.get_rect(center=midpoint).inflate(22, 12)
+        badge.clamp_ip(DOCUMENT_WORKSPACE.inflate(-8, -8))
+        pygame.draw.rect(surface, (7, 13, 10), badge)
+        pygame.draw.rect(surface, color, badge, 3)
+        surface.blit(badge_text, badge_text.get_rect(center=badge.center))
+
+    def _selection_rect(self, selection: EvidenceSelection) -> pygame.Rect | None:
+        try:
+            document = self._get_document(selection.document_id)
+        except KeyError:
+            return None
+        if not document.visible:
+            return None
+        evidence = next(
+            (region for region in document.evidence_regions if region.key == selection.key),
+            None,
+        )
+        return document.evidence_preview_rect(evidence) if evidence is not None else None
+
+    @staticmethod
+    def _normalize_comparison_value(value: str) -> str:
+        normalized = unicodedata.normalize("NFKC", value).casefold().strip()
+        return " ".join(normalized.split())
+
+    @staticmethod
+    def _draw_dashed_line(
+        surface: pygame.Surface,
+        start: tuple[int, int],
+        end: tuple[int, int],
+        color: tuple[int, int, int],
+    ) -> None:
+        delta = pygame.Vector2(end) - pygame.Vector2(start)
+        length = delta.length()
+        if length <= 0:
+            return
+        direction = delta.normalize()
+        distance = 0.0
+        while distance < length:
+            segment_start = pygame.Vector2(start) + direction * distance
+            segment_end = pygame.Vector2(start) + direction * min(distance + 9, length)
+            pygame.draw.line(surface, color, segment_start, segment_end, 2)
+            distance += 16
+
     def _focus_document(self, document_id: str) -> None:
         document = self._get_document(document_id)
         document.set_visible(True)
@@ -1041,6 +1554,18 @@ class AuditScene(Scene):
             self._bring_document_to_front(document)
         elif self.active_document is document:
             self.active_document = None
+        if not document.visible:
+            selected_ids = {
+                selection.document_id
+                for selection in (
+                    self.comparison_anchor,
+                    *(self.comparison_result[:2] if self.comparison_result is not None else ()),
+                )
+                if selection is not None
+            }
+            if document_id in selected_ids:
+                self.comparison_anchor = None
+                self.comparison_result = None
 
     @property
     def _visible_document_ids(self) -> set[str]:
@@ -1056,6 +1581,7 @@ class AuditScene(Scene):
         return (
             self.newspaper_transition is not None
             or self.newspaper.is_open
+            or self.item_inspector.is_open
             or self.signature_pad.is_open
             or self.database_search.is_open
             or self.case_hint.is_open

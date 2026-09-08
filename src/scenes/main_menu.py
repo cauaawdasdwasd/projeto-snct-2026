@@ -96,11 +96,16 @@ class MainMenuScene(Scene):
         self.view = "main"
         self.main_selection = 0
         if self.audio is not None:
+            self.audio.stop_ambience()
             self.audio.play_music_sequence(("menu",), fade_ms=700)
+
+    @property
+    def screen_effect_rect(self) -> pygame.Rect:
+        return CRT_SCREEN_RECT
 
     def handle_escape(self) -> bool:
         if self.view != "main":
-            self._play_click(0.65)
+            self._play_sound("back", 0.65)
             self.view = "main"
         return True
 
@@ -125,7 +130,7 @@ class MainMenuScene(Scene):
 
         if self.view == "credits":
             if event.key in (pygame.K_RETURN, pygame.K_SPACE):
-                self._play_click()
+                self._play_sound("back")
                 self.view = "main"
             return
         if event.key in (pygame.K_UP, pygame.K_w):
@@ -192,13 +197,13 @@ class MainMenuScene(Scene):
                     self._activate_main_command(index)
                     return
         elif self.credits_back_rect.collidepoint(pointer):
-            self._play_click()
+            self._play_sound("back")
             self.view = "main"
 
     def _activate_main_command(self, index: int) -> None:
-        self._play_click()
+        self._play_sound("forward")
         if index == 0:
-            self.manager.switch_to("audit")
+            self.manager.switch_to("login")
         elif index == 1:
             self.settings.open(self.preferences)
             self.view = "settings"
@@ -228,7 +233,7 @@ class MainMenuScene(Scene):
         pygame.draw.rect(surface, RED, (455, 431, round(500 * reveal), 6))
 
         self._text(surface, "TURNO DISPONÍVEL", self.font_tiny, INK_MUTED, (458, 478))
-        self._text(surface, "06 DECISÕES PENDENTES", self.font_body_bold, INK, (455, 504))
+        self._text(surface, "05 DECISÕES PENDENTES", self.font_body_bold, INK, (455, 504))
         pygame.draw.line(surface, LINE, (995, 294), (995, 716), 2)
 
         self._text(surface, "OPERAÇÕES", self.font_tiny, INK_MUTED, (1035, 306))
@@ -344,8 +349,11 @@ class MainMenuScene(Scene):
         return mask
 
     def _play_click(self, volume: float = 0.8) -> None:
+        self._play_sound("click", volume)
+
+    def _play_sound(self, name: str, volume: float = 0.8) -> None:
         if self.audio is not None:
-            self.audio.play("click", volume)
+            self.audio.play(name, volume)
 
     @staticmethod
     def _font(size: int, bold: bool = False) -> pygame.font.Font:

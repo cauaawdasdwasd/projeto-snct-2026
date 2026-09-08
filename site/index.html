@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-fonte="normal">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Conheça a história de Sob Análise, um jogo sobre auditoria de decisões feitas por inteligência artificial.">
+    <title>Sob Análise | A história por trás do jogo</title>
+    <link rel="stylesheet" href="estilos.css">
+    <script src="fonte.js" defer></script>
+    <script src="carrossel.js" defer></script>
+</head>
+<body>
+    <header class="hero" id="inicio">
+        <nav class="barra-navegacao" aria-label="Navegação principal">
+            <div class="identidade-topo">
+                <a class="marca" href="#inicio">S // SOB ANÁLISE</a>
+                <div class="controles-fonte" aria-label="Tamanho do texto">
+                    <button id="diminuir-fonte" class="controle-fonte" type="button" title="Diminuir fonte" aria-label="Diminuir fonte">&minus;</button>
+                    <button id="aumentar-fonte" class="controle-fonte" type="button" title="Aumentar fonte" aria-label="Aumentar fonte">+</button>
+                </div>
+            </div>
+            <div class="links-navegacao">
+                <a href="#historia">História</a>
+                <a href="#jogo">O jogo</a>
+                <a href="#projeto">O projeto</a>
+            </div>
+        </nav>
+
+        <div class="conteudo-hero">
+            <p class="rotulo">DECISÕES AUTOMÁTICAS // RESPONSABILIDADE HUMANA</p>
+            <h1>Sob Análise</h1>
+            <p class="frase-hero">
+                Toda decisão automática parece apenas um número. Para alguém,
+                ela pode mudar uma vida inteira.
+            </p>
+            <div class="acoes-hero">
+                <a class="botao botao-principal" href="#historia">Conheça a história</a>
+                <a class="botao botao-secundario" href="#jogo">Veja como funciona</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="faixa-status">
+        <div class="texto-status">
+            <div class="grupo-status">
+                <span>STATUS: EM AUDITORIA</span>
+                <span>CONFIE NOS DADOS. VERIFIQUE.</span>
+                <span>NENHUMA DECISÃO É SÓ UM NÚMERO.</span>
+            </div>
+            <div class="grupo-status" aria-hidden="true">
+                <span>STATUS: EM AUDITORIA</span>
+                <span>CONFIE NOS DADOS. VERIFIQUE.</span>
+                <span>NENHUMA DECISÃO É SÓ UM NÚMERO.</span>
+            </div>
+        </div>
+    </div>
+
+    <main>
+        <section class="secao limite" id="historia">
+            <div class="cabecalho-secao">
+                <p class="rotulo escuro">ARQUIVO PESSOAL 04</p>
+                <h2>Antes da Sob Análise</h2>
+            </div>
+
+            <div class="historia-principal">
+                <figure class="retrato">
+                    <img src="imagens/ana-torres.png" alt="Retrato em pixel art de Ana Torres">
+                    <figcaption>Ana Torres<br>Fundadora e auditora</figcaption>
+                </figure>
+
+                <div class="texto-historia">
+                    <p>
+                        Ana Torres tinha dezessete anos quando a mãe perdeu o emprego.
+                        Depois de quase duas décadas na mesma empresa, Marta foi marcada por
+                        um sistema como funcionária de alto risco. O relatório dizia que o
+                        crachá dela havia acessado a fábrica durante três madrugadas.
+                    </p>
+                    <p>
+                        A empresa confiou nos 98% de certeza apresentados pelo programa e
+                        ninguém conferiu os registros originais. Ana conferiu. Os dois
+                        códigos eram quase idênticos, mas o último caractere não era o mesmo.
+                        O sistema tinha juntado a história de duas pessoas diferentes.
+                    </p>
+                    <p>
+                        O erro foi corrigido meses depois, tarde demais para devolver a
+                        tranquilidade que havia saído de casa. Ana decidiu então aprender
+                        como esses sistemas escolhiam, comparavam e erravam. Ela não queria
+                        impedir o uso da tecnologia. Queria garantir que alguém sempre pudesse
+                        fazer a pergunta que faltou naquele dia: <strong>os dados realmente batem?</strong>
+                    </p>
+                    <p>
+                        Quando o uso de inteligência artificial começou a crescer mais rápido
+                        do que as regras para controlá-lo, ela reuniu uma pequena equipe e criou
+                        a <strong>Sob Análise</strong>. A empresa nasceu para revisar decisões
+                        automatizadas antes que um erro silencioso chegasse à vida de outra família.
+                    </p>
+                </div>
+            </div>
+
+            <blockquote>
+                “Uma máquina pode calcular uma decisão. A responsabilidade por ela continua sendo nossa.”
+            </blockquote>
+
+            <div class="momentos">
+                <article class="momento">
+                    <span>01</span>
+                    <h3>O erro</h3>
+                    <p>Um único caractere liga a mãe de Ana ao registro de outra pessoa.</p>
+                </article>
+                <article class="momento">
+                    <span>02</span>
+                    <h3>A escolha</h3>
+                    <p>Ana passa a estudar dados para entender como decisões automáticas são construídas.</p>
+                </article>
+                <article class="momento">
+                    <span>03</span>
+                    <h3>A fundação</h3>
+                    <p>Com o avanço acelerado da IA, ela cria a Sob Análise para auditar decisões de outras empresas.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="secao faixa-jogo" id="jogo">
+            <div class="limite">
+                <div class="cabecalho-secao claro">
+                    <p class="rotulo">SISTEMA DE AUDITORIA</p>
+                    <h2>Agora, cada detalhe importa</h2>
+                    <p>
+                        No jogo, você acompanha Ana nos primeiros grandes contratos da
+                        Sob Análise. Outras empresas enviam decisões tomadas por inteligência
+                        artificial, e cabe a você descobrir se elas podem ser aprovadas, negadas,
+                        revisadas ou registradas como violação.
+                    </p>
+                </div>
+
+                <div class="carrossel" aria-label="Capturas do jogo" aria-roledescription="carrossel">
+                    <button class="seta-carrossel seta-anterior" type="button" aria-label="Ver captura anterior">&#10094;</button>
+
+                    <div class="visor-carrossel">
+                        <figure class="slide-carrossel">
+                            <button class="abrir-captura" type="button" aria-label="Abrir área de auditoria em tela cheia">
+                                <img src="imagens/area-de-auditoria.png" alt="Área de auditoria com uma ficha funcional aberta">
+                            </button>
+                            <figcaption>Compare documentos e acompanhe cada etapa da auditoria.</figcaption>
+                        </figure>
+
+                        <figure class="slide-carrossel" hidden>
+                            <button class="abrir-captura" type="button" aria-label="Abrir área de trabalho em tela cheia">
+                                <img src="imagens/galeria-windows.png" alt="Área de trabalho do computador usado no jogo">
+                            </button>
+                            <figcaption>Use o computador da empresa e abra as ferramentas de trabalho.</figcaption>
+                        </figure>
+
+                        <figure class="slide-carrossel" hidden>
+                            <button class="abrir-captura" type="button" aria-label="Abrir documento em tela cheia">
+                                <img src="imagens/galeria-documento.png" alt="Documento aberto no modo de inspeção do jogo">
+                            </button>
+                            <figcaption>Amplie documentos e guarde informações no caderno de evidências.</figcaption>
+                        </figure>
+
+                        <figure class="slide-carrossel" hidden>
+                            <button class="abrir-captura" type="button" aria-label="Abrir outro caso em tela cheia">
+                                <img src="imagens/galeria-outro-caso.png" alt="Outro caso do jogo com documentos sobre uma vaga">
+                            </button>
+                            <figcaption>Novos contratos mudam os dados, os riscos e a pergunta da auditoria.</figcaption>
+                        </figure>
+                    </div>
+
+                    <button class="seta-carrossel seta-proxima" type="button" aria-label="Ver próxima captura">&#10095;</button>
+                    <p class="contador-carrossel" aria-live="polite"><span id="captura-atual">01</span> / 04</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="secao limite como-funciona">
+            <div class="cabecalho-secao">
+                <p class="rotulo escuro">ROTINA DE TRABALHO</p>
+                <h2>Como funciona uma auditoria</h2>
+            </div>
+
+            <div class="passos">
+                <article>
+                    <span>1</span>
+                    <h3>Leia</h3>
+                    <p>Entenda o que a inteligência artificial decidiu e quais dados foram usados.</p>
+                </article>
+                <article>
+                    <span>2</span>
+                    <h3>Compare</h3>
+                    <p>Coloque os documentos na mesa e ligue informações que deveriam coincidir.</p>
+                </article>
+                <article>
+                    <span>3</span>
+                    <h3>Decida</h3>
+                    <p>Escolha o carimbo adequado, assine o relatório e envie sua conclusão.</p>
+                </article>
+                <article>
+                    <span>4</span>
+                    <h3>Descubra</h3>
+                    <p>No fim do turno, o jornal mostra as consequências de cada escolha.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="secao faixa-jornal">
+            <div class="limite conteudo-jornal">
+                <div>
+                    <p class="rotulo escuro">NOTICIÁRIO DO DIA</p>
+                    <h2>O resultado não termina no carimbo</h2>
+                    <p>
+                        Uma carga liberada sem revisão, uma promoção negada pelo cadastro
+                        errado ou uma conta que esconde trabalho infantil: no jornal, cada
+                        decisão volta de forma exagerada, ácida e impossível de ignorar.
+                    </p>
+                    <p>
+                        É ali que Ana e o jogador descobrem que uma pequena inconsistência
+                        na tela pode se transformar em uma consequência enorme fora dela.
+                    </p>
+                </div>
+                <figure>
+                    <img src="imagens/jornal-carga.png" alt="Página em pixel art do jornal exibido ao fim do turno">
+                </figure>
+            </div>
+        </section>
+
+        <section class="secao limite secao-projeto" id="projeto">
+            <div class="cabecalho-secao">
+                <p class="rotulo escuro">PROJETO ACADÊMICO</p>
+                <h2>Sobre Sob Análise</h2>
+            </div>
+            <div class="sobre-projeto">
+                <p>
+                    <strong>Sob Análise</strong> é um jogo narrativo em pixel art desenvolvido
+                    para discutir decisões automatizadas, qualidade dos dados e responsabilidade
+                    humana. A inspiração vem de jogos de investigação documental, nos quais ler,
+                    comparar e desconfiar fazem parte da própria jogabilidade.
+                </p>
+            </div>
+            <a class="botao botao-escuro" href="https://github.com/cauaawdasdwasd/projeto-snct-2026">Ver repositório do projeto</a>
+        </section>
+    </main>
+
+    <div class="visualizador" id="visualizador" role="dialog" aria-modal="true" aria-label="Captura do jogo em tela cheia" hidden>
+        <button class="fechar-visualizador" id="fechar-visualizador" type="button" aria-label="Fechar imagem">&times;</button>
+        <figure>
+            <img id="imagem-ampliada" src="" alt="">
+            <figcaption id="legenda-ampliada"></figcaption>
+        </figure>
+    </div>
+
+    <footer>
+        <div class="limite rodape">
+            <a class="marca" href="#inicio">S // SOB ANÁLISE</a>
+            <p>Projeto SNCT 2026</p>
+        </div>
+    </footer>
+</body>
+</html>

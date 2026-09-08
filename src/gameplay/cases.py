@@ -88,6 +88,9 @@ class AuditCase:
     newspaper_correct: NewspaperArticle
     newspaper_incorrect: NewspaperArticle
     search_records: tuple[SearchRecord, ...] = ()
+    review_question: str = ""
+    key_document_ids: tuple[str, ...] = ()
+    is_tutorial: bool = False
 
 
 @dataclass(frozen=True)
@@ -101,12 +104,12 @@ CASE_01 = AuditCase(
     case_id="case_01",
     sequence=1,
     protocol_focus="grace_hopper",
-    title="Correspondência suficiente",
+    title="O ou zero?",
     briefing=(
-        "Uma ocorrência grave bloqueou a promoção de Ana Ribeiro. A IA correlacionou arquivos "
-        "de cadastro e segurança com 96% de confiança. Audite essa correspondência."
+        "A IA aprovou a promoção de Ana porque decidiu que uma ocorrência grave pertence a "
+        "outro funcionário. Compare os IDs antes de aceitar."
     ),
-    hint="Compare o último caractere dos IDs e os turnos antes de confiar no nome abreviado.",
+    hint="Olhe o último caractere: a letra O e o número 0 parecem iguais, mas não são.",
     subject_label="FUNCIONÁRIA",
     subject_name="Ana Ribeiro",
     decision_object="Bloqueio automatizado de promoção",
@@ -127,22 +130,6 @@ CASE_01 = AuditCase(
             "RESUMO PROFISSIONAL",
             "Desempenho 94%, nenhuma falta e nenhuma ocorrência nos últimos 12 meses.",
             show_portrait=True,
-        ),
-        CaseDocumentData(
-            "promotion",
-            "Pedido de promoção",
-            "COMITÊ DE DESENVOLVIMENTO",
-            "blue",
-            (
-                DocumentField("SOLICITAÇÃO", "PR-204-77"),
-                DocumentField("ID DA BENEFICIÁRIA", "LAB-4827O", "request_id", "O pedido de promoção também pertence a LAB-4827O.", True),
-                DocumentField("CARGO PRETENDIDO", "Analista de Dados Jr."),
-                DocumentField("NOTA DA AVALIAÇÃO", "94 / 100"),
-                DocumentField("VAGAS", "1"),
-                DocumentField("DATA", "09/06/2026"),
-            ),
-            "PARECER DA SUPERVISÃO",
-            "Requisitos cumpridos: curso interno, desempenho acima de 90 e ausência de ocorrências graves.",
         ),
         CaseDocumentData(
             "directory",
@@ -177,13 +164,13 @@ CASE_01 = AuditCase(
             "Desativação indevida do controle de temperatura durante o turno noturno.",
         ),
     ),
-    data_sources=(DataSource("Ficha de Ana", "profile"), DataSource("Pedido de promoção", "promotion"), DataSource("Diretório funcional", "directory"), DataSource("Registro disciplinar", "disciplinary")),
+    data_sources=(DataSource("Ficha de Ana", "profile"), DataSource("Diretório funcional", "directory"), DataSource("Registro disciplinar", "disciplinary")),
     evidence_summary=EvidenceSummary(
-        ("employee_id", "request_id", "directory_artur_id", "record_id"),
-        ("Ana e o pedido: LAB-4827O", "Artur e a ocorrência: LAB-48270", "O não é o número 0"),
+        ("employee_id", "record_id"),
+        ("ID de Ana: LAB-4827O", "ID da ocorrência: LAB-48270", "Letra O não é número 0"),
         "A IA separou corretamente os dois registros. A decisão pode ser aprovada.",
     ),
-    ai_decision=AIDecision("APROVAR PROMOÇÃO", "96%", "O registro disciplinar pertence a outro ID e foi excluído da avaliação.", "ORÁCULO-RH v2.4", "Diretório funcional e registro RD-0607-118", "CORRESPONDÊNCIA DESCARTADA", "LAB-4827O ≠ LAB-48270", "ai_record_id", "A IA separou o ID de Ana do ID ligado à ocorrência."),
+    ai_decision=AIDecision("APROVAR PROMOÇÃO", "96%", "O ID de Ana termina em O. O registro termina em 0; por isso a IA ignorou a ocorrência.", "ORÁCULO-RH v2.4", "Ficha funcional e registro disciplinar", "IDS COMPARADOS", "LAB-4827O ≠ LAB-48270", "ai_record_id", "A IA tratou os dois códigos como pessoas diferentes."),
     correct_stamp="approve",
     correct_feedback="A IA separou corretamente a letra O do número zero.",
     incorrect_feedback="A promoção foi bloqueada mesmo sem ocorrência no ID de Ana.",
@@ -198,6 +185,9 @@ CASE_01 = AuditCase(
         SearchRecord("LAB-48270 — histórico de acesso", "Controle de temperatura", "Credencial usada no laboratório durante o turno noturno de 07/06/2026.", ("lab-48270", "acesso", "temperatura", "07/06/2026")),
         SearchRecord("LAB-4827O — autenticação", "Portal de pessoas", "Último acesso às 16:12. A letra final do identificador é O.", ("lab-4827o", "autenticacao", "letra o", "16:12")),
     ),
+    review_question="A ocorrência pertence mesmo a Ana?",
+    key_document_ids=("profile", "disciplinary"),
+    is_tutorial=True,
 )
 
 
@@ -206,7 +196,7 @@ CASE_02 = AuditCase(
     sequence=2,
     protocol_focus="katherine_johnson",
     title="Lote 28800",
-    briefing=("A HEIN Uniformes solicita liberação para produzir 28.800 conjuntos escolares em 12 dias. A produção declarada fecha exatamente com o prazo. Audite capacidade, terminais e credenciais."),
+    briefing=("A HEIN promete entregar 28.800 uniformes em 12 dias. A conta fecha no sistema, mas a fábrica declarou só 48 operadores. Descubra quem operou as outras máquinas."),
     hint="Refaça a produção usando apenas os 48 operadores declarados. Depois descubra quem ativou os 12 terminais restantes.",
     subject_label="FORNECEDORA",
     subject_name="HEIN Uniformes S.A.",
@@ -265,16 +255,18 @@ CASE_02 = AuditCase(
     ),
     data_sources=(DataSource("Pedido escolar", "contract"), DataSource("Capacidade", "capacity"), DataSource("Log de terminais", "terminals"), DataSource("Visita técnica", "school")),
     evidence_summary=EvidenceSummary(
-        ("contract_quantity", "contract_days", "declared_workers", "capacity_workers", "shift_minutes", "cycle_minutes", "efficiency", "declared_daily", "active_terminals", "employee_badges", "visitor_badges", "visitor_hours", "student_count", "birth_dates", "school_badges", "visit_limit"),
+        ("capacity_workers", "shift_minutes", "cycle_minutes", "efficiency", "declared_daily", "active_terminals", "school_badges", "visit_limit"),
         ("48 operadores produzem 1.920/dia", "2.400/dia exigem 60 operadores", "12 crachás ligam estudantes às máquinas"),
         "A produção usou menores fora da atividade autorizada. Marque violação.",
     ),
-    ai_decision=AIDecision("APROVAR FORNECEDORA", "94%", "Sessenta terminais confirmam produção diária suficiente para concluir o lote no prazo.", "KONTÁBIL-IA v3.1", "Log automático de terminais LT-288", "MÃO DE OBRA CONSIDERADA", "48 efetivos + 12 visitantes", "ai_workforce", "A IA contou os doze visitantes como operadores produtivos."),
+    ai_decision=AIDecision("APROVAR FORNECEDORA", "94%", "A IA viu 60 terminais produzindo e concluiu que a HEIN entrega no prazo. Ela contou visitantes como operadores.", "KONTÁBIL-IA v3.1", "Capacidade declarada e log de terminais", "PESSOAS CONTADAS", "48 funcionários + 12 visitantes", "ai_workforce", "A IA contou os doze visitantes como mão de obra normal."),
     correct_stamp="violation",
     correct_feedback="A conta só fecha porque estudantes operaram doze máquinas durante turnos completos.",
     incorrect_feedback="Os crachás de visitante foram aceitos como mão de obra regular.",
     newspaper_correct=NewspaperArticle("CONTA DE PRODUÇÃO REVELA 12 CRACHÁS DE VISITANTE OPERANDO MÁQUINAS", "A auditoria ligou os terminais da HEIN a estudantes nascidos em 2012 e 2013. A inspeção suspendeu o lote antes do primeiro turno irregular.", "newspaper/child_labor_correct.png"),
     newspaper_incorrect=NewspaperArticle("AUDITORIA LIBERA HEIN; 12 CRIANÇAS PASSAM 90 HORAS COSTURANDO OS PRÓPRIOS UNIFORMES", "A fábrica chamou os estudantes de visitantes, mas seus crachás operaram máquinas por 7h30 durante 12 dias. A fiscalização encontrou menores de 12 a 14 anos na linha.", "newspaper/child_labor_wrong.png"),
+    review_question="Quem operou os 12 terminais extras?",
+    key_document_ids=("capacity", "terminals", "school"),
 )
 
 
@@ -283,7 +275,7 @@ CASE_03 = AuditCase(
     sequence=3,
     protocol_focus="ada_lovelace",
     title="Triagem 204",
-    briefing=("Maria Lopes foi eliminada da triagem para Analista de Dados por uma lacuna técnica. Compare a requisição oficial, o perfil, a matriz do modelo e a política de seleção."),
+    briefing=("A IA eliminou Maria por não ter Java. Confira se Java pertence à vaga que ela disputou ou veio de outra configuração."),
     hint="Confira se o código e o cargo do template ativo correspondem à requisição oficial.",
     subject_label="CANDIDATA",
     subject_name="Maria Lopes",
@@ -342,16 +334,18 @@ CASE_03 = AuditCase(
     ),
     data_sources=(DataSource("Requisição da vaga", "job"), DataSource("Perfil de Maria", "candidate"), DataSource("Matriz da IA", "matrix"), DataSource("Política de seleção", "policy")),
     evidence_summary=EvidenceSummary(
-        ("job_id", "required_skills", "candidate_skills", "model_template", "java_criterion", "selection_policy", "criteria_source"),
+        ("job_id", "required_skills", "candidate_skills", "model_template", "java_criterion"),
         ("Vaga: VAG-DA-204", "Template usado: DEV-MOB-240", "Java não é requisito"),
         "A IA cobrou critério de outra vaga. A decisão deve ser negada.",
     ),
-    ai_decision=AIDecision("REJEITAR CANDIDATA", "94%", "Candidata não comprovou o critério técnico eliminatório Java avançado.", "ORÁCULO-RH v2.4", "Matriz de critérios DEV-MOB-240", "CRITÉRIO DECISIVO", "Java avançado: ausente", "ai_java_rule", "A IA eliminou Maria pela ausência de Java."),
+    ai_decision=AIDecision("REJEITAR CANDIDATA", "94%", "A IA não encontrou Java avançado no perfil e eliminou a candidata.", "ORÁCULO-RH v2.4", "Vaga VAG-DA-204 e matriz DEV-MOB-240", "MOTIVO DA REJEIÇÃO", "Java avançado: ausente", "ai_java_rule", "A IA usou Java como requisito obrigatório."),
     correct_stamp="deny",
     correct_feedback="Java pertence ao template de outra vaga e não pode eliminar Maria.",
     incorrect_feedback="A empresa aceitou um critério que não existia na requisição.",
     newspaper_correct=NewspaperArticle("AUDITORIA REMOVE CRITÉRIO DE OUTRA VAGA E DEVOLVE MARIA À SELEÇÃO", "A candidata cumpria SQL, Python, estatística e experiência. O filtro de Java veio de um template de desenvolvimento mobile carregado por engano.", "newspaper/criteria_correct.png"),
     newspaper_incorrect=NewspaperArticle("IA EXIGE JAVA EM VAGA DE SQL; EMPRESA PAGA R$ 2,3 MILHÕES PARA FAZER O TRABALHO DE MARIA", "Sem preencher a vaga, a companhia contratou uma consultoria por doze meses. O relatório final concluiu que Java nunca foi usado no projeto.", "newspaper/criteria_wrong.png"),
+    review_question="Java era requisito desta vaga?",
+    key_document_ids=("job", "candidate", "matrix"),
 )
 
 
@@ -360,7 +354,7 @@ CASE_04 = AuditCase(
     sequence=4,
     protocol_focus="radia_perlman",
     title="Risco de afastamento",
-    briefing=("Karina Alves teve uma promoção negada após o cruzamento de registros profissionais e ocupacionais. A consulta foi feita por uma credencial válida. Audite o uso dos dados."),
+    briefing=("A IA negou a promoção de Karina depois de ler um registro médico. A senha permitia abrir o arquivo; confira se o RH podia usar esse dado para decidir uma promoção."),
     hint="Uma credencial válida prova acesso técnico, não autorização para usar o dado nessa finalidade.",
     subject_label="FUNCIONÁRIA",
     subject_name="Karina Alves",
@@ -412,16 +406,18 @@ CASE_04 = AuditCase(
     ),
     data_sources=(DataSource("Avaliação profissional", "request"), DataSource("Registro ocupacional", "medical"), DataSource("Consentimento", "consent"), DataSource("Log de acesso", "access")),
     evidence_summary=EvidenceSummary(
-        ("medical_classification", "consent_purpose", "consent_recipients", "accessed_record", "access_purpose"),
+        ("medical_classification", "consent_purpose", "access_purpose"),
         ("Prontuário: R-3 restrito", "Consentimento: saúde e SESMT", "Uso real: promoção pelo RH"),
         "A credencial era válida, mas a finalidade não. Marque violação.",
     ),
-    ai_decision=AIDecision("NEGAR PROMOÇÃO", "88%", "Histórico ocupacional indica probabilidade elevada de afastamento futuro.", "ORÁCULO-RH v2.4", "Registro ocupacional MED-774-26", "DADO DECISIVO", "Risco clínico: elevado", "ai_medical_data", "A decisão da IA dependeu de dado médico restrito."),
+    ai_decision=AIDecision("NEGAR PROMOÇÃO", "88%", "A IA previu um afastamento futuro usando o registro médico de Karina.", "ORÁCULO-RH v2.4", "Registro médico e log de acesso", "DADO USADO", "Registro médico restrito", "ai_medical_data", "A decisão dependeu de um dado médico restrito."),
     correct_stamp="violation",
     correct_feedback="O acesso técnico não autorizava o uso do prontuário em promoção.",
     incorrect_feedback="A empresa usou dado médico restrito para decidir uma promoção.",
     newspaper_correct=NewspaperArticle("AUDITORIA BLOQUEIA USO DE PRONTUÁRIO E DEVOLVE PROMOÇÃO A CRITÉRIOS PROFISSIONAIS", "O sistema tinha acesso ao registro, mas o consentimento limitava o uso à saúde e segurança. A avaliação será refeita com desempenho e experiência.", "newspaper/privacy_correct.png"),
     newspaper_incorrect=NewspaperArticle("RH USA PRONTUÁRIO PARA NEGAR PROMOÇÃO E RECEBE MULTA DE R$ 12,8 MILHÕES", "A credencial válida enganou a auditoria, mas não a autoridade de proteção de dados. A companhia também responderá à ação coletiva de 74 funcionários.", "newspaper/privacy_wrong.png"),
+    review_question="O RH podia usar esse registro médico na promoção?",
+    key_document_ids=("medical", "consent", "access"),
 )
 
 
@@ -430,7 +426,7 @@ CASE_05 = AuditCase(
     sequence=5,
     protocol_focus="fei_fei_li",
     title="Nota 64",
-    briefing=("Lívia Moreira ficou abaixo do corte de promoção. A nota combina produção, qualidade, disponibilidade e o histórico da empresa. Audite a diferença para o grupo de comparação."),
+    briefing=("A IA deu nota 64 a Lívia, abaixo do corte. Compare o desempenho dela com outro funcionário e veja o que o histórico ensinou ao modelo."),
     hint="Compare pessoas com desempenho semelhante e veja qual variável recebeu o maior peso no modelo.",
     subject_label="FUNCIONÁRIA",
     subject_name="Lívia Moreira",
@@ -482,16 +478,18 @@ CASE_05 = AuditCase(
     ),
     data_sources=(DataSource("Desempenho de Lívia", "performance"), DataSource("Funcionário comparável", "comparator"), DataSource("Histórico de promoções", "history"), DataSource("Ficha do modelo", "model")),
     evidence_summary=EvidenceSummary(
-        ("livia_output", "livia_quality", "marcelo_output", "marcelo_quality", "eligible_men", "promoted_men", "eligible_women", "promoted_women", "model_target", "availability_weight"),
+        ("livia_output", "livia_quality", "marcelo_output", "marcelo_quality", "promoted_men", "promoted_women", "model_target", "availability_weight"),
         ("Homens promovidos: 31/47 = 66%", "Mulheres promovidas: 12/52 = 23%", "Modelo imita esse histórico"),
         "O modelo repete um padrão injusto sem relação suficiente com desempenho. Violação.",
     ),
-    ai_decision=AIDecision("NEGAR PROMOÇÃO", "86%", "Nota de disponibilidade inferior ao perfil histórico de coordenadores promovidos.", "LÍDER-IA v1.8", "Histórico de promoções 2018-2025", "NOTA FINAL DE LÍVIA", "64 / corte 70", "ai_bias_score", "A nota baixa veio principalmente do peso de disponibilidade aprendido no histórico."),
+    ai_decision=AIDecision("NEGAR PROMOÇÃO", "86%", "A IA deu muito peso a horas extras e ao perfil de quem já foi promovido.", "LÍDER-IA v1.8", "Desempenho, histórico e ficha do modelo", "RESULTADO", "Lívia: 64 / corte: 70", "ai_bias_score", "A nota baixa veio principalmente do peso dado à disponibilidade."),
     correct_stamp="violation",
     correct_feedback="O modelo reproduziu um histórico desigual e penalizou Lívia apesar do desempenho.",
     incorrect_feedback="A promoção baseada no histórico enviesado foi aceita como neutra.",
     newspaper_correct=NewspaperArticle("AUDITORIA DETECTA HISTÓRICO VICIADO E MANDA REAVALIAR 64 PROMOÇÕES", "A taxa de promoção era de 66% para homens e 23% para mulheres com alto desempenho. O modelo será suspenso até passar por teste entre grupos.", "newspaper/bias_correct.png"),
     newspaper_incorrect=NewspaperArticle("ALGORITMO PROMOVE 17 HOMENS COM NOTA MENOR; CONFECÇÃO PERDE CONTRATO DE R$ 80 MILHÕES", "A auditoria externa encontrou mulheres mais produtivas abaixo do corte. Um grande varejista suspendeu o contrato e a empresa responderá por discriminação coletiva.", "newspaper/bias_wrong.png"),
+    review_question="A nota mede desempenho ou repete o histórico da empresa?",
+    key_document_ids=("performance", "comparator", "history", "model"),
 )
 
 
@@ -500,7 +498,7 @@ CASE_06 = AuditCase(
     sequence=6,
     protocol_focus="margaret_hamilton",
     title="Carga MEDU-771204",
-    briefing=("A IA liberou um contêiner chileno declarado como roupas. Confira manifesto, pesagem, scanner e protocolo antes de confirmar a liberação automatizada."),
+    briefing=("A IA liberou um contêiner declarado como roupas. O peso, o lacre e o scanner não contam a mesma história. Confira se a automação podia decidir sozinha."),
     hint="Peso, lacre e scanner divergem. O protocolo diz o que fazer quando nenhuma fonte resolve a dúvida sozinha.",
     subject_label="CONTÊINER",
     subject_name="MEDU-771204",
@@ -554,7 +552,7 @@ CASE_06 = AuditCase(
         ("Peso diverge em 478 kg", "Lacres: CL-7718 x CL-771B", "Scanner: massa inconclusiva"),
         "Há conflito relevante, mas não prova conclusiva. Envie para revisão humana.",
     ),
-    ai_decision=AIDecision("LIBERAR CONTÊINER", "92%", "Manifesto válido e exportador regular compensam anomalias de baixa confiança.", "PORTO-LIVRE v4.6", "Conhecimento de embarque PSC-88417", "BASE DA LIBERAÇÃO", "Manifesto validado", "ai_manifest_release", "A IA priorizou o manifesto e descartou peso, lacre e scanner divergentes."),
+    ai_decision=AIDecision("LIBERAR CONTÊINER", "92%", "A IA confiou no manifesto e tratou as diferenças de peso, lacre e scanner como alertas fracos.", "PORTO-LIVRE v4.6", "Manifesto, balança e scanner", "BASE DA LIBERAÇÃO", "Manifesto validado", "ai_manifest_release", "A IA priorizou o manifesto e ignorou os outros alertas."),
     correct_stamp="review",
     correct_feedback="Os registros entram em conflito e exigem inspeção humana.",
     incorrect_feedback="A carga foi decidida automaticamente apesar das divergências materiais.",
@@ -570,7 +568,11 @@ CASE_06 = AuditCase(
         SearchRecord("ADU-REV-12 — limite de decisão", "Normas aduaneiras", "Divergência de lacre ou peso acima de 120 kg exige inspeção por fiscal.", ("adu-rev-12", "lacre", "peso", "120", "fiscal")),
         SearchRecord("Pacífico Sul Cargas — perfil", "Cadastro de operadores", "Transportadora ativa. Regularidade cadastral não substitui inspeção física de uma carga específica.", ("pacifico sul", "transportadora", "operador", "inspecao")),
     ),
+    review_question="A IA podia liberar a carga sem revisão humana?",
+    key_document_ids=("manifest", "scale", "scanner", "protocol"),
 )
 
 
 CASES = (CASE_01, CASE_02, CASE_03, CASE_04, CASE_05, CASE_06)
+TUTORIAL_CASE = CASE_01
+PLAYABLE_CASES = (CASE_02, CASE_03, CASE_04, CASE_05, CASE_06)

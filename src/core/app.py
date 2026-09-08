@@ -9,6 +9,7 @@ from src.core.audio import AudioManager
 from src.core.input_manager import InputManager
 from src.core.preferences import UserPreferences
 from src.core.scene_manager import SceneManager
+from src.rendering.screen_effect import ScreenEffect
 from src.core.settings import (
     ASSETS_DIR,
     CAMERA_BREATH_X,
@@ -24,6 +25,8 @@ from src.core.settings import (
     VIRTUAL_WIDTH,
 )
 from src.scenes.audit import AuditScene
+from src.scenes.desktop import DesktopScene
+from src.scenes.login import LoginScene
 from src.scenes.main_menu import MainMenuScene
 
 
@@ -41,6 +44,7 @@ class Application:
         self.is_running = True
 
         self.assets = AssetManager(ASSETS_DIR)
+        self.screen_effect = ScreenEffect(self.assets)
         self.audio = AudioManager(self.assets)
         self.audio.set_music_volume(self.preferences.music_volume)
         self.audio.set_sfx_volume(self.preferences.sfx_volume)
@@ -53,6 +57,7 @@ class Application:
         self._camera_rect = pygame.Rect(0, 0, VIRTUAL_WIDTH, VIRTUAL_HEIGHT)
         self._camera_position = pygame.Vector2(0, 0)
         self._camera_time = 0.0
+        self._system_cursor_visible = True
         self._update_viewport()
         self._register_scenes()
 
@@ -63,9 +68,11 @@ class Application:
                 self._handle_events()
                 self.input_manager.update_mouse_position()
                 self.scene_manager.update(dt)
+                self._update_cursor_visibility()
                 self._update_camera(dt)
                 self._render()
         finally:
+            pygame.mouse.set_visible(True)
             self.audio.stop()
             pygame.quit()
 
@@ -100,6 +107,14 @@ class Application:
         return True
 
     def _register_scenes(self) -> None:
+        audit_scene = AuditScene(
+            self.scene_manager,
+            self.assets,
+            self.input_manager,
+            self.audio,
+            self.get_preferences,
+            self.apply_preferences,
+        )
         self.scene_manager.add_scene(
             "main_menu",
             MainMenuScene(
@@ -112,15 +127,27 @@ class Application:
             ),
         )
         self.scene_manager.add_scene(
-            "audit",
-            AuditScene(
+            "login",
+            LoginScene(
                 self.scene_manager,
                 self.assets,
                 self.input_manager,
                 self.audio,
-                self.get_preferences,
-                self.apply_preferences,
             ),
+        )
+        self.scene_manager.add_scene(
+            "desktop",
+            DesktopScene(
+                self.scene_manager,
+                self.assets,
+                self.input_manager,
+                self.audio,
+                audit_scene,
+            ),
+        )
+        self.scene_manager.add_scene(
+            "audit",
+            audit_scene,
         )
         self.scene_manager.switch_to("main_menu")
 
@@ -152,6 +179,12 @@ class Application:
 
         self.window.fill(LETTERBOX_COLOR)
         current_scene = self.scene_manager.current_scene
+        if current_scene is not None and current_scene.screen_effect_rect is not None:
+            self.screen_effect.apply(
+                self.virtual_surface,
+                self.preferences.screen_filter,
+                current_scene.screen_effect_rect,
+            )
         head_offset = getattr(current_scene, "head_offset", (0, 0))
         camera_view = self.virtual_surface.subsurface(self._camera_rect)
         if camera_view.get_size() == self._viewport_rect.size:
@@ -259,6 +292,17 @@ class Application:
             crop_height,
         )
         self.input_manager.set_camera_rect(self._camera_rect)
+
+    def _update_cursor_visibility(self) -> None:
+        current_scene = self.scene_manager.current_scene
+        custom_active = bool(
+            current_scene is not None
+            and current_scene.custom_cursor_active(self.input_manager.mouse_position)
+        )
+        should_show_system_cursor = not custom_active
+        if should_show_system_cursor != self._system_cursor_visible:
+            pygame.mouse.set_visible(should_show_system_cursor)
+            self._system_cursor_visible = should_show_system_cursor
 
     def _update_viewport(self) -> None:
         window_width, window_height = self.window.get_size()

@@ -21,7 +21,7 @@ AMBER = (211, 149, 47)
 PURPLE = (143, 74, 154)
 
 BRIEFING_RECT = pygame.Rect(273, 118, 1008, 462)
-BRIEFING_START_RECT = pygame.Rect(884, 499, 342, 57)
+BRIEFING_START_RECT = pygame.Rect(884, 526, 342, 43)
 
 CONFIRM_RECT = pygame.Rect(354, 168, 846, 350)
 CONFIRM_YES_RECT = pygame.Rect(756, 431, 393, 58)
@@ -127,32 +127,57 @@ class CaseDialog:
 
     def _render_briefing(self, surface: pygame.Surface) -> None:
         self._draw_layered_rect(surface, BRIEFING_RECT, SCREEN_BLACK, BORDER)
-        self._draw_text(surface, f"CASO {self.case.sequence:02d}", self.font_small, PAPER, (310, 151))
+        eyebrow = "TREINAMENTO GUIADO" if self.case.is_tutorial else f"CASO {self.case.sequence:02d}"
+        self._draw_text(surface, eyebrow, self.font_small, PAPER, (310, 151))
         self._draw_text(surface, self.case.title.upper(), self.font_header, INK_BRIGHT, (310, 184))
         pygame.draw.line(surface, BORDER, (310, 235), (1241, 235), 3)
+        self._draw_text(surface, "PERGUNTA DA AUDITORIA", self.font_tiny, PAPER, (310, 260))
+        question_rect = pygame.Rect(310, 284, 900, 49)
+        pygame.draw.rect(surface, PANEL_MID, question_rect)
+        pygame.draw.rect(surface, BORDER_DARK, question_rect, 2)
+        self._draw_text(
+            surface,
+            self.case.review_question,
+            self.font_body_bold,
+            INK_BRIGHT,
+            (question_rect.x + 14, question_rect.y + 11),
+        )
         self._draw_wrapped_text(
             surface,
             self.case.briefing,
-            self.font_body,
+            self.font_small,
             INK,
-            pygame.Rect(310, 267, 900, 126),
-            line_height=31,
-            max_lines=4,
+            pygame.Rect(310, 350, 900, 50),
+            line_height=24,
+            max_lines=2,
         )
 
+        key_labels = [
+            source.label
+            for source in self.case.data_sources
+            if source.document_id in self.case.key_document_ids
+        ]
+        self._draw_text(
+            surface,
+            "DOCUMENTOS-CHAVE: " + "  /  ".join(label.upper() for label in key_labels),
+            self.font_tiny,
+            PAPER,
+            (312, 407),
+        )
         steps = (
-            "1. Abra e compare os documentos.",
-            "2. Consulte os protocolos e a decisão da IA.",
-            "3. Escolha um carimbo e aplique na folha de auditoria.",
+            "1. Abra a decisão da IA.",
+            "2. Coloque os documentos destacados na mesa.",
+            "3. Clique nos campos destacados para compará-los.",
+            "4. Carimbe, assine e envie.",
         )
         for index, step in enumerate(steps):
-            y = 405 + index * 33
+            y = 428 + index * 25
             self._draw_text(surface, step, self.font_small, INK_MUTED, (312, y))
 
         self._draw_button(
             surface,
             BRIEFING_START_RECT,
-            "ABRIR CASO",
+            "COMEÇAR AUDITORIA",
             self.hovered_control == "start",
         )
 

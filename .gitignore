@@ -16,6 +16,10 @@ desktop.ini
 
 # Preferências locais de vídeo e áudio.
 data/user_settings.json
+data/desktop_layout.json
 
 # Copia compactada e redundante da pasta de sprites editaveis.
 sprites_atuais_para_retrabalho.rar
+
+# Packs permitem uso no jogo, mas nao redistribuicao dos arquivos crus.
+assets/vendor_local/

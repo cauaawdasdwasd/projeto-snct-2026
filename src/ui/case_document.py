@@ -104,6 +104,24 @@ class CaseDocument:
                 return evidence
         return None
 
+    def evidence_at_monitor(self, monitor_position: tuple[int, int]) -> EvidenceRegion | None:
+        if not self.contains_point(monitor_position):
+            return None
+        return self.evidence_at(self.source_position(monitor_position))
+
+    def evidence_preview_rect(self, evidence: EvidenceRegion) -> pygame.Rect:
+        return self.evidence_preview_rect_for_source(evidence.rect)
+
+    def evidence_preview_rect_for_source(self, source_rect: pygame.Rect) -> pygame.Rect:
+        scale_x = self.rect.width / self.source_image.get_width()
+        scale_y = self.rect.height / self.source_image.get_height()
+        return pygame.Rect(
+            round(self.rect.x + source_rect.x * scale_x),
+            round(self.rect.y + source_rect.y * scale_y),
+            max(1, round(source_rect.width * scale_x)),
+            max(1, round(source_rect.height * scale_y)),
+        )
+
     def contains_stamp_target(self, monitor_position: tuple[int, int]) -> bool:
         if self.stamp_target is None or not self.contains_point(monitor_position):
             return False
