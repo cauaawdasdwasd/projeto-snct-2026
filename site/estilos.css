@@ -201,6 +201,10 @@ h3 {
     color: var(--amarelo);
 }
 
+.links-navegacao a[aria-current="page"] {
+    color: var(--amarelo);
+}
+
 .conteudo-hero {
     position: relative;
     z-index: 2;
@@ -616,6 +620,180 @@ footer {
     font-size: 0.8125rem;
 }
 
+.links-rodape {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.links-rodape a {
+    color: #d8d2ad;
+    font-size: 0.8125rem;
+}
+
+.texto-tema {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 42px;
+}
+
+.texto-tema p {
+    margin-bottom: 0;
+}
+
+.texto-tema p:first-child {
+    padding-right: 42px;
+    border-right: 1px solid var(--borda);
+}
+
+.texto-tema-protocolos {
+    margin-bottom: 68px;
+    padding: 28px;
+    border: 1px solid #596344;
+    background: #111d18;
+}
+
+.texto-tema-protocolos p:first-child {
+    border-right-color: #596344;
+}
+
+.cabecalho-painel-protocolos {
+    margin-bottom: 32px;
+}
+
+.faixa-protocolos {
+    background: var(--verde-escuro);
+    color: #d8d2ad;
+}
+
+.grade-protocolos {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+}
+
+.cartao-protocolo {
+    min-width: 0;
+    border: 2px solid #596344;
+    background: #111d18;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.resumo-protocolo {
+    width: 100%;
+    padding: 18px;
+    border: 0;
+    background: transparent;
+    color: #f3edcf;
+    text-align: left;
+    cursor: pointer;
+}
+
+.resumo-protocolo:hover,
+.resumo-protocolo:focus-visible,
+.resumo-protocolo[aria-expanded="true"] {
+    background: #17261f;
+}
+
+.resumo-protocolo:focus-visible {
+    outline: 3px solid var(--amarelo);
+    outline-offset: -3px;
+}
+
+.numero-protocolo,
+.nome-cientista,
+.acao-protocolo {
+    display: block;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+}
+
+.numero-protocolo {
+    margin-bottom: 12px;
+    color: var(--amarelo);
+    font-size: 0.75rem;
+}
+
+.resumo-protocolo img {
+    width: 100%;
+    aspect-ratio: 1;
+    margin-bottom: 16px;
+    border: 3px solid #737957;
+    background: #080d0b;
+    object-fit: cover;
+    image-rendering: pixelated;
+}
+
+.nome-cientista {
+    margin-bottom: 2px;
+    color: #aaa687;
+    font-size: 0.8125rem;
+}
+
+.resumo-protocolo > strong {
+    display: block;
+    min-height: 3.1em;
+    margin-bottom: 8px;
+    font-family: "Courier New", monospace;
+    font-size: 1.25rem;
+    line-height: 1.25;
+}
+
+.chamada-protocolo {
+    display: block;
+    min-height: 4.6em;
+    color: #c4c09e;
+    font-family: Verdana, Arial, sans-serif;
+    font-size: 0.875rem;
+    line-height: 1.55;
+}
+
+.acao-protocolo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid #596344;
+    color: var(--amarelo);
+    font-size: 0.75rem;
+}
+
+.acao-protocolo span {
+    font-size: 1.125rem;
+}
+
+.detalhe-protocolo {
+    padding: 20px 18px 22px;
+    border-top: 2px solid #596344;
+    background: #e8dfc1;
+    color: var(--tinta);
+}
+
+.detalhe-protocolo[hidden] {
+    display: none;
+}
+
+.detalhe-protocolo h3 {
+    margin-bottom: 5px;
+    color: var(--vermelho);
+    font-size: 0.875rem;
+    text-transform: uppercase;
+}
+
+.detalhe-protocolo p {
+    font-size: 0.875rem;
+    line-height: 1.6;
+}
+
+.regra-protocolo {
+    margin: 22px 0 0;
+    padding: 12px 14px;
+    border-left: 4px solid var(--vermelho);
+    background: var(--papel);
+}
+
 @keyframes aproximar-monitor {
     from {
         transform: scale(1);
@@ -663,6 +841,12 @@ footer {
         flex-direction: column;
     }
 
+    .links-rodape {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 8px;
+    }
+
     .secao {
         padding-top: 62px;
         padding-bottom: 62px;
@@ -680,6 +864,27 @@ footer {
     .momentos,
     .passos {
         grid-template-columns: 1fr;
+    }
+
+    .texto-tema,
+    .grade-protocolos {
+        grid-template-columns: 1fr;
+    }
+
+    .texto-tema {
+        gap: 25px;
+    }
+
+    .texto-tema p:first-child {
+        padding-right: 0;
+        padding-bottom: 25px;
+        border-right: 0;
+        border-bottom: 1px solid var(--borda);
+    }
+
+    .resumo-protocolo > strong,
+    .chamada-protocolo {
+        min-height: 0;
     }
 
     blockquote {
