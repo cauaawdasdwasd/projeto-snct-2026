@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="estilos.css">
     <script src="fonte.js" defer></script>
     <script src="carrossel.js" defer></script>
+    <script src="protocolos.js" defer></script>
 </head>
 <body>
     <header class="hero" id="inicio">
@@ -22,6 +23,7 @@
             <div class="links-navegacao">
                 <a href="#historia">História</a>
                 <a href="#jogo">O jogo</a>
+                <a href="#protocolos">Protocolos</a>
                 <a href="#projeto">O projeto</a>
             </div>
         </nav>
@@ -223,6 +225,151 @@
             </div>
         </section>
 
+        <section class="secao faixa-protocolos" id="protocolos">
+            <div class="limite">
+                <div class="cabecalho-secao claro">
+                    <p class="rotulo">MULHERES NA CIÊNCIA // 06 PROTOCOLOS</p>
+                    <h2>Mulheres que mudaram a ciência.<br>Regras que mudam decisões.</h2>
+                    <p>
+                        Em <strong>Sob Análise</strong>, cada protocolo de auditoria recebe o nome de uma
+                        mulher que transformou a computação, a matemática ou a inteligência artificial.
+                        Clique em cada ficha para conhecer a regra e sua inspiração.
+                    </p>
+                </div>
+
+                <div class="texto-tema texto-tema-protocolos">
+                    <p>
+                        A história da tecnologia foi construída por muitas mulheres, embora suas
+                        contribuições nem sempre tenham recebido a mesma visibilidade. Antes de tomar
+                        uma decisão no jogo, o jogador consulta princípios inspirados no trabalho de
+                        seis cientistas.
+                    </p>
+                    <p>
+                        Essa escolha conversa com o tema <strong>Mulheres na Ciência</strong> porque não
+                        apresenta essas pesquisadoras apenas como homenagens. Suas ideias se tornam
+                        ferramentas para conferir dados, questionar cálculos, identificar injustiças
+                        e lembrar que toda tecnologia precisa de responsabilidade humana.
+                    </p>
+                </div>
+
+                <div class="cabecalho-secao claro cabecalho-painel-protocolos">
+                    <p class="rotulo">PAINEL DE CONSULTA</p>
+                    <h2>Selecione um protocolo</h2>
+                    <p>As fichas podem ser abertas e fechadas em qualquer ordem.</p>
+                </div>
+
+                <div class="grade-protocolos">
+                    <article class="cartao-protocolo">
+                        <button class="resumo-protocolo" type="button" aria-expanded="false" aria-controls="detalhe-grace">
+                            <span class="numero-protocolo">PROTOCOLO 01</span>
+                            <img src="imagens/protocolos/grace_hopper.png" alt="Retrato em pixel art de Grace Hopper">
+                            <span class="nome-cientista">Grace Hopper</span>
+                            <strong>Identificação de Dados</strong>
+                            <span class="chamada-protocolo">Confira se os dados pertencem à pessoa certa.</span>
+                            <span class="acao-protocolo" aria-hidden="true">ABRIR FICHA <span>+</span></span>
+                        </button>
+                        <div class="detalhe-protocolo" id="detalhe-grace" hidden>
+                            <h3>O que o protocolo ensina</h3>
+                            <p>Antes de aceitar uma informação, compare identificadores e confirme se cada registro pertence realmente à pessoa analisada. Dados de outra pessoa não podem sustentar uma decisão.</p>
+                            <h3>Por que Grace Hopper?</h3>
+                            <p>Pioneira da programação e dos compiladores, Hopper ajudou a tornar instruções complexas compreensíveis e rastreáveis. Sua trajetória inspira o cuidado de localizar erros e verificar exatamente o que um sistema está lendo.</p>
+                            <p class="regra-protocolo"><strong>Na auditoria:</strong> se a IA usar a identificação errada, a decisão deve ser negada.</p>
+                        </div>
+                    </article>
+
+                    <article class="cartao-protocolo">
+                        <button class="resumo-protocolo" type="button" aria-expanded="false" aria-controls="detalhe-katherine">
+                            <span class="numero-protocolo">PROTOCOLO 02</span>
+                            <img src="imagens/protocolos/katherine_johnson.png" alt="Retrato em pixel art de Katherine Johnson">
+                            <span class="nome-cientista">Katherine Johnson</span>
+                            <strong>Verificação de Cálculos</strong>
+                            <span class="chamada-protocolo">Confira se os números da IA estão certos.</span>
+                            <span class="acao-protocolo" aria-hidden="true">ABRIR FICHA <span>+</span></span>
+                        </button>
+                        <div class="detalhe-protocolo" id="detalhe-katherine" hidden>
+                            <h3>O que o protocolo ensina</h3>
+                            <p>Quando uma decisão depender de uma conta, refaça somas, médias, porcentagens e comparações com os números dos documentos. Confiança alta não corrige um cálculo errado.</p>
+                            <h3>Por que Katherine Johnson?</h3>
+                            <p>Matemática da NASA, Johnson calculou e conferiu trajetórias fundamentais para missões espaciais. Seu trabalho mostra que resultados decisivos exigem precisão, revisão e confiança conquistada pela verificação.</p>
+                            <p class="regra-protocolo"><strong>Na auditoria:</strong> se o cálculo estiver errado, a decisão deve ser negada.</p>
+                        </div>
+                    </article>
+
+                    <article class="cartao-protocolo">
+                        <button class="resumo-protocolo" type="button" aria-expanded="false" aria-controls="detalhe-ada">
+                            <span class="numero-protocolo">PROTOCOLO 03</span>
+                            <img src="imagens/protocolos/ada_lovelace.png" alt="Retrato em pixel art de Ada Lovelace">
+                            <span class="nome-cientista">Ada Lovelace</span>
+                            <strong>Critérios da Decisão</strong>
+                            <span class="chamada-protocolo">Confira se a IA está cobrando a coisa certa.</span>
+                            <span class="acao-protocolo" aria-hidden="true">ABRIR FICHA <span>+</span></span>
+                        </button>
+                        <div class="detalhe-protocolo" id="detalhe-ada" hidden>
+                            <h3>O que o protocolo ensina</h3>
+                            <p>Compare os motivos apresentados pela IA com os critérios reais da vaga ou avaliação. Uma informação pode ser verdadeira e, ainda assim, não ter relação com a decisão.</p>
+                            <h3>Por que Ada Lovelace?</h3>
+                            <p>Lovelace percebeu que uma máquina poderia seguir sequências de instruções e trabalhar com muito mais do que números. Ela inspira a pergunta central deste protocolo: quais instruções orientam a máquina e elas servem ao objetivo correto?</p>
+                            <p class="regra-protocolo"><strong>Na auditoria:</strong> se a IA aplicar um critério que não faz parte da decisão, ela deve ser negada.</p>
+                        </div>
+                    </article>
+
+                    <article class="cartao-protocolo">
+                        <button class="resumo-protocolo" type="button" aria-expanded="false" aria-controls="detalhe-radia">
+                            <span class="numero-protocolo">PROTOCOLO 04</span>
+                            <img src="imagens/protocolos/radia_perlman.png" alt="Retrato em pixel art de Radia Perlman">
+                            <span class="nome-cientista">Radia Perlman</span>
+                            <strong>Permissão de Uso</strong>
+                            <span class="chamada-protocolo">Confira se a IA podia usar aquele dado.</span>
+                            <span class="acao-protocolo" aria-hidden="true">ABRIR FICHA <span>+</span></span>
+                        </button>
+                        <div class="detalhe-protocolo" id="detalhe-radia" hidden>
+                            <h3>O que o protocolo ensina</h3>
+                            <p>Ter acesso a uma informação não significa ter autorização para usá-la. Identifique dados restritos e confira a finalidade e a permissão antes de aceitar a decisão.</p>
+                            <h3>Por que Radia Perlman?</h3>
+                            <p>Engenheira essencial para o funcionamento confiável das redes de computadores, Perlman criou soluções para organizar como informações circulam. Sua trajetória inspira o cuidado com caminhos, acessos e limites no uso dos dados.</p>
+                            <p class="regra-protocolo"><strong>Na auditoria:</strong> o uso de um dado restrito sem autorização deve ser registrado como violação.</p>
+                        </div>
+                    </article>
+
+                    <article class="cartao-protocolo">
+                        <button class="resumo-protocolo" type="button" aria-expanded="false" aria-controls="detalhe-feifei">
+                            <span class="numero-protocolo">PROTOCOLO 05</span>
+                            <img src="imagens/protocolos/fei_fei_li.png" alt="Retrato em pixel art de Fei-Fei Li">
+                            <span class="nome-cientista">Fei-Fei Li</span>
+                            <strong>Viés nos Dados</strong>
+                            <span class="chamada-protocolo">Confira se a IA aprendeu com um histórico injusto.</span>
+                            <span class="acao-protocolo" aria-hidden="true">ABRIR FICHA <span>+</span></span>
+                        </button>
+                        <div class="detalhe-protocolo" id="detalhe-feifei" hidden>
+                            <h3>O que o protocolo ensina</h3>
+                            <p>Compare grupos que deveriam receber tratamento semelhante e procure diferenças sem relação com desempenho ou requisitos. Sistemas podem aprender e ampliar padrões injustos presentes no passado.</p>
+                            <h3>Por que Fei-Fei Li?</h3>
+                            <p>Pesquisadora central no avanço da visão computacional e defensora de uma inteligência artificial centrada nas pessoas, Li inspira uma análise que considera tanto a qualidade dos dados quanto o impacto humano dos modelos.</p>
+                            <p class="regra-protocolo"><strong>Na auditoria:</strong> se a IA repetir discriminação histórica, a decisão deve ser registrada como violação.</p>
+                        </div>
+                    </article>
+
+                    <article class="cartao-protocolo">
+                        <button class="resumo-protocolo" type="button" aria-expanded="false" aria-controls="detalhe-margaret">
+                            <span class="numero-protocolo">PROTOCOLO 06</span>
+                            <img src="imagens/protocolos/margaret_hamilton.png" alt="Retrato em pixel art de Margaret Hamilton">
+                            <span class="nome-cientista">Margaret Hamilton</span>
+                            <strong>Limite da Automação</strong>
+                            <span class="chamada-protocolo">Sem resposta segura, não deixe a IA decidir sozinha.</span>
+                            <span class="acao-protocolo" aria-hidden="true">ABRIR FICHA <span>+</span></span>
+                        </button>
+                        <div class="detalhe-protocolo" id="detalhe-margaret" hidden>
+                            <h3>O que o protocolo ensina</h3>
+                            <p>Se faltarem informações ou documentos importantes entrarem em conflito, não escolha qual deles parece correto. Reconhecer a incerteza também faz parte de uma decisão responsável.</p>
+                            <h3>Por que Margaret Hamilton?</h3>
+                            <p>Líder do desenvolvimento do software de voo das missões Apollo, Hamilton trabalhou para que sistemas respondessem com segurança a situações inesperadas. Ela inspira o reconhecimento dos limites da automação e a preparação para falhas.</p>
+                            <p class="regra-protocolo"><strong>Na auditoria:</strong> quando a dúvida não puder ser resolvida, solicite revisão humana.</p>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
         <section class="secao limite secao-projeto" id="projeto">
             <div class="cabecalho-secao">
                 <p class="rotulo escuro">PROJETO ACADÊMICO</p>
@@ -251,7 +398,10 @@
     <footer>
         <div class="limite rodape">
             <a class="marca" href="#inicio">S // SOB ANÁLISE</a>
-            <p>Projeto SNCT 2026</p>
+            <div class="links-rodape">
+                <a href="#protocolos">Conheça os protocolos</a>
+                <p>Projeto SNCT 2026</p>
+            </div>
         </div>
     </footer>
 </body>
