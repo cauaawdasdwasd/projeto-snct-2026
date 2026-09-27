@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from src.core.audio import AudioManager
 
 
-SEARCH_BUTTON_RECT = pygame.Rect(684, 72, 176, 34)
+SEARCH_BUTTON_RECT = pygame.Rect(743, 72, 150, 34)
 SEARCH_INPUT_RECT = pygame.Rect(86, 126, 1110, 52)
 SEARCH_SUBMIT_RECT = pygame.Rect(1212, 126, 244, 52)
 SEARCH_CLOSE_RECT = pygame.Rect(1430, 35, 42, 42)

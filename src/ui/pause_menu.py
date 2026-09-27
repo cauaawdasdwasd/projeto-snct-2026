@@ -18,7 +18,7 @@ INK_MUTED = (103, 116, 82)
 AMBER = (211, 166, 66)
 LINE = (72, 82, 55)
 
-PAUSE_COMMANDS = ("CONTINUAR", "CONFIGURAÇÕES", "ÁREA DE TRABALHO")
+PAUSE_COMMANDS = ("CONTINUAR", "COMO JOGAR", "CONFIGURAÇÕES", "MENU PRINCIPAL")
 
 
 class PauseMenu:
@@ -37,7 +37,7 @@ class PauseMenu:
         self.selection = 0
         self.panel_rect = pygame.Rect(620, 215, 680, 650)
         self.command_rects = tuple(
-            pygame.Rect(720, 430 + index * 94, 480, 68)
+            pygame.Rect(720, 420 + index * 90, 480, 66)
             for index in range(len(PAUSE_COMMANDS))
         )
         self.settings = SettingsPanel(
@@ -146,15 +146,18 @@ class PauseMenu:
             )
 
     def _activate(self, index: int) -> str | None:
-        self._play_sound("back" if index in (0, 2) else "forward")
+        self._play_sound("back" if index in (0, 3) else "forward")
         if index == 0:
             self.close()
         elif index == 1:
+            self.close()
+            return "help"
+        elif index == 2:
             self.settings.open(self.preferences_provider())
             self.view = "settings"
         else:
             self.close()
-            return "desktop"
+            return "menu"
         return None
 
     def _play_click(self, volume: float = 0.8) -> None:

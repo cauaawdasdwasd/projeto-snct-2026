@@ -209,7 +209,7 @@ class LoginScene(Scene):
             self.success_time += dt
             if self.success_time >= SUCCESS_DELAY:
                 self.item_inspector.release()
-                self.manager.switch_to("desktop")
+                self.manager.switch_to("audit")
 
     def render(self, surface: pygame.Surface) -> None:
         surface.fill((0, 0, 0))

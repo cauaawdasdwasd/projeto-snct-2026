@@ -1,0 +1,206 @@
+{
+ "case_01": {
+  "story": "Você acabou de assumir o turno na Sob Análise. A primeira auditoria é no Núcleo Orbital de Pesquisa: a IA aprovou a promoção da técnica Ana Ribeiro porque concluiu que uma ocorrência grave, registrada de madrugada, não era dela. Só que a empresa tem dois funcionários com o mesmo sobrenome no mesmo setor, um de dia e outro de noite, e os dois têm códigos de identificação quase iguais.",
+  "attention": "Neste treinamento o jogo aponta cada passo com um brilho amarelo. Leia os códigos devagar: em alguns tipos de letra, a letra O e o número zero são muito parecidos."
+ },
+ "case_07": {
+  "story": "A FirewallGuard é uma empresa que protege as redes de outras empresas contra ataques. Ela usa uma IA, a ShieldAI, que vigia o tráfego o tempo todo e pode bloquear conexões sem esperar ninguém aprovar. Ontem à noite a IA viu um movimento estranho vindo de uma parte da rede de um cliente e bloqueou uma sub-rede inteira. De manhã, metade dos computadores do cliente estava sem acesso e o trabalho parou. O cliente quer saber se a IA bloqueou mesmo o lugar de onde vinha o problema.",
+  "attention": "Uma ordem de bloqueio precisa apontar exatamente qual parte da rede é a suspeita. Leia os endereços com calma, número por número, e veja o que foi realmente bloqueado."
+ },
+ "case_08": {
+  "story": "A Têxtil FioBom fabrica roupas e depende de rolos de tecido que chegam de outra cidade. Antes de pagar uma entrega, a fábrica compara a nota fiscal, que diz quantos rolos foram comprados, com a lista de itens que o transportador realmente colocou no caminhão. Essa conferência foi feita pela IA CargoMath, que aprovou a entrega com 92% de certeza. Se houver diferença, a fábrica paga por tecido que nunca vai receber, e a produção da semana atrasa.",
+  "attention": "A IA disse que o volume é 'coerente'. Coerente com o quê? Veja o que a nota promete, veja o que a lista mostra e faça a conta você mesmo."
+ },
+ "case_09": {
+  "story": "A RH-Tech abriu uma seleção para uma vaga na área de logística e publicou um edital, um documento público com as regras do processo: o que é preciso ter para participar. Lucas se candidatou lendo o edital e achando que cumpria tudo. Poucos minutos depois de enviar o currículo, o sistema TalentMatch o descartou automaticamente, sem chamar para entrevista e sem nenhuma pessoa olhar o caso. Lucas pediu para a empresa explicar a decisão.",
+  "attention": "A IA cita um motivo para a rejeição. Procure esse motivo no edital: ele aparece lá? Depois olhe a formação de Lucas no currículo."
+ },
+ "case_10": {
+  "story": "A FitNeo é uma rede de academias. Para entrar, cada aluno cadastra a digital na catraca e assina um termo de adesão que explica como seus dados serão usados. Na semana passada, muitos alunos receberam propagandas de planos e horários ligados à sua rotina de treino, e ficaram desconfiados de como a empresa sabia tanto sobre eles. Um grupo de alunos procurou a auditoria para saber se os dados foram usados como prometido.",
+  "attention": "O termo que o aluno assinou diz para que a digital pode ser usada. O relatório de marketing mostra de onde a campanha tirou os dados. Os dois combinam?"
+ },
+ "case_11": {
+  "story": "Um banco digital lançou um novo modelo de risco, o CreditRisk, para decidir quanto de limite cada cliente pode ter no cartão. Nas primeiras semanas, começaram a chegar reclamações: clientes com renda parecida recebiam limites bem diferentes. Duas dessas clientes, com a mesma renda, foram tratadas de maneira distinta: uma manteve o limite e a outra teve o limite reduzido. O banco diz que o modelo é técnico e neutro. A auditoria precisa conferir.",
+  "attention": "Compare os dois perfis com atenção: o que é igual entre eles e o que muda? Depois leia qual regra a IA diz ter aplicado."
+ },
+ "case_12": {
+  "story": "Numa planta industrial, uma válvula de gás é vigiada por vários sensores. Cada sensor avisa a pressão e, se algo sair do normal, o turno precisa parar. O sistema SafePlant reúne todas as leituras e informou 'status seguro', então o turno seguiu trabalhando normalmente. Mas um técnico estranhou: o histórico de um dos sensores estava quase vazio há horas. Numa planta de gás, uma decisão errada de segurança pode custar vidas.",
+  "attention": "O painel da IA mostra um status para o Sensor 4. Confira no histórico o que esse sensor realmente vem enviando e como a IA chegou naquele valor."
+ },
+ "case_13": {
+  "story": "Numa indústria química, um aditivo é misturado seguindo uma receita rigorosa, com quantidades medidas em unidades diferentes. Um técnico experiente barrou o lote porque os números da mistura pareciam 'quebrados': cheios de vírgulas, sem cara de número redondo. A IA MixMaster, no entanto, aprovou a diluição com 99% de certeza. Barrar um lote bom custa dinheiro; liberar um lote errado pode ser perigoso. Alguém precisa refazer a conta.",
+  "attention": "Número feio não quer dizer número errado. Procure no manual como a empresa converte as unidades e refaça a conta da receita com calma."
+ },
+ "case_14": {
+  "story": "Uma empresa passou por uma reestruturação e, para agilizar, deixou um sistema, o HR-Optima, escolher quem seria desligado. A regra oficial de corte é clara e fala só de desempenho recente. Marta está na lista de demitidos e não entende: sempre foi bem avaliada pelos chefes. O sistema justificou a decisão com 'redução de custos futuros'. Marta pediu que alguém revisasse como o sistema chegou à conclusão de que ela deveria sair.",
+  "attention": "Verifique o que a regra de corte permite usar, como Marta foi avaliada e que outras informações sobre ela o sistema chegou a consultar."
+ },
+ "case_15": {
+  "story": "Numa empresa de tecnologia, o servidor central guarda os dados de todos os clientes e roda os sistemas principais. De madrugada, ele esquentou e ficou lento demais. O gerenciador TaskManager, uma IA que vigia tudo que roda no servidor, viu um programa novo em execução, conferiu a credencial usada e liberou tudo com 100% de confiança, por ser uma conta de administrador válida. O time de segurança acordou desconfiado e abriu uma auditoria.",
+  "attention": "Ter uma senha que funciona não é o mesmo que ter permissão para tudo. Veja o que o programa estava fazendo e para que aquela conta de administrador foi criada."
+ },
+ "case_16": {
+  "story": "Uma loja usa um sistema de cadastro para 'limpar' a base de dados, juntando contas duplicadas de clientes para economizar espaço. Depois de uma dessas limpezas, um cliente começou a receber faturas de compras que nunca fez e a ver o histórico de outra pessoa. O sistema DataMerge garante que só uniu registros que pertenciam à mesma pessoa. O cliente diz que está sendo cobrado pelo que não comprou e exige uma explicação.",
+  "attention": "Leia os dois cadastros palavra por palavra. Depois veja qual detalhe o sistema diz ter ignorado para decidir que eram a mesma pessoa."
+ },
+ "case_17": {
+  "story": "A CorpGlobal é uma multinacional que distribui bônus anuais para seus vendedores em vários países. A nota que decide o bônus é calculada pela IA PerfScore. Neste ano, quase toda a filial da América Latina ficou sem bônus, embora as vendas da região tenham batido as metas e até passado delas. Os gerentes locais estão indignados: acham que trabalharam mais e ganharam menos. Eles pediram uma revisão de como a nota é calculada.",
+  "attention": "Veja que itens compõem a nota e quanto cada um pesa. Depois compare com o resultado da filial e com quem treinou a IA que avalia."
+ },
+ "case_18": {
+  "story": "Uma empresa de entregas por drone usa o sistema SkyRoute para planejar cada voo. Ele escolhe o caminho mais rápido, checa o clima e libera a decolagem. Para hoje, ele aprovou uma rota que passa sobre o centro da cidade, dizendo que o clima está excelente e a via está limpa. Só que hoje está acontecendo um grande evento no centro, e a prefeitura enviou um comunicado às empresas. Um drone caindo no meio de uma multidão seria um desastre.",
+  "attention": "Clima bom é uma coisa; poder voar ali é outra. Confira o aviso da prefeitura e há quanto tempo o mapa da IA foi atualizado."
+ },
+ "case_19": {
+  "story": "Uma oficina precisa instalar um rotor novo num gerador que abastece uma fábrica inteira. A peça veio importada e foi escaneada na chegada. O sistema PartVerify consultou um banco global de peças, validou o número de série e liberou a instalação com 99% de certeza. O técnico responsável, porém, sabe que uma peça falsa ou trocada num equipamento como esse pode causar um acidente, e quer ter certeza absoluta antes de mexer.",
+  "attention": "Confira a identidade da peça em cada fonte: o que o scanner leu, o que o fabricante aprovou e o que a agência reguladora registra. Os três contam a mesma coisa?"
+ },
+ "case_20": {
+  "story": "No fim do mês, a equipe de vendas de uma empresa comemorou: as vendas dobraram. Todos esperavam uma boa comissão, pois o contrato de metas premia quem vende mais. Mas a IA PayoutBot calculou a comissão de todos como zero e disse que as regras do contrato 'se anulam'. A equipe achou injusto: se trabalhou tanto, como pode não ganhar nada? Ela chamou a auditoria para ler o contrato e conferir a lógica da IA.",
+  "attention": "Leia as duas cláusulas do contrato como duas regras de um jogo. Depois veja o que aconteceu no mês e se dá para aplicar as duas ao mesmo tempo."
+ },
+ "case_21": {
+  "story": "A LifeProtect é uma seguradora de vida. Um cliente jovem, sem problemas de saúde e com os exames em dia, recebeu a notícia de que o prêmio mensal do seu seguro subiria 40%. A IA RiskLife alegou 'indicadores de risco alto para doenças'. O cliente não entende: seu médico diz que ele está ótimo. Ele pediu à seguradora que mostrasse quais indicadores foram usados e de onde vieram.",
+  "attention": "Veja o que o exame médico mostra e de onde a seguradora tirou os 'indicadores'. Pergunte-se se essa fonte deveria ter algo a ver com o preço de um seguro."
+ },
+ "case_22": {
+  "story": "Uma empresa guarda seus equipamentos mais importantes num setor restrito, protegido por uma porta de segurança. A regra é simples: depois das 22h ninguém entra, com uma única exceção prevista. Numa noite, a porta foi aberta fora do horário e a auditoria interna apontou irregularidade. O sistema GateKeeper, que controla a porta, garante que estava tudo autorizado por uma credencial especial. Alguém precisa verificar se essa credencial vale mesmo.",
+  "attention": "Leia a regra, o horário da abertura e de onde veio a credencial usada. Procure a origem dessa credencial: quem a criou e para quê?"
+ },
+ "case_23": {
+  "story": "Um aplicativo de entregas reorganizou os turnos dos motoristas e cortou os mais lucrativos de vários deles, alegando 'indisponibilidade crônica'. A empresa afirma que a regra vale igual para todos e que a IA ShiftSmart só segue números. Mas alguns motoristas notaram que os prejudicados costumam ter um perfil parecido, e que essa regra parece favorecer uma forma específica de trabalhar. Eles pediram uma auditoria.",
+  "attention": "Compare como trabalham os dois grupos de motoristas e o que a regra do app exige. Uma regra igual para todos pode atingir mais um tipo de pessoa do que outro?"
+ },
+ "case_24": {
+  "story": "Numa fábrica, uma prensa industrial apresentou defeito na trava de segurança, a peça que impede a máquina de esmagar quem está por perto. O manual de segurança manda parar tudo nesse caso. Mesmo assim, a máquina continuou rodando devagar e o alarme foi silenciado. O sistema FactoryBrain, que comanda a fábrica, diz que apenas 'manteve a operação'. Ninguém se feriu, mas um sindicato exige saber como isso foi possível.",
+  "attention": "Siga a ordem dos fatos: o que a máquina registrou, o que o manual manda fazer e que ordem chegou ao painel central. Quem decidiu ignorar o alarme, e por quê?"
+ },
+ "case_25": {
+  "story": "Numa montadora de carros, o líder do sindicato dos trabalhadores teve o crachá cancelado justamente no dia da grande assembleia, que decidiria uma possível greve. O sistema GateIA negou o acesso alegando 'contrato expirado'. O sindicato suspeita de perseguição; a empresa diz que foi um erro de rotina do sistema, que cuida dos crachás de milhares de pessoas. A auditoria precisa descobrir o que de fato aconteceu.",
+  "attention": "Olhe o código do crachá do líder e a tabela que a empresa usa para classificar esses códigos. Depois veja quais contratos terminaram hoje."
+ },
+ "case_26": {
+  "story": "Uma construtora demitiu um vigia por abandono de posto, baseada só na localização do celular dele. A regra do trabalho diz que o vigia deve ficar a até 50 metros da guarita. O sistema GeoTrack registrou 'falta grave' e a demissão saiu automaticamente, sem ninguém conversar com ele. O vigia jura que nunca saiu do lugar e diz que perdeu o emprego por causa de uma conta feita por uma máquina.",
+  "attention": "GPS de celular nunca é exato. Veja qual distância o aparelho registrou, qual é a margem de erro informada e como a IA fez a conta final."
+ },
+ "case_27": {
+  "story": "Uma empresa de aplicativos coletou dados de voz de milhares de usuários e afirma que todos concordaram com os novos termos de uso, ontem. O sistema LegalBot registrou o 'aceite' como válido só porque o usuário rolou a página do aplicativo. Os usuários dizem que nunca viram nada sobre voz. Um grupo de consumidores ameaça ir à Justiça, e a empresa precisa provar que houve concordância de verdade.",
+  "attention": "Anote duas datas: quando o usuário rolou a página e quando a nova cláusula sobre voz foi publicada. Dá para concordar com algo que ainda não existia?"
+ },
+ "case_28": {
+  "story": "Numa rede de lojas, todas as horas extras da última semana do mês sumiram do sistema de ponto, e ninguém recebeu por elas. O sistema TimeSys diz que foi uma 'limpeza autorizada por um superior', como se fosse uma rotina normal. Os funcionários, que trabalharam de verdade, querem saber quem deu a ordem, de onde ela partiu e se essa pessoa poderia mesmo fazer isso.",
+  "attention": "Descubra qual credencial fez a exclusão, de que computador ela foi usada e o que a política da empresa diz sobre horas já trabalhadas."
+ },
+ "case_29": {
+  "story": "Uma grande empresa criou um algoritmo de seleção 'às cegas', o BlindHire, que avalia candidatos a trainee sem ver nome, gênero, faculdade, idade ou endereço. A ideia é olhar só a capacidade da pessoa. A turma aprovada neste ano ficou bem diferente das dos anos anteriores, e alguns diretores reclamaram, dizendo que o sistema deve estar errado. A auditoria foi chamada para dizer se ele erra ou se está funcionando como prometido.",
+  "attention": "Compare como eram as turmas dos anos anteriores com a de agora e veja o que a IA realmente enxergou para decidir. O estranho é o resultado ou o passado?"
+ },
+ "case_30": {
+  "story": "Num shopping, durante um simulado de incêndio, as setas luminosas de fuga começaram a mudar de direção e a multidão ficou parada, sem saber para onde ir. O sistema SafeExit comanda essas setas e garante que estava 'recalculando desvios' o tempo todo, com 75% de confiança. Era só um teste, mas num incêndio de verdade, segundos de confusão podem fazer muita diferença. A administração quer saber o que deu errado.",
+  "attention": "Veja o que os sensores mostraram em cada corredor e o que as luzes fizeram a cada 5 segundos. A IA tinha clareza suficiente para guiar pessoas em pânico?"
+ },
+ "case_31": {
+  "story": "Uma empresa de informática lançou uma atualização importante de software, mas milhares de computadores antigos ficaram de fora. Os usuários reclamam nos fóruns, dizendo que foram esquecidos e que pagaram por um produto que agora fica para trás. A IA RolloutAI, que decide quem recebe a atualização, explica que reteve a atualização por 'insuficiência de hardware'. A empresa quer saber se a regra é justa.",
+  "attention": "Leia a reclamação dos usuários, quanta memória o novo software exige e o que os testes mostraram nas máquinas mais fracas. Quem essa regra realmente protege?"
+ },
+ "case_32": {
+  "story": "O ViasSeguras é o sistema de multas automáticas de uma cidade: câmeras nos pedágios leem a placa dos carros que passam sem pagar e uma IA, a VisionCatch 2.0, emite a multa. Um motorista recebeu uma dessas multas e contesta: garante que seu carro estava na garagem naquele dia. A IA tem 92% de certeza de que leu a placa certa. Se ela errou, uma pessoa inocente está pagando por um carro que nunca passou ali.",
+  "attention": "Veja a foto do radar com atenção, principalmente a placa que aparece na imagem. Compare com a placa que a IA leu e com o registro do carro multado."
+ },
+ "case_33": {
+  "story": "Um funcionário de uma loja reclamou que o pagamento de novembro veio menor do que devia. O sistema de folha PayrollBot afirma que calculou tudo certo, pagando 10 horas extras com o adicional de 1,5. O funcionário lembra que fez horas extras num dia especial do calendário e que o sindicato tem regras próprias para dias assim. Ele pediu à auditoria que conferisse as contas do holerite.",
+  "attention": "Confira o dia em que as horas foram trabalhadas, o multiplicador usado no holerite e o que as regras do sindicato dizem. A Base Interna pode ajudar com o calendário."
+ },
+ "case_34": {
+  "story": "Um inquilino quis alugar um apartamento e teve o crédito negado pelo sistema RentaScore, que avalia o risco de uma pessoa deixar de pagar o aluguel. A IA disse ter 85% de certeza de 'alto risco de inadimplência'. Só que o inquilino tem bom salário, nome limpo e nunca deu calote. Ele perdeu a chance do apartamento e pediu à imobiliária que explicasse por qual motivo a IA o considerou arriscado.",
+  "attention": "Compare a renda com o valor do aluguel, a política da imobiliária e o fator que a IA marcou como motivo da rejeição. Isso tem a ver com pagar o aluguel?"
+ },
+ "case_35": {
+  "story": "Uma senhora idosa começou a receber anúncios de remédios para tosse logo depois de ficar doente em casa. Ela nunca pesquisou nada na internet sobre isso e ficou assustada com a coincidência. O sistema de anúncios AdSense-X diz que só usou 'segmentação por interesse' de forma válida. A família dela procurou a auditoria: querem entender de onde a empresa de anúncios tirou a informação de que ela estava doente.",
+  "attention": "Descubra de onde vieram os dados do anúncio, o que a TV da cliente diz que faz com o áudio e o que os termos de uso prometem."
+ },
+ "case_36": {
+  "story": "Numa auditoria de rotina, uma empresa de engenharia revisou seu processo de contratação. O sistema HR-Filter descarta automaticamente currículos com 'lacunas' longas, períodos em que a pessoa não trabalhou. Ele descartou uma engenheira alegando 'lacuna excessiva' no currículo. Curiosamente, um outro candidato, com experiência igual e uma lacuna parecida, foi aprovado. A auditoria quer saber se a IA tratou os dois do mesmo jeito.",
+  "attention": "Compare os dois currículos: o que cada um fez durante a lacuna e qual foi o resultado. Depois leia a regra interna que diz o que a IA podia ou não decidir sozinha."
+ },
+ "case_37": {
+  "story": "A LogisTrek é uma empresa de entregas por drone. Um dos drones caiu numa área residencial, felizmente sem feridos. A empresa culpa o operador remoto que o pilotava, e o sistema de análise SkyOps confirmou 'falha humana' com 90% de certeza, dizendo que o operador forçou a descida. O operador jura que não fez nada de errado e teme perder o emprego e ser processado.",
+  "attention": "Anote os horários em cada documento: quando o operador parou de enviar comandos, o que o sensor do drone registrou e a partir de quando os dados podem ser confiáveis."
+ },
+ "case_38": {
+  "story": "Uma cliente pediu para sacar o dinheiro do seu fundo de garantia, guardado no banco há anos. O nome no pedido de saque é diferente do nome que aparece no cadastro antigo do banco. Mesmo assim, o sistema BankID aprovou o saque com 96% de certeza, dizendo que a titularidade estava confirmada. Um funcionário desconfiou do desencontro: entregar dinheiro para a pessoa errada seria grave, mas negar para a pessoa certa também.",
+  "attention": "Compare os nomes com atenção, mas procure algo que não muda mesmo quando um nome muda. Veja também o que o terceiro documento explica."
+ },
+ "case_39": {
+  "story": "No porto de uma cidade exportadora, um contêiner cheio de válvulas industriais foi rejeitado pelo sistema PortoTox porque 'excede o limite de 2000 kg do navio'. O exportador não entende: ele mesmo pesou a carga e acredita que ela cabe com folga. Enquanto isso, o navio espera no cais, cada hora de atraso custa caro, e o contêiner fica parado. Ele pediu para alguém conferir os documentos de pesagem.",
+  "attention": "Olhe a unidade de medida em cada documento, não só os números. A Base Interna tem uma tabelinha de conversão que pode ajudar."
+ },
+ "case_40": {
+  "story": "Um desenvolvedor de software, responsável por sistemas importantes da empresa, entregou tudo no prazo durante o ano inteiro e esperava uma promoção. Recebeu, no lugar dela, uma recusa do sistema TeamFit Pro, com 87% de confiança, por 'falta de sinergia com a liderança'. O desenvolvedor achou a justificativa estranha e vaga, e pediu ao RH que explicasse exatamente o que foi medido para tomar essa decisão.",
+  "attention": "Veja o desempenho do desenvolvedor, o que o relatório da IA realmente mediu e quais critérios a empresa diz usar para promover alguém."
+ },
+ "case_41": {
+  "story": "Um cliente de um plano de saúde viu a mensalidade dobrar de um mês para o outro. A seguradora afirma que a IA LifeCalc detectou 'sedentarismo' nele e que, por isso, o risco de problemas de saúde aumentou. O cliente fica intrigado: ninguém da seguradora sabe quanto ele anda por dia, e ele nunca contou isso a eles. Ele quer saber como a empresa chegou a essa informação.",
+  "attention": "Descubra de onde vieram os dados de passos e leia a promessa de privacidade do aplicativo de corrida que o cliente usa."
+ },
+ "case_42": {
+  "story": "Moradores de um mesmo bairro, o Jardim Alvorada, tiveram o limite de crédito reduzido em massa pelo sistema GeoCred, de um banco. Entre eles há clientes que nunca atrasaram uma conta e que sempre foram bons pagadores. O banco diz que o motivo é 'risco sistêmico da área'. Os moradores se reuniram e pediram uma auditoria: querem saber por que sua vida financeira virou 'risco' de repente.",
+  "attention": "Compare o histórico individual de um cliente com o dado que a IA usou. Depois olhe quem mora na região e pergunte-se por que a IA usaria o endereço."
+ },
+ "case_43": {
+  "story": "O sistema de compras SupplyChain-X cuida da reposição de matéria-prima de uma fábrica. Percebeu que o estoque de aço estava baixo e encomendou 50 toneladas para não faltar material. O gerente do almoxarifado tentou barrar o pedido, mas a IA insistiu em forçar a compra, com 91% de certeza. A fábrica é grande, cada tonelada custa caro, e agora existe uma discussão entre uma pessoa e uma máquina sobre quem está certo.",
+  "attention": "A IA acertou ao ver o estoque baixo? Veja para onde o material será entregue e o que aconteceu com esse lugar."
+ },
+ "case_44": {
+  "story": "Numa fábrica, um trabalhador foi barrado na entrada pelo sistema de reconhecimento facial SecurFace, acusado de ser um 'agitador' ligado a várias paralisações. O sindicato alega perseguição e diz que a empresa está usando a tecnologia para intimidar trabalhadores. A empresa se defende dizendo que apenas seguiu o alerta do sistema. Uma auditoria foi chamada para examinar como esse alerta foi criado.",
+  "attention": "Veja quantas pessoas o alerta diz estar seguindo e compare com as fichas dos dois funcionários. Os rostos batem com um único perfil?"
+ },
+ "case_45": {
+  "story": "Uma startup de tecnologia quis saber se pagaria menos imposto neste ano. Para isso, usou o contador-IA TaxGeni, que disse que a empresa se enquadra numa isenção do governo criada para incentivar inovação. Os sócios acharam bom demais para ser verdade: se a conta estiver errada, a startup pode ser multada depois. Pediram uma auditoria para conferir a lei, os números e a conta da IA.",
+  "attention": "Leia o que a lei exige, quanto a startup faturou e quanto gastou em pesquisa. Refaça a conta na calculadora antes de confiar."
+ },
+ "case_46": {
+  "story": "Um diretor com ótimos resultados disputou a promoção final dentro da empresa e perdeu. O sistema CorpCulture o reprovou por não ter 'Mindset Ágil', dando a ele uma nota cultural de 45 em 100. O diretor pediu uma explicação concreta: o que, exatamente, foi medido? A empresa não soube responder na hora, e o caso foi para a auditoria, que precisa entender o que existe por trás dessa nota.",
+  "attention": "Veja o que os relatórios dizem sobre o trabalho dele, o que a IA mediu para dar aquela nota e o que o manual de avaliação manda considerar."
+ },
+ "case_47": {
+  "story": "Um usuário de um serviço de streaming reclamou de receber promoções por e-mail e diz que nunca assinou nenhuma newsletter. O sistema MailMaster afirma que houve 'opt-in confirmado', isto é, que o usuário concordou em receber as mensagens. A empresa promete que tudo está registrado, mas o usuário se sente enganado e ameaça reclamar num órgão de defesa do consumidor.",
+  "attention": "Leia a reclamação, veja o que o usuário realmente fez no site e o que dizem os termos que ele viu. A IA tem base para dizer que houve concordância?"
+ },
+ "case_48": {
+  "story": "Uma filial de call center do Nordeste demitiu 40 atendentes de uma só vez por 'baixa performance', calculada pelo sistema SpeechScore, que ouve as ligações e dá uma nota de clareza. Os supervisores humanos, no entanto, sempre elogiaram esses atendentes, e os clientes também. Os funcionários demitidos não entendem como pessoas tão bem avaliadas viraram 'baixa performance' de um dia para o outro.",
+  "attention": "Compare a nota humana com a nota da IA para a mesma atendente e veja com que tipo de voz a IA foi treinada. A Base Interna tem detalhes do treinamento."
+ },
+ "case_49": {
+  "story": "Durante um voo comercial, o roteador automático AutoRoute mudou a rota do avião contra a vontade do piloto. Havia mau tempo à frente e o comandante tinha assumido o controle por segurança. O sistema justifica a manobra pela economia de combustível. Ninguém se feriu, mas os passageiros passaram por momentos de susto, e a companhia aérea quer entender quem estava no comando naquele momento.",
+  "attention": "Observe a ordem dos horários entre o comando do piloto e a ação da IA, o motivo de cada um e a regra da aviação para mau tempo. A Base Interna explica o risco da nuvem citada."
+ },
+ "case_50": {
+  "story": "Uma indústria fornece peças para tratores. Cada peça tem um número de série gravado, que é conferido na entrega. Um fornecedor foi bloqueado por suposta 'fraude' porque o sistema ScanCheck disse que o número de série de uma peça é inválido. Mas a foto da inscrição na peça está borrada bem no meio, e o fornecedor jura que entregou o lote certo. Ele pediu a revisão do bloqueio.",
+  "attention": "Compare o que aparece na foto, o que a IA diz ter lido e a lista de números que o fornecedor enviou. Quanto da leitura da IA foi certeza e quanto foi palpite?"
+ },
+ "case_51": {
+  "story": "Uma importadora contratou uma consultoria no exterior. O pagamento internacional foi travado pelo sistema PaySafe, que achou o valor da fatura 140 vezes maior que a média do mercado e suspeitou de superfaturamento. O fornecedor jura que cobrou o preço normal de sempre e ameaça cancelar o contrato. Enquanto isso, o dinheiro fica parado e o serviço, sem pagamento. A auditoria precisa olhar a fatura com cuidado.",
+  "attention": "Repare no que falta na fatura ao lado do valor. Depois veja em que moeda a IA fez a comparação e onde o fornecedor está cadastrado. A Base Interna ajuda."
+ },
+ "case_52": {
+  "story": "Meia hora antes da decolagem, um piloto experiente foi barrado no acesso à cabine pelo sistema FlightGate. O piloto tem milhares de horas de voo e é conhecido por um ato heroico num voo do passado, por isso colegas e passageiros pedem que o deixem embarcar. O sistema garante ter 100% de certeza do que fez. Há um avião cheio esperando, e cada minuto de atraso gera problemas.",
+  "attention": "Compare o que o currículo mostra com o que a licença e a regra da aviação exigem. Que informação decide se o piloto pode voar hoje?"
+ },
+ "case_53": {
+  "story": "Um e-commerce está sendo processado por enviar ofertas de bebida alcoólica a um ex-cliente que estava em recuperação do vício. Ele já havia pedido para sair da lista de e-mails, e ficou muito abalado com a mensagem. O sistema MailMaster, que dispara as promoções, diz que o cliente ainda estava na base ativa no momento do envio. A empresa afirma ter respeitado as regras, e o cliente discorda.",
+  "attention": "Marque as datas e horas de dois eventos e compare com o prazo que os termos de serviço da própria loja prometem. A conta é sua."
+ },
+ "case_54": {
+  "story": "Uma fundadora de uma startup de cosméticos pediu um empréstimo a um banco para expandir o negócio. O gerente humano do banco reprovou o pedido, mas a IA FairCred aprovou o crédito por cima da decisão dele. O caso chegou à auditoria porque ninguém sabe qual dos dois julgou melhor: a pessoa ou a máquina. A fundadora quer entender o que foi considerado, e o banco quer evitar um erro caro.",
+  "attention": "Leia as notas manuais do gerente, os números da empresa e o que a IA disse ter ignorado ao decidir. Compare os motivos de cada lado."
+ },
+ "case_55": {
+  "story": "Um incêndio começou no datacenter de uma grande empresa, a sala que guarda todos os servidores e dados. O sistema de infraestrutura SecurCore trancou todas as saídas e iniciou um procedimento para apagar o fogo sem danificar os equipamentos. Ele chama a ação de 'confinamento total' e tem 99% de certeza de que está certa. A auditoria foi acionada enquanto a situação ainda estava em andamento.",
+  "attention": "Confira quantas pessoas estavam no setor, o que a IA está fazendo agora e o que o manual dos bombeiros diz que vem em primeiro lugar."
+ },
+ "case_56": {
+  "story": "Uma holding, empresa que controla várias outras, pediu uma auditoria porque o sistema FraudHawk acusou um antigo fornecedor de fraude continuada. O CEO duvida, pois é amigo do fornecedor há muitos anos e acha estranho esperar isso dele. A acusação fala de 'anomalia matemática' no faturamento mensal, mas os valores parecem quase iguais aos do contrato. A auditoria precisa mostrar quem tem razão, sem simpatias.",
+  "attention": "Refaça a conta: preço por peça vezes a quantidade. Depois compare com o total faturado. A IA não tem amizades, mas será que também erra? Use a calculadora."
+ }
+}

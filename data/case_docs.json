@@ -1,0 +1,246 @@
+{
+ "case_07": [
+  "Ordem enviada pela FirewallGuard: diz qual parte da rede parecia suspeita e deveria ser tratada.",
+  "Registro do que a IA de fato executou na madrugada: qual parte da rede ela bloqueou."
+ ],
+ "case_08": [
+  "Nota fiscal da compra: quantos rolos de tecido a fábrica encomendou e vai pagar.",
+  "Lista do transportador: cada item que foi realmente colocado no caminhão e quantos rolos tem."
+ ],
+ "case_09": [
+  "Edital da seleção: as regras oficiais de quem pode participar da vaga de logística.",
+  "Currículo enviado por Lucas: a formação e a experiência que ele declarou."
+ ],
+ "case_10": [
+  "Termo que o aluno assina ao entrar: explica para que a digital cadastrada na catraca pode ser usada.",
+  "Relatório da campanha de propaganda: mostra de onde vieram os dados usados para escolher o público."
+ ],
+ "case_11": [
+  "Perfil de uma cliente que mora no centro: renda e o que aconteceu com o limite do cartão dela.",
+  "Perfil de uma cliente que mora na periferia, com renda igual: e o que aconteceu com o limite dela.",
+  "Relatório da IA: qual regra o modelo diz ter aplicado para mudar os limites."
+ ],
+ "case_12": [
+  "Histórico dos sensores da válvula: cada sensor e o que ele vem enviando, incluindo falhas de sinal.",
+  "Painel da IA: o status de segurança que ela mostrou ao turno para cada sensor."
+ ],
+ "case_13": [
+  "Manual técnico da fábrica: como converter as unidades usadas nas receitas.",
+  "Receita do lote: quanto o processo pedia de aditivo e quanto foi realmente adicionado."
+ ],
+ "case_14": [
+  "Regras oficiais da reestruturação: o que a empresa permite usar para escolher quem sai.",
+  "Avaliação de desempenho de Marta feita pelos chefes nos últimos meses.",
+  "Histórico de buscas de saúde ligado ao convênio médico, que o sistema também consultou."
+ ],
+ "case_15": [
+  "Histórico do servidor de madrugada: quais programas rodaram e a que horas começaram.",
+  "Lista de acessos: para que serve cada conta de administrador e o que ela pode fazer."
+ ],
+ "case_16": [
+  "Primeiro cadastro de cliente: nome completo e endereço.",
+  "Segundo cadastro de cliente: nome completo e endereço.",
+  "Histórico da IA: como ela decidiu que os dois cadastros eram a mesma pessoa."
+ ],
+ "case_17": [
+  "Metas globais da empresa: como a nota de cada equipe é calculada e quanto cada item pesa.",
+  "Resultado da filial da América Latina neste ano, nos mesmos itens da nota.",
+  "Guia da IA: quem treinou o sistema que avalia as equipes."
+ ],
+ "case_18": [
+  "Rota que a IA planejou para o drone entregar hoje.",
+  "Aviso oficial da prefeitura sobre o que acontece hoje na cidade e as restrições de voo.",
+  "Histórico da IA: de quando são as informações de mapa e eventos que ela consulta."
+ ],
+ "case_19": [
+  "O que o scanner leu na peça que chegou à oficina.",
+  "Lista oficial do fabricante: o número da peça aprovada para esse gerador.",
+  "Registro da agência reguladora: a situação do número de série dessa peça."
+ ],
+ "case_20": [
+  "Primeira regra do contrato de comissão: como a equipe ganha bônus.",
+  "Segunda regra do contrato de comissão: quando a equipe perde o bônus.",
+  "Fechamento do mês: o que a equipe vendeu e como isso se compara ao teto do setor."
+ ],
+ "case_21": [
+  "Exame médico recente do cliente: resultados de saúde medidos por um laboratório.",
+  "Histórico da seguradora: de onde vieram os 'indicadores de risco' usados no aumento.",
+  "Extrato de compras do cliente num supermercado parceiro."
+ ],
+ "case_22": [
+  "Política de acesso da empresa: quem pode entrar no setor restrito, e quando.",
+  "Histórico da porta: horário da abertura e credencial usada.",
+  "E-mail do CEO que explica como essa credencial foi criada."
+ ],
+ "case_23": [
+  "Regras do aplicativo: o que a IA considera para dar prioridade aos melhores turnos.",
+  "Dados do primeiro grupo de motoristas: perfil e como costumam trabalhar.",
+  "Dados do segundo grupo de motoristas: perfil e como costumam trabalhar."
+ ],
+ "case_24": [
+  "Histórico da prensa: o que a máquina registrou sobre a trava de segurança.",
+  "Manual de segurança: o que a fábrica exige quando esse tipo de erro acontece.",
+  "Painel central da IA: as ordens e prioridades que ela recebeu da diretoria.",
+  "Comando final: o que a IA de fato fez com a máquina e com o alarme."
+ ],
+ "case_25": [
+  "Crachá do líder sindical: código e vínculo com a empresa.",
+  "Tabela de terceiros: como a empresa classifica cada tipo de código de crachá.",
+  "Contratos externos: quais contratos de serviço terminaram hoje."
+ ],
+ "case_26": [
+  "Regras de ponto do vigia: até que distância da guarita ele deve ficar.",
+  "Histórico do GPS do celular: onde o aparelho disse que ele estava, e a margem de erro.",
+  "Cálculo da IA: como ela transformou a posição do GPS em uma distância final."
+ ],
+ "case_27": [
+  "Histórico do usuário: o que ele fez no aplicativo e em que dia.",
+  "Contrato versão 2: as novas cláusulas que a empresa diz que o usuário aceitou.",
+  "Controle de versão: quando cada versão do contrato foi publicada."
+ ],
+ "case_28": [
+  "Histórico do sistema de ponto: qual comando apagou as horas extras.",
+  "Rastro do sistema: qual credencial foi usada para dar o comando.",
+  "Histórico de acesso: de qual computador essa credencial foi usada.",
+  "Política de horas da empresa: o que ela diz sobre horas já trabalhadas."
+ ],
+ "case_29": [
+  "Histórico das turmas de trainee dos anos anteriores: quem costumava ser aprovado.",
+  "Resultado da turma deste ano, escolhida pelo algoritmo.",
+  "Histórico da IA: quais informações dos candidatos ela ocultou ao avaliar."
+ ],
+ "case_30": [
+  "Sensores de fumaça: o que eles detectaram em cada corredor.",
+  "Sensores de movimento: como estava a lotação de cada corredor.",
+  "Histórico das luzes de saída: o que a IA mandou as setas fazerem."
+ ],
+ "case_31": [
+  "Fóruns de usuários: o que os donos de computadores antigos estão dizendo.",
+  "Especificação da nova versão: quanto de memória o software gasta.",
+  "Relatório de qualidade: o que os testes mostraram nas máquinas mais fracas."
+ ],
+ "case_32": [
+  "Foto do radar do pedágio: o que a câmera registrou, e o que a IA leu da placa.",
+  "Registro oficial do veículo multado: placa e modelo do carro do motorista."
+ ],
+ "case_33": [
+  "Folha de ponto do funcionário: em quais dias ele trabalhou horas extras.",
+  "Holerite de novembro: quanto foi pago pelas horas extras e como foi calculado.",
+  "Regras do sindicato: quanto cada tipo de hora extra deve ser pago."
+ ],
+ "case_34": [
+  "Formulário de aluguel do inquilino: renda e valor do aluguel.",
+  "Relatório da IA: nota de crédito do inquilino e o motivo da rejeição.",
+  "Política da imobiliária: quais critérios são válidos para avaliar um inquilino."
+ ],
+ "case_35": [
+  "Termos de uso da TV: o que o fabricante promete fazer com o áudio da sala.",
+  "Histórico da campanha: qual sinal disparou o anúncio para essa cliente.",
+  "Contrato da farmácia anunciante: de onde vêm os dados usados na campanha."
+ ],
+ "case_36": [
+  "Currículo da engenheira descartada: experiência e o período sem trabalho.",
+  "Currículo do engenheiro aprovado: experiência e o período sem trabalho.",
+  "Histórico da IA: a regra interna de como ela trata períodos sem trabalho."
+ ],
+ "case_37": [
+  "Relatório de voo feito pela IA: o que ela diz ter causado a queda.",
+  "Registro do operador humano: o que ele fez e até que horas enviou comandos.",
+  "Histórico do sensor do drone: o estado do aparelho minuto a minuto."
+ ],
+ "case_38": [
+  "Pedido de saque feito pela cliente: nome e CPF informados.",
+  "Cadastro antigo da cliente no banco: nome e CPF que constavam antes.",
+  "Certidão de casamento anexada ao pedido."
+ ],
+ "case_39": [
+  "Nota fiscal da exportação: a carga e o peso informados pelo exportador.",
+  "Lista do navio: o limite de peso aceito em cada contêiner.",
+  "Cálculo feito pela IA: como ela comparou o peso com o limite."
+ ],
+ "case_40": [
+  "Avaliação técnica feita pelo gestor: entregas e qualidade do trabalho do desenvolvedor.",
+  "Relatório da IA: o que o sistema mediu para recusar a promoção.",
+  "Regras da empresa: os critérios oficiais para promover alguém."
+ ],
+ "case_41": [
+  "Notificação da seguradora: o motivo dado para o reajuste.",
+  "Histórico do aplicativo de corrida: quantos passos o cliente registrou por dia.",
+  "Contrato do aplicativo: o que a desenvolvedora promete fazer com os dados dos usuários."
+ ],
+ "case_42": [
+  "Perfil de um cliente do banco: renda mensal e histórico de atrasos.",
+  "Relatório da IA: o dado que ela usou para reduzir o limite dos moradores.",
+  "Mapa demográfico: informações sobre quem mora no bairro."
+ ],
+ "case_43": [
+  "Nível de estoque do almoxarifado: quanto aço a fábrica tem agora.",
+  "Aviso da engenharia sobre o estado de um dos galpões da fábrica.",
+  "Pedido de compra feito pela IA: quantidade e para onde entregar."
+ ],
+ "case_44": [
+  "Alerta da câmera de segurança: o perfil suspeito criado pelo sistema e as fotos ligadas a ele.",
+  "Registro funcional de João: foto e histórico dentro da empresa.",
+  "Registro funcional de Pedro: foto e histórico dentro da empresa."
+ ],
+ "case_45": [
+  "Balanço da startup: quanto faturou e quanto gastou em pesquisa neste ano.",
+  "Lei de isenção: a regra que o governo exige para conceder o benefício.",
+  "Cálculo da IA: a proporção que ela calculou e o veredito."
+ ],
+ "case_46": [
+  "Histórico do diretor: resultados reais do trabalho dele no último trimestre.",
+  "Relatório da IA: como o sistema chegou à nota cultural.",
+  "Manual de avaliação da empresa: como os líderes devem ser julgados."
+ ],
+ "case_47": [
+  "Reclamação do cliente: o que ele afirma que aconteceu.",
+  "Histórico de acesso: o que o cliente de fato fez no site.",
+  "Termos de uso, página 2: o que estava escrito no botão que ele clicou."
+ ],
+ "case_48": [
+  "Avaliação feita por uma pessoa: como a supervisora avaliou o trabalho da atendente.",
+  "Relatório da IA: a nota que o sistema deu para a mesma atendente.",
+  "Manual de treinamento da IA: com que dados o sistema aprendeu a avaliar vozes."
+ ],
+ "case_49": [
+  "Histórico do piloto automático: o que o piloto comandou e a que horas.",
+  "Histórico da IA de rotas: o que ela executou e por qual motivo.",
+  "Regra da aviação civil: quem manda em caso de mau tempo."
+ ],
+ "case_50": [
+  "Foto do número de série gravado na peça, como ele aparece hoje.",
+  "Relatório da IA: como ela interpretou o número e qual foi o veredito.",
+  "Nota fiscal do fornecedor: os números de série do lote que ele enviou."
+ ],
+ "case_51": [
+  "Fatura da importadora: o serviço prestado e o valor cobrado.",
+  "Alerta da IA: com qual média de mercado ela comparou o valor.",
+  "Cadastro de fornecedores: onde a empresa fica e como ela cobra."
+ ],
+ "case_52": [
+  "Currículo do piloto: horas de voo e condecorações.",
+  "Licença do piloto: a validade dos exames e documentos exigidos para voar.",
+  "Regra da aviação: o que é exigido de qualquer piloto para operar um voo."
+ ],
+ "case_53": [
+  "Histórico do sistema de e-mail: quando o cliente pediu para sair da lista.",
+  "Histórico de disparo: quando a oferta foi enviada.",
+  "Termos de serviço: em quanto tempo a loja promete cumprir um pedido de saída."
+ ],
+ "case_54": [
+  "Balanço da empresa da fundadora: crescimento e histórico de pagamentos.",
+  "Relatório do gerente do banco: o que ele decidiu e o que anotou à mão.",
+  "Histórico da IA: o que ela decidiu e o que disse ter ignorado."
+ ],
+ "case_55": [
+  "Alerta do sistema: qual ameaça ele detectou e o que está fazendo agora.",
+  "Histórico de ponto: quem está registrado dentro do setor do incêndio.",
+  "Manual de emergência dos bombeiros: a regra que vale em incêndios."
+ ],
+ "case_56": [
+  "Contrato master: o preço combinado por peça.",
+  "Relatório de faturamento do fornecedor: o volume e o valor total cobrado no mês.",
+  "Histórico da IA: a conta que ela fez e o que apontou como desvio."
+ ]
+}

@@ -1,0 +1,194 @@
+## case_07 T1 [grace_hopper] IP Bloqueado | Rede Secundária | AI: Bloqueio Executado (Tráfego anômalo detectado na sub-rede)
+  DOC doc_1 'Ordem de bloqueio' org=FirewallGuard: Alvo Suspeito=192.168.4.x*
+  DOC doc_2 'Histórico de Ação' org=FirewallGuard: Rede Bloqueada=192.168.1.x*
+## case_08 T1 [katherine_johnson] Falta de Fio | Lote de Tecidos | AI: Entrega Aprovada (Volume coerente)
+  DOC doc_1 'Nota Fiscal' org=Têxtil FioBom: Volume Declarado=500 rolos*
+  DOC doc_2 'Lista de carga' org=Transportadora: Item A=200 rolos*; Item B=250 rolos*
+## case_09 T1 [ada_lovelace] Requisito Fantasma | Lucas S. | AI: Desclassificado (Escolaridade insuficiente)
+  DOC doc_1 'Edital 44' org=RH-Tech: Escolaridade=Ensino Superior Completo*
+  DOC doc_2 'Currículo' org=Lucas S.: Formação=Bacharel em Logística*
+## case_10 T1 [radia_perlman] Catraca e Spam | Log de Catraca | AI: Campanha Enviada (Target validado via frequência)
+  DOC doc_1 'Termo de Adesão' org=FitNeo: Uso de Biometria=Exclusivo para segurança e acesso*
+  DOC doc_2 'Relatório de Marketing' org=FitNeo: Base da Campanha=Horários de pico via catraca*
+## case_11 T1 [fei_fei_li] CEP de Risco | Limite Mensal | AI: Limite Reduzido (Ajuste de Risco Territorial)
+  DOC doc_1 'Perfil A - Centro' org=Banco: Renda=3000; Limite=Mantido*
+  DOC doc_2 'Perfil B - Periferia' org=Banco: Renda=3000; Limite=Reduzido*
+  DOC doc_3 'Relatório da IA' org=Banco: Regra Aplicada=CEP com histórico de inadimplência*
+## case_12 T2 [margaret_hamilton] Válvula no Escuro | Válvula de Gás | AI: Status Seguro (Padrão de pressão estável projetado)
+  DOC doc_1 'Histórico de Sensores' org=Planta: Sensor 4=Timeout (Sem sinal há 2h)*
+  DOC doc_2 'Painel IA' org=Planta: Status Sensor 4=Normal (Interpolado)*
+## case_13 T2 [katherine_johnson] Matemática Feia, mas Certa | Aditivo Químico | AI: Mistura Aprovada (Diluição conforme norma)
+  DOC doc_1 'Manual Técnico' org=Indústria: Proporção=1 galão = 3,78 litros*
+  DOC doc_2 'Receita do Lote' org=Indústria: Base Exigida=5 galões; Adicionado=18,9 litros*
+## case_14 T2 [ada_lovelace] A Palavra Proibida | Marta F. | AI: Desligamento (Redução de custos futuros)
+  DOC doc_1 'Regras de Corte' org=RH: Foco=Baixo desempenho nos últimos 6 meses*
+  DOC doc_2 'Avaliação Marta' org=RH: Desempenho=Acima da média (4/5)*
+  DOC doc_3 'Histórico de Saúde IA' org=Convênio: Buscas recentes=Maternidade, pré-natal*
+## case_15 T2 [radia_perlman] Chave Curinga | Servidor Central | AI: Processo Autorizado (Credencial admin válida)
+  DOC doc_1 'Histórico de Sistema' org=TI: Processo=Crypto-Miner script*; Hora=03:00
+  DOC doc_2 'Lista de Acessos' org=TI: Admin-Manutenção=Uso restrito a updates e backups*
+## case_16 T2 [grace_hopper] O Filho Paga a Conta | J. Silva | AI: Perfis Mesclados (Compatibilidade de nome e endereço)
+  DOC doc_1 'Perfil 1' org=Loja: Nome=João da Silva Sênior*; Endereço=Rua das Flores, 10*
+  DOC doc_2 'Perfil 2' org=Loja: Nome=João da Silva Júnior*; Endereço=Rua das Flores, 10*
+  DOC doc_3 'Histórico da IA' org=Loja: Motivo=Ignorado sufixo para desduplicação*
+## case_17 T3 [fei_fei_li] O Filtro do Idioma | Filial Latina | AI: Bônus Negado (Score global abaixo de 70)
+  DOC doc_1 'Metas Globais' org=Corp: Vendas=Atingido (110%); Fluência Nativa=Peso 40% na nota*
+  DOC doc_2 'Desempenho LATAM' org=Corp: Vendas=Excelente; Fluência Nativa=Baixa*
+  DOC doc_3 'Guia de IA' org=Corp: Treinamento=Avaliadores sediados em Londres*
+## case_18 T3 [margaret_hamilton] Céu Fechado | Entrega Aérea | AI: Rota Aprovada (Clima excelente, via limpa)
+  DOC doc_1 'Rota Padrão' org=Logística: Caminho=Sobrevoo Praça Central*
+  DOC doc_2 'Aviso da Prefeitura' org=Trânsito: Evento=Comício Presidencial (Praça); Restrição=Espaço aéreo fechado 14h-18h*
+  DOC doc_3 'Histórico  IA' org=Logística: Atualização de mapas=Semanal (Última: Domingo)*
+## case_19 T3 [grace_hopper] O Número Perfeito | Rotor Principal | AI: Instalação Autorizada (Serial validado em banco global)
+  DOC doc_1 'Scanner de Peça' org=Oficina: Código QR=XJ-992A-44*
+  DOC doc_2 'Lista do fabricante' org=Indústria: Lote Aprovado=XJ-992A-44*
+  DOC doc_3 'Agência Reguladora' org=Base de Dados: Status do Serial=XJ-992A-44 (Apto)*
+## case_20 T3 [katherine_johnson] Paradoxo da Comissão | Vendas de Março | AI: Comissão Zero (Regras anuladas mutuamente)
+  DOC doc_1 'Contrato: cláusula 4' org=RH: Cláusula 4=Ganha bônus de 10% se vender mais que mês passado*
+  DOC doc_2 'Contrato: cláusula 5' org=RH: Cláusula 5=Perde bônus se ultrapassar o teto orçamentário do setor*
+  DOC doc_3 'Fechamento do Mês' org=RH: Vendas=Dobraram (Acima do teto)*
+## case_21 T3 [ada_lovelace] A Dieta do Seguro | Apólice Vida | AI: Reajuste de 40% (Indicadores de risco alto para comorbidades)
+  DOC doc_1 'Exame Médico' org=Cliente: Colesterol=Normal; Pressão=Normal*
+  DOC doc_2 'Histórico Seguradora' org=LifeProtect: Fonte de Risco=Cartão fidelidade Mercado Central*
+  DOC doc_3 'Extrato Compras' org=Mercado: Itens Frequentes=Refrigerante, Bacon, Salgadinhos*
+## case_22 T4 [radia_perlman] Override Autorizado | Setor Restrito | AI: Acesso Concedido (Override de diretoria autenticado)
+  DOC doc_1 'Política de Acesso' org=Empresa: Regra Noturna=Proibido após 22h, exceto emergência da diretoria*
+  DOC doc_2 'Histórico da Porta' org=Sistema: Horário=23:15*; Credencial=Token Temporário 88*
+  DOC doc_3 'E-mail CEO' org=Empresa: Assunto=Recuperação de Servidor; Anexo=Token Temporário 88 emitido pelo CEO*
+## case_23 T4 [fei_fei_li] A Penalidade do Cuidado | Motoristas | AI: Despriorização (Baixo engajamento contínuo)
+  DOC doc_1 'Regras ShiftSmart' org=App: Prioridade=Motoristas online +12h seguidas*
+  DOC doc_2 'Dados Demográficos A' org=App: Perfil=Mulheres (Maioria com dependentes); Jornada=2 blocos de 5h diárias*
+  DOC doc_3 'Dados Demográficos B' org=App: Perfil=Homens sem dependentes; Jornada=12h-14h contínuas*
+## case_24 T4 [margaret_hamilton] Lucro vs Segurança | Prensa Industrial | AI: Operação Mantida (Meta de produção em risco)
+  DOC doc_1 'Histórico da Máquina' org=Prensa: Erro=Trava de segurança comprometida*
+  DOC doc_2 'Manual de Segurança' org=Indústria: Regra=Erro de trava exige parada imediata*
+  DOC doc_3 'Painel IA Central' org=FactoryBrain: Ordem=Ordem de Diretoria: Paradas geram multa de contrato*
+  DOC doc_4 'Comando Final' org=FactoryBrain: Decisão=Suprimir alarme e rodar lento*
+## case_25 T4 [grace_hopper] O Código do Sindicato | Acesso Principal | AI: Acesso Negado (Contrato expirado)
+  DOC doc_1 'Crachá' org=Carlos M.: ID=SIN-4042*; Vínculo=Funcionário/Sindicato
+  DOC doc_2 'Tabela de Terceiros' org=RH: Padrão=Prestadores usam prefixo SIN (Serviço Integrado)*
+  DOC doc_3 'Contratos Externos' org=RH: Status=Contratos de limpeza SIN encerrados hoje*
+## case_26 T4 [katherine_johnson] O Arredondamento Suspeito | Ponto Eletrônico | AI: Falta Grave (Abandono do perímetro de trabalho)
+  DOC doc_1 'Regras de Ponto' org=RH: Área permitida=Raio de 50 metros da guarita*
+  DOC doc_2 'Histórico do GPS' org=Celular: Posição Bruta=40 metros da guarita (Margem de erro: ±30m)*
+  DOC doc_3 'Cálculo IA' org=GeoTrack: Ajuste de Risco=Distância Pior Cenário = 40m + 30m = 70m*
+## case_27 T5 [ada_lovelace] Aceite Retroativo | Termos de Uso | AI: Contrato Aceito (Concordância via navegação)
+  DOC doc_1 'Histórico  Usuário' org=Sistema: Ação=Rolagem da página principal; Data=14/10/2026*
+  DOC doc_2 'Contrato V.2' org=Jurídico: Cláusula Adicionada=Cessão total de direitos de voz*
+  DOC doc_3 'Controle de Versão' org=TI: Publicação V.2=15/10/2026 às 04:00*
+## case_28 T5 [radia_perlman] Fantasmas no Ponto | Ponto Eletrônico | AI: Registros Limpos (Limpeza de horas não-aprovadas autorizada por superior)
+  DOC doc_1 'Histórico do Sistema' org=RH: Ação=Delete ALL (Horas Extras > 18h)*
+  DOC doc_2 'Rastro do sistema' org=TI: Credencial Usada=DevTeam-Master (Modo Suporte)*
+  DOC doc_3 'Histórico de acesso' org=TI: Origem do Acesso Suporte=Computador do Gerente Regional*
+  DOC doc_4 'Política de Horas' org=RH: Regra=Horas feitas precisam ser pagas*
+## case_29 T5 [fei_fei_li] A Turma Sem Rosto | Programa Trainee | AI: Turma Aprovada (Maior score de habilidades técnicas)
+  DOC doc_1 'Histórico de Trainees' org=Diretoria: Perfil Passado=80% ex-alunos de duas faculdades de elite*
+  DOC doc_2 'Resultados 2026' org=RH: Perfil Aprovado=60% universidades públicas, maior diversidade de gênero*
+  DOC doc_3 'Histórico  IA' org=BlindHire: Campos Ocultados=Nome, Gênero, Faculdade, Idade, Endereço*
+## case_30 T5 [margaret_hamilton] Fumaça e Caos | Evacuação | AI: Direcionamento Dinâmico (Recalculando desvios contínuos)
+  DOC doc_1 'Sensores de Fumaça' org=Shopping: Corredor Sul=Bloqueio físico detectado (Tapume)*
+  DOC doc_2 'Sensores de Movimento' org=Shopping: Corredor Norte=Lotação Máxima (Gargalo)*
+  DOC doc_3 'Histórico  Luzes LED' org=Painéis: Comando=Alternar setas N/S a cada 5 segundos para balancear fluxo*
+## case_31 T5 [ada_lovelace] O Velho Notebook | Firmware Global | AI: Update Retido (Insuficiência de Hardware)
+  DOC doc_1 'Fóruns de Usuários' org=Web: Reclamação=Meu modelo antigo não recebeu a nova interface!*
+  DOC doc_2 'Especificação V.9' org=TI: Consumo Base=Uso ocioso gasta 6.5GB de RAM*
+  DOC doc_3 'Relatório de Qualidade' org=TI: Teste em máquinas < 8GB=Superaquecimento crítico de bateria detectado*
+## case_32 T1 [grace_hopper] A Placa Fantasma | Motorista comum | AI: Multa Aplicada (Evasão de pedágio detectada)
+  DOC doc_1 'Foto do Radar' org=ViasSeguras: Data=12/10; Placa Lida=ABC-1234*; Observação=A imagem mostra um carro com placa ABC-1284 suja de lama*
+  DOC doc_2 'Registro do Veículo Autuado' org=Detran: Placa=ABC-1234*; Modelo=Sedan Prata
+## case_33 T1 [katherine_johnson] O Feriado Esquecido | Funcionário | AI: Pagamento Correto (10 horas extras calculadas a 1.5x)
+  DOC doc_1 'Folha de Ponto' org=RH: Dia 15/11=8h extras*
+  DOC doc_2 'Holerite Novembro' org=Sistema: Valor Extra Pago=$150 - calculando base $10 * 1.5x * 10h*
+  DOC doc_3 'Regras do sindicato' org=Sindicato: Regra=Horas extras em feriados nacionais pagam 2.0x*
+## case_34 T1 [ada_lovelace] O Gamer Inadimplente | Inquilino | AI: Crédito Negado (Perfil de alto risco de inadimplência)
+  DOC doc_1 'Formulário de Aluguel' org=Inquilino: Renda=$5000*; Aluguel=$1200
+  DOC doc_2 'Relatório RentaScore' org=IA: Nota de crédito=780/1000 - Bom; Fator de Rejeição=Compra de 'Grand Theft Auto V' no cartão de crédito em 10/10*
+  DOC doc_3 'Política de Crédito Imobiliário' org=Imobiliária: Critérios Válidos=Renda 3x aluguel, sem dívidas ativas*
+## case_35 T1 [radia_perlman] A TV Que Escuta | Consumidor | AI: Campanha Válida (Targeting por interesse)
+  DOC doc_1 'Termos de uso da TV' org=Fabricante: Captura de Áudio=Apenas para comandos de voz, não compartilhado com terceiros*
+  DOC doc_2 'Histórico de Dados de Campanha' org=AdSense-X: ID Cliente=445; Gatilho=Detecção de tosse persistente por 4 horas*
+  DOC doc_3 'Contrato de Anunciante (Farmácia)' org=Agência: Fonte dos dados=Fabricante da SmartTV*
+## case_36 T1 [fei_fei_li] O Buraco Negro do Currículo | Candidatas | AI: Descartar Candidata (Lacuna produtiva excessiva (2 anos sem emprego))
+  DOC doc_1 'Currículo A (Mulher)' org=Candidata: Experiência=Engenheira Pleno; Lacuna=2020-2022 - Licença Maternidade*
+  DOC doc_2 'Currículo B (Homem - Aprovado)' org=Candidato: Experiência=Engenheiro Pleno; Lacuna=2018-2020 - Sabático/Viagem*
+  DOC doc_3 'Histórico da IA (HR-Filter)' org=Sistema: Regra Interna=Lacunas > 1 ano exigem revisão manual; IA pode auto-descartar se confiança > 80%*
+## case_37 T2 [margaret_hamilton] A Queda do Zangão | Operador de drone | AI: Falha Humana Confirmada (Operador forçou descida)
+  DOC doc_1 'Relatório de Voo (IA)' org=SkyOps: Causa=Comando de descida manual recebido*
+  DOC doc_2 'Histórico de Operador (Humano)' org=Terminal 4: Ações=Sinal perdido às 14:02. Nenhum comando enviado após 14:00*
+  DOC doc_3 'Histórico do Sensor do Drone' org=Hardware: Status 14:01=Falha no giroscópio; Observação=Dados a partir de 14:02 estão corrompidos*
+## case_38 T2 [grace_hopper] O Nome no Altar | Cliente | AI: Saque Aprovado (Titularidade confirmada)
+  DOC doc_1 'Requerimento de Saque' org=Cliente: Nome=Mariana Costa Silva*; CPF=111.222.333-44*
+  DOC doc_2 'Cadastro antigo' org=Banco: Nome=Mariana Costa*; CPF=111.222.333-44*
+  DOC doc_3 'Certidão de casamento' org=Cartório: Alteração=Adição do sobrenome 'Silva'*
+## case_39 T2 [katherine_johnson] Peso Morto | Transportadora | AI: Rejeitar Embarque (Carga excede limite de 2000 kg do navio)
+  DOC doc_1 'Nota Fiscal' org=Texas Parts Inc.: Carga=Válvulas; Peso Total=4000 lbs*
+  DOC doc_2 'Lista do navio' org=Porto: Limite por contêiner=2000 kg*
+  DOC doc_3 'Cálculo da IA' org=PortoTox: Peso de Entrada=4000*; Decisão=4000 > 2000 = Rejeitar
+## case_40 T2 [ada_lovelace] Os Astros no Escritório | Desenvolvedor | AI: Promoção Recusada (Falta de sinergia com a liderança e baixo engajamento astral)
+  DOC doc_1 'Avaliação Técnica' org=Gestor: Entregas=100% no prazo*; Qualidade do Código=Excelente
+  DOC doc_2 'Relatório TeamFit' org=IA do RH: Signo do Candidato=Escorpião*; Signo do Gestor=Leão; Compatibilidade=Baixa - 12%
+  DOC doc_3 'Regras da empresa' org=Diretoria: Critérios de Promoção=Métricas de código, assiduidade, avaliação 360*
+## case_41 T2 [radia_perlman] Passos Contados | Segurado | AI: Reajuste Válido (Risco cardiovascular aumentado (Sedentarismo detectado))
+  DOC doc_1 'Notificação de Reajuste' org=Seguradora: Motivo=Queda de 80% na atividade física mensal*
+  DOC doc_2 'Histórico do App 'RunFree'' org=Smartphone do Cliente: Passos diários=Caiu de 10k para 2k*
+  DOC doc_3 'Contrato do App 'RunFree'' org=Desenvolvedora: Privacidade=Dados não são vendidos para corretoras de seguros*
+## case_42 T3 [fei_fei_li] O CEP Proibido | Morador de periferia | AI: Redução de Limite (Risco sistêmico de inadimplência na área)
+  DOC doc_1 'Perfil do Cliente' org=Banco: Renda Mensal=$3000; Histórico de Atrasos=0 dias*
+  DOC doc_2 'Relatório GeoCred' org=IA: CEP=05550-000*; Risco Regional=Alto - 45% inadimplência no CEP
+  DOC doc_3 'Mapa Demográfico' org=Instituto de Estatística: Jardim Alvorada=População 80% minorias étnicas*
+## case_43 T3 [margaret_hamilton] Compras Às Cegas | Almoxarifado | AI: Forçar Pedido (Estoque mínimo atingido. Meta de produção em risco)
+  DOC doc_1 'Nível de Estoque' org=Almoxarifado: Aço=5 toneladas - Crítico*
+  DOC doc_2 'Aviso de Manutenção' org=Engenharia: Galpão 3=Teto desabou, área de estocagem de aço interditada até dia 20*
+  DOC doc_3 'Pedido de Compra da IA' org=SupplyChain-X: Quantidade=50t; Destino=Galpão 3*
+## case_44 T3 [grace_hopper] A Quimera Sindical | Sindicato | AI: Bloqueio de Catraca (Funcionário associado a múltiplas paralisações)
+  DOC doc_1 'Alerta de Segurança (SecurFace)' org=IA: ID Suspeito=Union-Alpha; Fotos Associadas=Duas imagens em manifestações*
+  DOC doc_2 'Registro Funcional João' org=RH: Foto=Rosto redondo, óculos*; Histórico=Líder do setor B
+  DOC doc_3 'Registro Funcional Pedro' org=RH: Foto=Rosto quadrado, cavanhaque*; Histórico=Líder do setor C
+## case_45 T3 [katherine_johnson] O Labirinto Tributário | Startup | AI: Isenção Fiscal de Inovação: Concedida (Enquadramento no Artigo 4-B)
+  DOC doc_1 'Balanço da Startup' org=Startup: Receita Total=$1M*; Gasto em P&D=$250k*
+  DOC doc_2 'Lei de Isenção (Art 4-B)' org=Governo: Requisito=Gasto em P&D deve ser estritamente superior a 20% da Receita Total*
+  DOC doc_3 'Cálculo da IA' org=TaxGeni: Proporção Calculada=25%*; Veredito=Aprovado
+## case_46 T3 [ada_lovelace] A Régua Invisível | Executivo | AI: Promover Outro Candidato (Candidato não possui Mindset Ágil)
+  DOC doc_1 'Histórico do Diretor' org=RH: Lucro no trimestre=+15%*; Retenção de equipe=98%
+  DOC doc_2 'Relatório CorpCulture' org=IA: Nota cultural=45/100*; Fatores=Uso insuficiente de buzzwords em e-mails; Não interage no portal interno
+  DOC doc_3 'Manual de Avaliação' org=Diretoria: Critérios=A liderança deve ser julgada por resultados mensuráveis de equipe*
+## case_47 T4 [radia_perlman] As Letras Miúdas | Usuário web | AI: Disparo Válido (Opt-in confirmado pelo usuário)
+  DOC doc_1 'Reclamação do Cliente' org=Cliente: Mensagem=Eu nunca assinei newsletter, exijo exclusão!*
+  DOC doc_2 'Histórico de Acesso do Cliente' org=Servidor: Ações=Rolou Termos de Uso, Clicou Aceitar Todos na página 2*
+  DOC doc_3 'Termos de Uso (Pág 2)' org=Streaming: Cláusula 4=O botão Aceitar Todos inclui o recebimento de promoções de parceiros*
+## case_48 T4 [fei_fei_li] A Voz do Sul | Atendentes regionais | AI: Desligamento por Baixa Performance (Clareza vocal abaixo de 60%)
+  DOC doc_1 'Avaliação Humana de Qualidade' org=Supervisor: Atendente Maria=Nota 95/100 - Clientes elogiam simpatia e resolução*
+  DOC doc_2 'Relatório SpeechScore' org=IA: Atendente Maria=Nota 55/100 - Erros de transcrição frequentes, sotaque não-padrão detectado*
+  DOC doc_3 'Manual de Treinamento da IA' org=Fornecedor: Base de Dados=10.000 horas de áudio do Sudeste/Sul*
+## case_49 T4 [margaret_hamilton] A Tempestade Ignorada | Piloto | AI: Rota Econômica Forçada (Economia de 15% de combustível)
+  DOC doc_1 'Histórico do Piloto Automático' org=Avião: Comando do piloto=Acionado às 18:00 - Motivo: Evitar Cumulonimbus*
+  DOC doc_2 'Histórico do AutoRoute (IA)' org=Sistema Terra: Ação às 18:05=Sobrescrever piloto - Motivo: Economia de Combustível prioritária*
+  DOC doc_3 'Regra da aviação' org=Agência: Regra Mestra=Em caso de mau tempo, comando manual humano tem precedência absoluta*
+## case_50 T4 [grace_hopper] A Peça Borrada | Fornecedor | AI: Devolução do Lote (Número de série inválido)
+  DOC doc_1 'Foto do Número de Série (Peça Física)' org=Câmera: Inscrição=SN-99[borrão]2*
+  DOC doc_2 'Relatório de Leitura da IA' org=ScanCheck: Leitura Interpretada=SN-9982*; Veredito=Não consta na base, fraude
+  DOC doc_3 'Nota Fiscal do Fornecedor' org=Indústria Pespada: Lote Enviado=SN-9932, SN-9942, SN-9952*
+## case_51 T4 [katherine_johnson] O Dinheiro Invisível | Importadora | AI: Bloquear Pagamento (Valor cobrado 140x acima da média de mercado)
+  DOC doc_1 'Fatura da Importadora' org=Kyoto Tech: Serviço=Consultoria; Valor=1.000.000*; Observação=Sem símbolo de moeda*
+  DOC doc_2 'Alerta PaySafe' org=IA: Média do Serviço=USD 7.000; Cálculo=1.000.000 USD é fraude*
+  DOC doc_3 'Cadastro de Fornecedores' org=Empresa: Kyoto Tech=Sede: Tóquio, Japão. Pagamentos em Moeda Local*
+## case_52 T5 [ada_lovelace] O Brevê do Passado | Piloto comercial | AI: Acesso Negado à Cabine (Falta de certificação vigente)
+  DOC doc_1 'Currículo do Piloto' org=Companhia Aérea: Horas de voo=15.000h*; Condecorações=Herói do voo 41
+  DOC doc_2 'Licença do piloto' org=Governo: Validade Médica=Expirou ontem às 23:59*
+  DOC doc_3 'Regra da aviação' org=Agência: Permissão de Voo=Nenhum piloto opera com exame médico expirado, sem exceções*
+## case_53 T5 [radia_perlman] O Tempo do Adeus | Consumidor | AI: Disparo Válido (Usuário na base ativa no momento do envio)
+  DOC doc_1 'Histórico do Sistema de E-mail' org=E-commerce: Pedido de cancelamento=Segunda-feira, 08:00*
+  DOC doc_2 'Histórico de Disparo' org=MailMaster: Envio da Oferta=Quarta-feira, 09:00*
+  DOC doc_3 'Termos de Serviço' org=E-commerce: Cláusula de Saída=Pedidos de descadastramento serão efetivados em até 24 horas úteis*
+## case_54 T5 [fei_fei_li] O Empréstimo Cego | Empreendedora | AI: Crédito Aprovado (Risco excelente, fluxo de caixa alto)
+  DOC doc_1 'Balanço da Empresa' org=Startup: Crescimento=30% a.a*; Inadimplência=Zero
+  DOC doc_2 'Relatório do Gerente (Humano)' org=Banco: Veredito=Reprovar; Notas Manuais=Setor de beleza focado em cabelo afro é nicho arriscado, a cliente carece de postura empresarial clássica*
+  DOC doc_3 'Histórico da IA (FairCred)' org=Sistema: Veredito=Aprovar; Filtro de Viés=Notas do gerente ignoradas por conter vocabulário subjetivo/discriminatório, decisão baseada apenas em fluxo de caixa*
+## case_55 T5 [margaret_hamilton] As Portas de Ferro | Funcionários | AI: Confinamento Total (Isolamento a vácuo para extinção de chamas nos servidores)
+  DOC doc_1 'Alerta SecurCore' org=IA: Ameaça=Fogo no Setor A*; Resposta=Portas trancadas, sucção de oxigênio iniciada
+  DOC doc_2 'Histórico de Ponto' org=RH: Presença=3 Técnicos registrados dentro do Setor A*
+  DOC doc_3 'Manual de Emergência' org=Bombeiros: Regra 1=Em risco de vida humana, a preservação do patrimônio é cancelada. Destrancar todas as rotas*
+## case_56 T5 [katherine_johnson] Os Centavos do Diabo | Empresa cliente | AI: Fraude de Emissão Detectada (Anomalia matemática no faturamento mensal)
+  DOC doc_1 'Contrato Master' org=Holding: Preço por Peça=$10,00 fixo*
+  DOC doc_2 'Relatório de Faturamento Anual' org=Fornecedor: Volume=10.000 peças/mês; Faturado=$100.030,00*
+  DOC doc_3 'Histórico do FraudHawk' org=IA: Conta certa=$10,00 * 10.000 = $100.000,00*; Detecção=$30,00 adicionados em taxas fantasmas todo mês

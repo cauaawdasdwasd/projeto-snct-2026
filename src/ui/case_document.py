@@ -25,12 +25,14 @@ class CaseDocument:
         self.evidence_regions = rendered.evidence_regions
         self.stamp_target = rendered.stamp_target
         self.signature_target = rendered.signature_target
+        self.image_rect = rendered.image_rect
         self.rect = pygame.Rect(position, PREVIEW_SIZE)
         self.position = self.rect.topleft
         self.visible = True
         self.dragging = False
         self.drag_offset = pygame.Vector2(0, 0)
         self.marked_evidence: set[str] = set()
+        self.order_number: int | None = None
         self.applied_stamp_id: str | None = None
         self.applied_stamp_image: pygame.Surface | None = None
         self.stamp_target_active = False
@@ -214,6 +216,18 @@ class CaseDocument:
         preview = pygame.transform.smoothscale(self.composed_surface(), self.rect.size)
         surface.blit(preview, self.rect)
         self._draw_inspect_button(surface)
+        if self.order_number is not None:
+            self._draw_order_badge(surface)
+
+    def _draw_order_badge(self, surface: pygame.Surface) -> None:
+        """Numbered tag that says in which order the papers should be read."""
+        center = (self.rect.x + 16, self.rect.y + 2)
+        pygame.draw.circle(surface, (0, 0, 0), (center[0] + 2, center[1] + 2), 15)
+        pygame.draw.circle(surface, (44, 36, 14), center, 15)
+        pygame.draw.circle(surface, (237, 193, 91), center, 15, 3)
+        font = pygame.font.SysFont(("Consolas", "Courier New", "monospace"), 20, bold=True)
+        text = font.render(str(self.order_number), False, (255, 244, 178))
+        surface.blit(text, text.get_rect(center=center))
 
     def _blit_stamp(self, surface: pygame.Surface) -> None:
         if self.applied_stamp_image is None or self.stamp_target is None:

@@ -24,7 +24,17 @@ ARTICLE_COLUMN_RECT = pygame.Rect(944, 269, 492, 319)
 PREVIOUS_RECT = pygame.Rect(92, 611, 52, 44)
 PAGE_LABEL_RECT = pygame.Rect(152, 611, 172, 44)
 NEXT_RECT = pygame.Rect(332, 611, 52, 44)
-RESTART_RECT = pygame.Rect(1126, 611, 324, 44)
+EXPLAIN_RECT = pygame.Rect(404, 611, 246, 44)
+RESTART_RECT = pygame.Rect(1010, 611, 250, 44)
+MENU_RECT = pygame.Rect(1272, 611, 178, 44)
+
+RANKS = (
+    (1.0, "AUDITOR EXEMPLAR", "Nenhum desastre passou pela sua mesa. A IA ainda precisa de gente como você."),
+    (0.8, "AUDITOR ATENTO", "Quase perfeito. Reveja a matéria do erro e veja o que escapou."),
+    (0.5, "AUDITOR EM FORMAÇÃO", "Você pegou boa parte, mas alguns desastres passaram. Use o botão POR QUÊ? nas matérias."),
+    (0.01, "ESTAGIÁRIO DA IA", "Confiar cegamente na IA custa caro. Reveja as matérias e tente de novo."),
+    (0.0, "O ALGORITMO AGRADECE", "A IA errou e você carimbou junto. Da próxima vez, compare os dados antes de decidir."),
+)
 
 
 class FinalNewspaper:
@@ -36,6 +46,9 @@ class FinalNewspaper:
         self.page_index = 0
         self.is_open = False
         self.hovered_control: str | None = None
+        self.show_explanation = False
+        self.captchas_solved = 0
+        self.captchas_shown = 0
         self.paper_background = self._build_paper_background()
         self.font_tiny = self._font(14)
         self.font_small = self._font(17)
@@ -44,14 +57,27 @@ class FinalNewspaper:
         self.font_article = self._serif_font(25, bold=True)
         self.font_headline = self._serif_font(35, bold=True)
         self.font_masthead = self._serif_font(48, bold=True)
+        self.font_score = self._serif_font(96, bold=True)
 
     @property
     def page_count(self) -> int:
-        return len(self.results)
+        # One page per decision plus the closing balance sheet.
+        return len(self.results) + 1
+
+    @property
+    def is_summary(self) -> bool:
+        return self.is_open and self.page_index >= len(self.results)
+
+    def _go_to_page(self, index: int) -> None:
+        index = max(0, min(self.page_count - 1, index))
+        if index != self.page_index:
+            self.show_explanation = False
+        self.page_index = index
 
     def open(self, results: list[CaseResult]) -> None:
         self.results = tuple(results)
         self.page_index = 0
+        self.show_explanation = False
         self.is_open = True
         self.hovered_control = None
 
@@ -60,34 +86,37 @@ class FinalNewspaper:
         self.hovered_control = None
 
     def handle_escape(self) -> bool:
-        if not self.is_open:
-            return False
-        self.close()
-        return True
+        """Esc is swallowed: the shift only ends through MENU or JOGAR DE NOVO."""
+        return self.is_open
 
     def handle_key_down(self, key: int) -> bool:
         if not self.is_open:
             return False
         if key in (pygame.K_LEFT, pygame.K_a):
-            self.page_index = max(0, self.page_index - 1)
+            self._go_to_page(self.page_index - 1)
             return True
         if key in (pygame.K_RIGHT, pygame.K_d):
-            self.page_index = min(self.page_count - 1, self.page_index + 1)
+            self._go_to_page(self.page_index + 1)
+            return True
+        if key in (pygame.K_e, pygame.K_SPACE) and not self.is_summary:
+            self.show_explanation = not self.show_explanation
             return True
         return False
 
     def handle_mouse_down(self, position: tuple[int, int]) -> str | None:
         if not self.is_open:
             return None
-        if CLOSE_RECT.collidepoint(position):
-            self.close()
-            return "close"
+        if CLOSE_RECT.collidepoint(position) or MENU_RECT.collidepoint(position):
+            return "menu"
         if PREVIOUS_RECT.collidepoint(position):
-            self.page_index = max(0, self.page_index - 1)
+            self._go_to_page(self.page_index - 1)
             return "previous"
         if NEXT_RECT.collidepoint(position):
-            self.page_index = min(self.page_count - 1, self.page_index + 1)
+            self._go_to_page(self.page_index + 1)
             return "next"
+        if EXPLAIN_RECT.collidepoint(position) and not self.is_summary:
+            self.show_explanation = not self.show_explanation
+            return "explain"
         if RESTART_RECT.collidepoint(position):
             return "restart"
         return "consume"
@@ -100,7 +129,9 @@ class FinalNewspaper:
             ("close", CLOSE_RECT),
             ("previous", PREVIOUS_RECT),
             ("next", NEXT_RECT),
+            ("explain", EXPLAIN_RECT),
             ("restart", RESTART_RECT),
+            ("menu", MENU_RECT),
         )
         for control, rect in controls:
             if rect.collidepoint(position):
@@ -111,20 +142,140 @@ class FinalNewspaper:
         if not self.is_open or not self.results:
             return
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 224))
+        dim.fill((0, 0, 0, 255))
         surface.blit(dim, (0, 0))
         surface.blit(self.paper_background, NEWSPAPER_RECT)
 
-        result = self.results[self.page_index]
-        article = result.case.newspaper_correct if result.correct else result.case.newspaper_incorrect
-        self._draw_masthead(surface, result)
-        self._draw_headline(surface, article.headline, result.correct)
-        self._draw_hero_image(surface, article.image_asset)
-        self._draw_article_column(surface, result, article.body)
+        if self.is_summary:
+            self._draw_masthead(surface, "BALANÇO")
+            self._draw_summary(surface)
+        else:
+            result = self.results[self.page_index]
+            article = result.case.newspaper_correct if result.correct else result.case.newspaper_incorrect
+            self._draw_masthead(surface, result.case.newspaper_section)
+            self._draw_headline(surface, article.headline, result.correct)
+            self._draw_hero_image(surface, article.image_asset)
+            if self.show_explanation:
+                self._draw_explanation_column(surface, result)
+            else:
+                self._draw_article_column(surface, result, article.body)
         self._draw_navigation(surface)
         self._draw_close(surface)
 
-    def _draw_masthead(self, surface: pygame.Surface, result: CaseResult) -> None:
+    def _draw_summary(self, surface: pygame.Surface) -> None:
+        total = len(self.results)
+        correct = sum(1 for result in self.results if result.correct)
+        ratio = correct / total if total else 0.0
+        title, message = next((t, m) for threshold, t, m in RANKS if ratio >= threshold)
+        self._draw_wrapped_text(
+            surface,
+            f"BALANÇO DO TURNO: {correct} DE {total} DECISÕES CERTAS",
+            self.font_headline,
+            INK if ratio >= 0.5 else RED,
+            pygame.Rect(92, 160, 1368, 60),
+            line_height=36,
+            max_lines=1,
+            center=True,
+        )
+        pygame.draw.line(surface, INK, (88, 253), (1465, 253), 3)
+
+        table = HERO_IMAGE_RECT
+        row_height = min(62, table.height // max(1, total))
+        for index, result in enumerate(self.results):
+            row = pygame.Rect(table.x, table.y + index * row_height, table.width, row_height - 6)
+            color = GREEN if result.correct else RED
+            pygame.draw.rect(surface, PAPER_LIGHT, row)
+            pygame.draw.rect(surface, color, row, 2)
+            pygame.draw.rect(surface, color, pygame.Rect(row.x, row.y, 10, row.height))
+            self._draw_text(surface, f"CASO {index + 1}", self.font_tiny, INK_MUTED, (row.x + 24, row.y + 8))
+            self._draw_text(surface, result.case.title.upper(), self.font_body_bold, INK, (row.x + 24, row.y + row.height - 27))
+            your_stamp = STAMP_LABELS.get(result.selected_stamp, result.selected_stamp.upper())
+            self._draw_text(surface, f"VOCÊ: {your_stamp}", self.font_small, INK, (row.x + 330, row.y + 10))
+            if not result.correct:
+                right_stamp = STAMP_LABELS.get(result.case.correct_stamp, result.case.correct_stamp.upper())
+                self._draw_text(surface, f"CERTO: {right_stamp}", self.font_small, RED, (row.x + 330, row.y + row.height - 27))
+            self._draw_text(
+                surface,
+                "CERTO" if result.correct else "ERRADO",
+                self.font_body_bold,
+                color,
+                (row.right - 18, row.centery),
+                anchor="midright",
+            )
+
+        column = ARTICLE_COLUMN_RECT
+        pygame.draw.line(surface, PAPER_DARK, (column.x - 17, column.y), (column.x - 17, column.bottom), 2)
+        if self.captchas_shown:
+            self._draw_text(
+                surface,
+                f"Verificações do VERIFY-9: {self.captchas_solved} de {self.captchas_shown}",
+                self.font_small,
+                INK,
+                (column.x, column.bottom - 68),
+            )
+        answered = [r for r in self.results if r.conclusions_total]
+        if answered:
+            right = sum(r.conclusions_correct for r in answered)
+            possible = sum(r.conclusions_total for r in answered)
+            self._draw_text(surface, f"Conclusões certas: {right} de {possible}", self.font_small, INK, (column.x, column.bottom - 44))
+        self._draw_text(surface, f"{correct}/{total}", self.font_score, GREEN if ratio >= 0.5 else RED, (column.centerx, column.y - 6), anchor="midtop")
+        self._draw_text(surface, title, self.font_article, INK, (column.centerx, column.y + 118), anchor="midtop")
+        self._draw_wrapped_text(
+            surface,
+            message,
+            self.font_body,
+            INK,
+            pygame.Rect(column.x, column.y + 160, column.width, 115),
+            line_height=23,
+            max_lines=5,
+        )
+        self._draw_text(
+            surface,
+            "Use as setas para rever as matérias.",
+            self.font_tiny,
+            INK_MUTED,
+            (column.x, column.bottom - 18),
+        )
+
+    def _draw_explanation_column(self, surface: pygame.Surface, result: CaseResult) -> None:
+        column = ARTICLE_COLUMN_RECT
+        color = GREEN if result.correct else RED
+        pygame.draw.line(surface, PAPER_DARK, (column.x - 17, column.y), (column.x - 17, column.bottom), 2)
+        self._draw_text(surface, "POR QUE ISSO ACONTECEU", self.font_article, color, column.topleft)
+        y = column.y + 40
+        your_stamp = STAMP_LABELS.get(result.selected_stamp, result.selected_stamp.upper())
+        verdict = "CERTO" if result.correct else "ERRADO"
+        self._draw_text(surface, f"SEU CARIMBO: {your_stamp} ({verdict})", self.font_body_bold, color, (column.x, y))
+        y += 26
+        if not result.correct:
+            right_stamp = STAMP_LABELS.get(result.case.correct_stamp, result.case.correct_stamp.upper())
+            self._draw_text(surface, f"CARIMBO CERTO: {right_stamp}", self.font_body_bold, GREEN, (column.x, y))
+            y += 26
+        y += 6
+        if result.conclusions_total:
+            marks = f"SUAS CONCLUSÕES: {result.conclusions_correct} DE {result.conclusions_total} CERTAS"
+            good = result.conclusions_correct >= result.conclusions_total - 1
+            self._draw_text(surface, marks, self.font_body_bold, GREEN if good else RED, (column.x, y))
+            y += 30
+        self._draw_text(surface, "O QUE A AUDITORIA MOSTRAVA:", self.font_tiny, INK_MUTED, (column.x, y))
+        y += 22
+        box = pygame.Rect(column.x, y, column.width, column.bottom - y)
+        pygame.draw.rect(surface, PAPER_LIGHT, box)
+        pygame.draw.rect(surface, color, box, 2)
+        note = result.case.explanation or (
+            result.case.correct_feedback if result.correct else result.case.incorrect_feedback
+        )
+        self._draw_wrapped_text(
+            surface,
+            note,
+            self.font_body,
+            INK,
+            pygame.Rect(box.x + 12, box.y + 9, box.width - 24, box.height - 12),
+            line_height=22,
+            max_lines=max(1, (box.height - 12) // 22),
+        )
+
+    def _draw_masthead(self, surface: pygame.Surface, section: str) -> None:
         self._draw_text(surface, "O AUDITOR DIÁRIO", self.font_masthead, INK, (777, 35), anchor="midtop")
         self._draw_text(
             surface,
@@ -136,7 +287,7 @@ class FinalNewspaper:
         )
         pygame.draw.line(surface, INK, (88, 105), (1465, 105), 4)
         pygame.draw.line(surface, INK, (88, 111), (1465, 111), 1)
-        self._draw_text(surface, result.case.newspaper_section, self.font_tiny, RED, (91, 118))
+        self._draw_text(surface, section, self.font_tiny, RED, (91, 118))
         self._draw_text(surface, "25 DE AGOSTO DE 2026", self.font_tiny, INK_MUTED, (777, 118), anchor="midtop")
         self._draw_text(surface, "EDIÇÃO EXTRA", self.font_tiny, INK_MUTED, (1461, 118), anchor="topright")
 
@@ -231,24 +382,41 @@ class FinalNewspaper:
         pygame.draw.rect(surface, INK, PAGE_LABEL_RECT, 2)
         self._draw_text(
             surface,
-            f"PÁGINA {self.page_index + 1}/{self.page_count}",
+            "BALANÇO FINAL" if self.is_summary else f"MATÉRIA {self.page_index + 1}/{self.page_count - 1}",
             self.font_body_bold,
             INK,
             PAGE_LABEL_RECT.center,
             anchor="center",
         )
 
-        hovered = self.hovered_control == "restart"
-        pygame.draw.rect(surface, INK if hovered else PAPER_LIGHT, RESTART_RECT)
-        pygame.draw.rect(surface, INK, RESTART_RECT, 2)
-        self._draw_text(
-            surface,
-            "REINICIAR TURNO",
-            self.font_body_bold,
-            PAPER_LIGHT if hovered else INK,
-            RESTART_RECT.center,
-            anchor="center",
-        )
+        if not self.is_summary:
+            hovered = self.hovered_control == "explain"
+            active = hovered or self.show_explanation
+            pygame.draw.rect(surface, INK if active else PAPER_LIGHT, EXPLAIN_RECT)
+            pygame.draw.rect(surface, INK, EXPLAIN_RECT, 2)
+            self._draw_text(
+                surface,
+                "VER A MATÉRIA" if self.show_explanation else "POR QUÊ? (E)",
+                self.font_body_bold,
+                PAPER_LIGHT if active else INK,
+                EXPLAIN_RECT.center,
+                anchor="center",
+            )
+        for control, rect, label in (
+            ("restart", RESTART_RECT, "JOGAR DE NOVO"),
+            ("menu", MENU_RECT, "MENU"),
+        ):
+            hovered = self.hovered_control == control
+            pygame.draw.rect(surface, INK if hovered else PAPER_LIGHT, rect)
+            pygame.draw.rect(surface, INK, rect, 2)
+            self._draw_text(
+                surface,
+                label,
+                self.font_body_bold,
+                PAPER_LIGHT if hovered else INK,
+                rect.center,
+                anchor="center",
+            )
 
     def _draw_arrow_button(
         self,

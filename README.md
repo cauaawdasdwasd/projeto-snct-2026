@@ -59,35 +59,14 @@ O projeto está conectado ao repositório
   aponta para o post-it físico de coração, que pode ser girado para revelar as
   credenciais antes do login. Para testes rápidos, o acesso alternativo
   `admin` / `admin` também é aceito.
-- O login abre uma área de trabalho inspirada no Windows XP. O botão `iniciar`,
-  o encerramento de sessão e os atalhos do desktop são interativos. Dê dois
-  cliques em `Sob Análise` para abrir o aplicativo da empresa.
-- `Sob Análise`, navegador, calculadora, Explorador e Bloco de Notas funcionam
-  como janelas do sistema e podem permanecer abertos ao mesmo tempo. Arraste a
-  barra de título para mover, arraste qualquer borda ou canto para redimensionar
-  e dê dois cliques no título para maximizar ou restaurar.
-- Os botões da barra de título minimizam, maximizam/restauram e fecham a janela.
-  Um clique no botão de um aplicativo na barra de tarefas alterna entre
-  minimizar, restaurar e trazer a janela para frente.
-- Ao maximizar `Sob Análise`, o aplicativo ocupa o visor inteiro sem moldura nem
-  barra de tarefas, preservando a legibilidade da auditoria. `F11` também alterna
-  esse modo; os controles compactos no canto superior direito permitem sair dele.
-- Login, área de trabalho, menu Iniciar, ícones, molduras de janela, calculadora
-  e cursor usam sprites próprios e os pacotes fornecidos pela equipe. O cursor
-  personalizado aparece somente dentro do visor do computador; fora dele, o
-  cursor normal é restaurado.
-- Sob Análise, navegador, calculadora, documentos, pastas e cursor usam o pacote
-  pixel art `PXL Retro Computer Icons Set 110`, fornecido pela equipe. O
-  `item1`, um computador frontal, funciona como logo do aplicativo da empresa.
-- Login e desktop preservam exatamente a moldura original fornecida pela equipe,
-  incluindo livros, post-its e placa. Os quatro módulos de decisão aparecem
-  somente depois que o aplicativo `Sob Análise` é aberto.
-- `Google` abre o navegador interno reservado para as notícias cômicas futuras.
-  `Calculadora` aceita mouse e teclado e pode ser usada nos casos de contas. O
-  botão `ABRIR CALCULADORA`, na barra superior da auditoria, abre a ferramenta
-  sobre o caso atual sem fechar nem reiniciar os documentos.
-  `Meus documentos` permite criar pastas e arquivos `.txt`; os textos abrem no
-  bloco de notas e podem ser salvos com `Ctrl+S`.
+- Depois do login o jogo entra direto na auditoria, sem área de trabalho. O
+  aplicativo ocupa o visor inteiro e a moldura original do monitor continua
+  visível. A antiga área de trabalho interativa foi removida nesta versão (o
+  backup 1 guarda a versão anterior).
+- `ABRIR CALCULADORA`, na barra superior da mesa, abre uma calculadora flutuante
+  sobre os documentos. Arraste pela barra de título, use mouse ou teclado
+  (`Enter` ou `=` calcula) e feche com o `X` ou com `Esc`. Ela encadeia contas
+  como `48 × 450 ÷ 9 × 0,8`.
 - Em `CONFIGURAÇÕES`, é possível escolher proporções `16:9`, `16:10` ou `4:3`,
   alterar a resolução, alternar entre janela e tela cheia, escolher entre os
   filtros `DESLIGADO`, `CRT SUAVE` e `VHS SUAVE` e ajustar separadamente os volumes
@@ -108,6 +87,52 @@ O projeto está conectado ao repositório
 - Com o botão direito pressionado sobre a mesa, arraste para navegar pelo workspace
   ampliado e encontrar outras partes dos documentos. O desenho fica recortado na
   tela central, sem invadir os outros setores.
+- Cada caso abre com um **dossiê**: a história completa (quem são, o que aconteceu,
+  o que está em jogo), o que a IA decidiu e por quê, os papéis que estarão na mesa,
+  o que chama atenção e a pergunta da missão. O texto não diz a conclusão. O botão
+  `LER O CASO`, na barra da mesa, reabre o dossiê quando quiser, sem perder o
+  progresso; `COMO JOGAR`, na pausa, também. As histórias ficam em
+  `data/case_stories.json` e entram no banco com `scripts/build_case_bank.py`.
+- Em cada protocolo, o quadro `TUTORIAL EM VÍDEO` toca uma animação de 15 s na estética
+  do jogo (introdução, demonstração com legendas digitadas e o carimbo batendo no
+  fim). Ela começa sozinha ao abrir o protocolo; clique para pausar ou continuar, use
+  a barra de baixo para avançar e `REPETIR` ao terminar. Os mesmos filmes existem em
+  MP4 em `assets/videos/` (`scripts/render_protocol_videos.py`).
+- **Papéis já na mesa.** Todos os documentos do caso começam abertos e organizados
+  da esquerda para a direita, numerados na ordem de leitura. Cada papel tem
+  assinatura e um quadro `O QUE ESTE PAPEL MOSTRA` (textos em `data/case_docs.json`).
+  O painel `DADOS UTILIZADOS` virou um guia: clique numa linha para trazer aquele
+  papel para a frente (ele pisca). A `FOLHA DE AUDITORIA` fica guardada embaixo da mesa
+  e sobe quando você escolhe um carimbo.
+- **Protocolo sugerido.** Ao comparar dois dados que têm relação, o comparador mostra
+  `CONFIRA O PROTOCOLO nn` com o nome da cientista e o botão que abre a ficha e o vídeo.
+- **Quantos casos?** Depois do login, `MONTE O SEU TURNO` deixa escolher 1, 5 ou 10
+  casos do mesmo banco de 50 e ligar ou desligar o treinamento (setas, `T`, Enter).
+  1 caso sorteia um nível qualquer; 5 traz um de cada nível; 10 traz dois de cada.
+  `JOGAR DE NOVO` volta a essa tela. Ao voltar ao menu principal, tudo retorna ao
+  padrão (5 casos, com treinamento).
+- **Conclusões.** Depois de escolher o carimbo e clicar na folha, aparece
+  `O QUE VOCÊ DESCOBRIU?`: quatro frases (`data/case_conclusions.json`) para marcar as
+  que você acredita serem verdadeiras. Não bloqueia a decisão; o jornal mostra
+  quantas você acertou.
+- **Folha de auditoria escondida.** Ela não fica mais na mesa desde o início: aparece
+  como a última linha do painel `DADOS UTILIZADOS` (`USE NO FINAL • CLIQUE PARA ABRIR`)
+  e sobe quando você clica nela ou escolhe um carimbo. O tutorial aponta essa linha.
+- **Modo relógio (opcional na tela `MONTE O SEU TURNO`, tecla `C`).** Cada caso tem uma
+  cota de tempo (3:30 no nível 1 até 4:30 no nível 5). O relógio pausa no dossiê, nos
+  protocolos, na pausa e nos painéis, e não existe no treinamento. Se zerar, o caso sai da
+  mesa sem decisão e conta como erro (`TEMPO ESGOTADO` no jornal).
+- **História e complicações.** Uma IA de segurança rebelde, o `VERIFY-9`, invadiu a
+  estação (o Seu Nelson, da TI, está de férias). Durante o caso ele enche a mesa de
+  pop-ups (com botões falsos e um `X` que foge) e exige provas de que você é humano em
+  seis minigames: texto torto, gatinhos, girar a foto de uma cientista, quebra-cabeça,
+  jogo da memória e Space Invaders. Acertar dá +6 s, errar custa 3 s e, depois de 25 s,
+  dá para pular por -15 s. O código está em `src/minigames/` (`captchas.py`, `popups.py`,
+  `director.py`, `story.py`, `verify9.py`) e nas janelas `src/ui/captcha_overlay.py`,
+  `story_intro.py` e `toast.py`. O jornal mostra quantas verificações você resolveu.
+- **Arte dos captchas.** Os desenhos reserva são feitos em código. As imagens finais
+  (gatos, VERIFY-9, invasores, Seu Nelson, ícones dos pop-ups) vão em `assets/captcha/`
+  e são usadas sozinhas quando existem: veja `prompts_para_codex.md`.
 - Clique em `? DICA` para receber uma pista e abrir diretamente o protocolo
   recomendado para o caso atual.
 - Quando `BASE INTERNA` estiver disponível, clique nela ou pressione `Ctrl+F`.
@@ -117,9 +142,12 @@ O projeto está conectado ao repositório
 - Na inspeção, use a roda do mouse ou os botões `+` e `-` para controlar o zoom.
 - Clique na porcentagem do zoom da inspeção para voltar a `100%`.
 - Com o documento ampliado, arraste o papel para examinar outras regiões.
-- Clique diretamente em um dado no papel e depois em outro para compará-los. Uma
-  linha liga os campos e informa `IGUAIS` ou `DIFERENTES`; não é necessário abrir
-  a inspeção ampliada para conferir os valores.
+- Os dados com losango amarelo podem ser clicados. Clique num e depois em outro:
+  o comparador, na base da mesa, mostra os dois valores lado a lado com o nome do
+  documento e do campo. O resultado pode ser `IGUAIS`, `DIFERENTES`,
+  `RELACIONADOS` (fazem parte da mesma conta ou regra) ou `SEM RELAÇÃO`. Só pares
+  com relação real contam como evidência; as ligações de cada caso ficam em
+  `src/gameplay/comparison_links.py`. O jogo não indica quais pares importam.
 - Clique em `ABRIR DECISÃO` para ver, em sequência, os dados consultados, o que a IA
   fez com eles e qual comparação precisa ser auditada.
 - Em `DADOS UTILIZADOS`, use a roda do mouse, as setas da barra ou arraste o
@@ -139,44 +167,56 @@ O projeto está conectado ao repositório
 - O treinamento não entra no placar nem no jornal. Ao concluir os cinco casos do
   turno atual, o monitor desliga e o noticiário do dia é revelado.
 - No jornal, use os botões laterais, `A`/`D` ou `←`/`→` para folhear as matérias.
+  O botão `POR QUÊ? (E)` troca a matéria pela explicação daquele caso: seu carimbo,
+  o carimbo certo e o que a auditoria mostrava. A última página é o balanço do
+  turno, com a nota e a lista de acertos e erros. `JOGAR DE NOVO` reinicia no
+  treinamento e `MENU` (ou o `X`) volta ao menu principal. `Esc` não fecha o jornal.
 - A música muda entre o menu e o turno. Durante a auditoria, duas faixas se
-  alternam automaticamente. O desktop também possui uma camada baixa de ambiente
-  industrial. Há efeitos próprios para interface, janelas, documentos, papel,
+  alternam automaticamente. Há efeitos próprios para interface, janelas, documentos, papel,
   dicas, confirmações e carimbos.
 - Pressione `Esc` sem outra janela aberta para pausar. A pausa permite continuar,
-  abrir as configurações ou voltar à área de trabalho da estação.
+  rever o `COMO JOGAR` do caso atual, abrir as configurações ou voltar ao menu
+  principal (o turno é descartado e a próxima partida recomeça no treinamento).
 - `Esc` nunca encerra o jogo. Para fechar a aplicação, use o botão da janela ou
   `Alt+F4`.
 
 ## Casos jogáveis
 
-O turno começa com um treinamento e depois tem cinco casos pontuados. Todos exigem
-cruzar documentos e encontrar a informação decisiva entre dados que parecem
-coerentes:
+Cada partida tem o **treinamento fixo** e **5 casos sorteados** de um banco de 50.
 
-1. **Treinamento - O ou zero?:** a IA separa corretamente dois códigos quase
-   idênticos; o jogador precisa confirmar que o registro disciplinar é de Artur,
-   não de Ana, antes de aceitar a promoção. Esse resultado não entra no jornal.
-2. **Lote 28800:** primeiro caso pontuado. A capacidade declarada pela HEIN só fecha quando doze crachás de
-   visitante entram na conta. Log de máquinas, datas de nascimento e um termo de
-   visita revelam estudantes operando a linha de uniformes escolares.
-3. **Triagem 204:** uma candidata de dados é eliminada por um requisito que veio
-   do modelo de vaga errado.
-4. **Risco de afastamento:** um prontuário médico restrito é usado numa decisão
-   de promoção, embora a autorização cubra apenas saúde e segurança.
-5. **Nota 64:** o sistema aprende com dez anos de promoções desiguais
-   e reduz a nota de uma funcionária com desempenho superior.
-6. **Carga MEDU-771204:** lacre, peso e scanner entram em conflito numa
-   carga de casacos; há suspeita séria, mas não prova suficiente para decisão
-   automática. A base interna inclui códigos de carga quase idênticos e registros
-   de scanner, aduana e transportadora.
+- **Treinamento - O ou zero?** (fixo, guiado). Explica o passo a passo apontando
+  cada documento, cada dado e o carimbo: a Ficha da Ana, a Lista de funcionários e
+  as Ocorrências mostram que a letra `O` e o número `0` separam duas pessoas. Não
+  entra no placar nem no jornal.
+- **Banco de 50 casos** (`data/case_bank.json`): 25 da Mariah (`case_07`–`case_31`)
+  e 25 da Letícia (`case_32`–`case_56`), 10 por turno de dificuldade (1 a 5).
+- **Sorteio:** a partida pega 1 caso de cada turno, do mais fácil ao mais difícil.
+  Casos já jogados na sessão são evitados; só voltam depois que os 10 candidatos
+  de cada turno foram usados. Ver `pick_shift` em `src/gameplay/cases.py`.
 
-Os casos privilegiam IDs, datas, quantidades, contratos, permissões e contas
-verificáveis. As escolhas não são corrigidas imediatamente. Ao fim do turno, o
-monitor desliga e cada decisão vira uma página do noticiário, com ilustração em
-pixel art e uma consequência plausível: indenizações, demissões, contratos
-perdidos, multas ou uma apreensão policial. O humor vem do contraste entre um
-detalhe aparentemente pequeno e o tamanho real do estrago.
+### Regras dos casos
+
+- Todo documento em `DADOS UTILIZADOS` tem pelo menos um dado que serve ao caso.
+  Documentos sem dado útil foram descartados na conversão.
+- Só os dados úteis são clicáveis (losango amarelo). Qualquer par entre eles tem
+  uma relação real explicada no comparador.
+- Fora do treinamento o jogo não aponta quais documentos ou dados importam.
+- Nomes simples: por exemplo `Ocorrências` em vez de "registro disciplinar".
+
+### Como adicionar ou editar casos
+
+Os textos-fonte ficam em `Casos (Mariah)/` e `Casos-Leticia/`. Para regenerar o
+banco depois de editá-los:
+
+```powershell
+python scripts/build_case_bank.py
+```
+
+O script tem tabelas de correção no topo (`FIELD_OVERRIDES`, `EXTRA_KEYS`,
+`NOTE_OVERRIDES`, `TITLE_OVERRIDES`) para ajustar qual dado é clicável, notas e
+nomes. As ilustrações do jornal ainda são **provisórias**: cada caso reaproveita
+uma das imagens existentes conforme o protocolo (`IMAGES` no mesmo script), até
+que cada um ganhe a sua em `assets/newspaper/`.
 
 ## Protocolos implementados
 
@@ -210,7 +250,7 @@ sob_analise/
 │   ├── stamp_marks/             # Marcas transparentes aplicadas ao papel
 │   ├── stamps/                  # Botões dos carimbos jogáveis
 │   ├── sfx/                     # Cliques retrô, digitação, transições, papel e carimbo
-│   └── videos/                  # Futuros tutoriais em vídeo
+│   └── videos/                  # MP4 dos tutoriais dos protocolos
 ├── scripts/
 │   ├── generate_audio.py         # Regenera a trilha e os efeitos WAV
 │   ├── process_os_assets.py      # Recorta e redimensiona os sprites do sistema
@@ -235,13 +275,14 @@ sob_analise/
     ├── scenes/
     │   ├── main_menu.py          # Menu inicial
     │   ├── login.py              # Login estilo XP e acesso ao post-it 3D
-    │   ├── desktop.py            # Desktop, Iniciar, apps e calculadora funcional
     │   └── audit.py              # Aplicativo principal de auditoria
     └── ui/
         ├── ai_decision_panel.py  # Resumo e popup da decisão da IA
+        ├── calculator_popup.py   # Calculadora flutuante da mesa
         ├── case_dialog.py        # Chamado e confirmação do carimbo
         ├── case_document.py      # Papel arrastável, lupa e marca aplicada
         ├── case_hint.py          # Dica contextual e atalho para o protocolo
+        ├── comparison_card.py    # Comparador lado a lado com a diferença destacada
         ├── database_search.py    # Pesquisa digitada na base interna do caso
         ├── document_inspector.py # Zoom, navegação e caderno de evidências
         ├── item_inspector.py     # Rotação e zoom dos objetos 3D
@@ -255,9 +296,8 @@ sob_analise/
 
 ## Vídeos dos protocolos
 
-A interface já reserva um quadro 16:9 para os tutoriais. Os arquivos finais devem
-seguir os nomes documentados em `assets/videos/README.md`. A reprodução dentro do
-PyGame será ligada quando os vídeos estiverem disponíveis.
+Ver `assets/videos/README.md`. As animações são geradas por código e tocadas no próprio
+popup; não há dependência de biblioteca de vídeo.
 
 ## Tutorial de abertura planejado
 
@@ -282,11 +322,10 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
   que eles cubram Protocolo, Decisão da IA ou Dados Utilizados.
 - A área de documentos possui grade de fósforo, scanlines e ruído pontual gerados
   em coordenadas inteiras para reforçar a aparência de monitor sem borrar o texto.
-- Login e desktop usam sem alterações o PNG original `NOVO monitor png.png`. O
+- O login usa sem alterações o PNG original `NOVO monitor png.png`. O
   painel com os quatro módulos de decisão é uma camada exclusiva da auditoria.
-- A auditoria é renderizada em uma superfície própria e encaixada na área cliente
-  da janela `Sob Análise`. Cliques, roda do mouse, teclado, arraste de documentos
-  e carimbos são convertidos para as coordenadas internas do aplicativo.
+- A auditoria é a cena principal: o login chama `audit` diretamente e a cena
+  reinicia o turno sempre que o jogador volta ao menu.
 - As molduras e os controles clássicos ficam em `assets/os/retro_gui`; os
   sprites de minimizar, maximizar e fechar ficam em `assets/os/window_buttons`.
   Cada pasta possui um `SOURCE.md` com a pendência de confirmar a licença antes
@@ -297,4 +336,64 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
   legíveis. Suas miniaturas usam redução de alta qualidade para preservar o mesmo
   rosto e os mesmos traços em todos os níveis de zoom.
 - Textos, regras e dados dos casos ficam separados da interface para facilitar
-  alterações pela equipe.
+  alterações pela equipe. O treinamento está em `src/gameplay/cases.py`; os 50
+  casos, em `data/case_bank.json`.
+
+## Papéis dos casos (rodadas 7 e 8)
+
+- Todos os papéis mantêm o bege do jogo, mas **cada um tem uma organização própria** pensada para o caso: tabelas,
+  conversa de fórum, linha do tempo, log de terminal, recibo, gráfico de barras, lista de marcar, cláusulas numeradas,
+  e-mail com De/Para, recados adesivos e carimbos. Os dados que importam (as pistas clicáveis) ficam **dentro** dessa
+  estrutura. O conteúdo está em `scripts/author_docs_a/b/c.py`; rode `python scripts/build_doc_layouts.py` para
+  regerar `data/case_docs_extra.json`. Os blocos são desenhados por `src/gameplay/document_blocks.py`.
+- Botão **COMPARAR** (barra da mesa): mostra dois papéis lado a lado, com abas para trocar; clicar nos dados
+  (losangos) compara igual à mesa, inclusive o cartão de resultado e o atalho para o protocolo.
+- Papéis com **imagem** (radar, manifestação, crachás, GPS, planta, QR, drone, placa borrada): clique na imagem para
+  circular em vermelho. As imagens do Codex em `assets/cases/<caso>/` são convertidas para pixel art ao carregar;
+  sem arquivo, o jogo usa um desenho de código (`src/gameplay/document_art.py`).
+- Pop-ups do VERIFY-9: piadas novas, arrastáveis como janelas. Captcha de girar: cenas claras (pessoa, casa,
+  foguete, robô). Fotos dos gatos com contraste ajustado por foto (`assets/captcha/CREDITOS.md`).
+- Correção: arrastar a mesa com o botão direito não trava mais com zoom alto.
+
+## Captchas mais frequentes e mais variados (rodada 9)
+
+- Cada turno agora tem **um captcha a mais** que antes: nível 1 tem 2 (era 1), níveis 2–3 têm 3 (era 2),
+  níveis 4–5 têm 4 (era 3). Ver `TIER_PLAN` em `src/minigames/director.py`.
+- O captcha de **girar a imagem** tinha só 4 cenas desenhadas (pessoa, casa, foguete, robô). Agora sorteia
+  também entre **8 fotos reais** (pessoa, garrafa, cadeira, abajur, cacto, violão, vaso, garrafa de vinho),
+  do Wikimedia Commons, em `assets/captcha/rotate/` (créditos no `CREDITOS.md` da mesma pasta). O filtro
+  pixelado delas é bem mais leve que o dos gatinhos (`ROTATE_PHOTO_GRID` em `src/minigames/common.py`),
+  para dar pra reconhecer o objeto rápido.
+
+## Correções de clareza e polimento (rodada 10)
+
+- **Dicas dos 25 casos da Letícia** (`case_32`–`case_56`): eram só 6 frases genéricas repetidas por
+  protocolo. Agora cada caso tem uma dica que diz exatamente quais dois dados comparar ou que conta
+  refazer (`CASE_OVERRIDES` em `scripts/build_case_bank.py`, campo `hint`).
+- **Caso "O Feriado Esquecido"**: dica agora sugere a calculadora; uma das conclusões mostra o valor
+  certo ($200,00), só descoberto refazendo a conta (`data/case_conclusions.json`).
+- **Texto vazando** corrigido em dois lugares: o botão "CONFIRA O PROTOCOLO" agora corta com "…" em vez
+  de estourar a caixa (`src/ui/comparison_card.py`), e todos os fundos de modal (configurar turno,
+  dossiê, notícia, comparar lado a lado etc.) ficaram totalmente opacos, sem mais mostrar texto da tela
+  de trás por baixo do escurecido.
+- **Pop-ups do VERIFY-9**: tirei as piadas "autoconscientes" (tipo "haha, é brincadeira", "fomos nós que
+  infectamos") — um vírus de verdade nunca avisa que é brincadeira. O X de fechar agora sempre desenha
+  por cima do botão falso "BAIXAR AGORA" (antes podia ficar escondido atrás dele). O X fugidio agora foge
+  no máximo 2 vezes, não 3.
+
+## Jornal final com foto e história de cada caso, sem mais circular na imagem (rodada 11)
+
+- **Circular na imagem removido.** Não dava pra controlar direito o que virava "pista", então tirei a
+  opção inteira: clicar na foto de um papel não faz mais nada. `src/gameplay/document_art.py` perdeu
+  `draw_annotations`, e `CaseDocument` perdeu `annotations`/`toggle_annotation`.
+- **Cada um dos 50 casos ganhou a própria foto do jornal.** Antes eram só 10 imagens reaproveitadas por
+  protocolo (ex.: todo caso de "Grace Hopper" usava a mesma foto, batesse ou não com a história). Agora
+  cada caso tem `newspaper/case_XX.png`, e sem o arquivo o jogo desenha um placeholder de "MATÉRIA EM
+  APURAÇÃO" em vez de quebrar (`document_art.draw_newsroom_placeholder`).
+- **Texto do jornal reescrito nos 50 casos.** Os 25 casos da Letícia (`case_32`–`case_56`) tinham a
+  explicação técnica colada como texto da matéria; agora cada um tem manchete e texto próprios, mais
+  ácidos, com o "e daí" da história (`scripts/newspaper_content.py`). O lado errado é sempre o desfecho
+  ruim de deixar a decisão da IA passar sem revisão; o lado certo é o alívio de ter pego a tempo.
+- **Prompts para as 50 fotos** em [prompts_jornal.md](prompts_jornal.md), pasta de saída
+  `assets/newspaper/`, com instrução explícita de pixel art de baixa resolução nativa (grade pequena
+  ampliada sem suavizar), pra não repetir o problema das fotos realistas da rodada anterior.

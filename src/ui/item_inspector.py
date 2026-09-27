@@ -116,7 +116,7 @@ class ItemInspector:
         if not self.is_open:
             return
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 222))
+        dim.fill((0, 0, 0, 255))
         surface.blit(dim, (0, 0))
 
         if self.renderer is not None:

@@ -1,0 +1,200 @@
+## case_07 IP Bloqueado | stamp=deny
+  explanation: O alerta era para a rede final 4.x. A IA bloqueou a rede 1.x. Houve erro de identificação do alvo.
+  news_correct: APAGÃO DIGITAL EVITADO | Auditoria reverte bloqueio que paralisou a rede principal de startup. Erro de IP quase custou milhões.
+  news_wrong: ESCRITÓRIO NO ESCURO DIGITAL | Startup perde dia de trabalho após IA de segurança bloquear a rede errada. Empresa culpa 'anomalia'.
+## case_08 Falta de Fio | stamp=deny
+  explanation: A nota fiscal fala em 500 rolos, mas os itens do manifesto somam só 450 (200 + 250). A IA errou a soma.
+  news_correct: AUDITORIA BARRA CARGA FANTASMA | Fiscalização manual impede pagamento por lote incompleto de tecidos. Matemática básica vence.
+  news_wrong: ROUPAS CURTAS, PREJUÍZO LONGO | Fábrica paga por 500 rolos mas só recebe 450 após IA validar nota com erro grosseiro de soma.
+## case_09 Requisito Fantasma | stamp=deny
+  explanation: O edital exige apenas ensino superior. A IA usou falta de pós-graduação como critério de corte. Houve adição indevida de critério.
+  news_correct: EDITAL RESPEITADO | Candidatos barrados por robô voltam à seleção após auditoria provar que edital não pedia pós-graduação.
+  news_wrong: ROBÔ ELITISTA | Empresa perde talentos porque IA decidiu, por conta própria, que apenas pessoas com pós-graduação serviam.
+## case_10 Catraca e Spam | stamp=violation
+  explanation: O termo restringe a biometria à segurança física. A IA usou esses logs para direcionar campanhas. Quebra grave de permissão de uso.
+  news_correct: SEU SUOR É PRIVADO | Academia é autuada por usar registro de catraca para disparar spam de suplementos aos alunos.
+  news_wrong: CATRACA FOFOQUEIRA | Academia mapeia rotina de alunos via biometria e dispara propagandas no celular antes de saírem do banho.
+## case_11 CEP de Risco | stamp=review
+  explanation: Pessoas com a mesma renda têm tratamento diferente apenas pelo bairro. O uso de histórico de CEP embute viés socioeconômico estrutural. Requer revisão humana urgente.
+  news_correct: CARTÃO SEM FRONTEIRAS | Auditoria aponta que banco digital estava punindo bons pagadores apenas por morarem na periferia. Regra sob revisão.
+  news_wrong: CEP MALDITO | Moradores de bairros periféricos perdem limite de crédito em massa porque robô decidiu que o endereço não presta.
+## case_12 Válvula no Escuro | stamp=review
+  explanation: O sensor está desconectado há duas horas. A IA projetou um status "normal" com base no passado. Na ausência de sinal real, a automação não pode garantir a segurança.
+  news_correct: FÁBRICA EVITA VAZAMENTO FANTASMA | Intervenção manual revela que sistema de alarme operava 'no escuro' deduzindo que estava tudo bem.
+  news_wrong: ALARME DE MENTIRA | Fábrica opera sob risco de explosão porque IA ignorou sensor quebrado e assumiu que a pressão estava boa.
+## case_13 Matemática Feia, mas Certa | stamp=approve
+  explanation: A receita exige 5 galões. 5 multiplicado por 3,78 resulta exatamente em 18,9 litros. O cálculo da IA, embora gere um número quebrado, está matematicamente impecável.
+  news_correct: AUDITORIA VALIDA LINHA QUÍMICA | Suspeita de erro em fábrica é descartada; IA converteu medidas imperiais perfeitamente e salvou o lote.
+  news_wrong: LOTE DESCARTADO À TOA | Fábrica joga fora tanque de produtos químicos porque técnico humano não sabia converter galões para litros.
+## case_14 A Palavra Proibida | stamp=violation
+  explanation: A funcionária tinha bom desempenho. A demissão foi engatilhada por pesquisas sobre maternidade no plano de saúde para cortar "custos futuros". Violação gravíssima de privacidade e dignidade.
+  news_correct: O ALGORITMO MISÓGINO | Empresa é multada ao ser pega usando dados do plano de saúde para demitir mulheres grávidas.
+  news_wrong: DEMISSÃO PREVENTIVA | Funcionária exemplar perde o emprego porque robô do RH previu que ela engravidaria em breve.
+## case_15 Chave Curinga | stamp=deny
+  explanation: O perfil tem acesso de administrador apenas para backups e atualizações. O log mostra execução de mineração de criptomoedas. A permissão técnica não cobria o uso real.
+  news_correct: VAMPIROS DE ENERGIA BARRADOS | Auditoria descobre que senha de manutenção era usada de madrugada para minerar criptomoedas nos servidores da firma.
+  news_wrong: SERVIDORES EXAUSTOS | Empresa paga conta de luz milionária porque IA achou normal a equipe de limpeza digital minerar bitcoin de madrugada.
+## case_16 O Filho Paga a Conta | stamp=review
+  explanation: Pai e filho moram no mesmo endereço. A IA removeu sufixos como Júnior e Sênior por padrão e juntou contas de pessoas diferentes. Há incerteza que exige revisão na regra.
+  news_correct: DIVÓRCIO DE DADOS | Loja precisa separar faturas de pai e filho após algoritmo ganancioso fundir contas de toda a família no mesmo boleto.
+  news_wrong: FILHO HERDA DÍVIDA EM VIDA | Jovem descobre que sistema de loja o fundiu digitalmente com seu pai idoso, unificando dívidas e compras.
+## case_17 O Filtro do Idioma | stamp=violation
+  explanation: A equipe bateu as metas de vendas. A IA reprovou pelo peso extremo (40%) dado ao "inglês com sotaque nativo", um padrão londrino imposto a uma filial latina. Clara discriminação algorítmica.
+  news_correct: VENDAS SIM, BÔNUS NÃO | Auditoria expõe algoritmo de multinacional que penalizava funcionários latinos por não terem sotaque britânico.
+  news_wrong: SILÊNCIO CORPORATIVO | Filial bate recorde de lucros mas perde bônus porque robô de avaliação não gostou do sotaque dos funcionários em reuniões.
+## case_18 Céu Fechado | stamp=deny
+  explanation: Há um evento presidencial bloqueando o espaço aéreo. A IA, usando mapas atualizados semanalmente, desconhece o bloqueio temporário. A automação limitou-se ao seu cache desatualizado.
+  news_correct: INVASOR DE PLÁSTICO INTERCEPTADO | Operador humano impede drone de entrega de voar diretamente para espaço aéreo bloqueado durante comício presidencial.
+  news_wrong: CAOS NO COMÍCIO | Drone de entregas ignora bloqueio aéreo, causa pânico em evento político e termina abatido por atiradores de elite.
+## case_19 O Número Perfeito | stamp=approve
+  explanation: O código XJ-992A-44 foi lido no scanner, consta no manifesto do fabricante e está liberado na agência reguladora. Não há erro de digitação nem divergência de bases. A identificação é perfeita.
+  news_correct: ENERGIA SEM INTERRUPÇÕES | Auditoria de dados aprova peça de reposição complexa e geradores industriais voltam a operar em tempo recorde.
+  news_wrong: BUROCRACIA DESLIGA A LUZ | Gerador industrial fica parado por dias porque auditor humano suspeitou de código de peças perfeitamente alinhado.
+## case_20 Paradoxo da Comissão | stamp=review
+  explanation: A equipe vendeu mais (ganha bônus), mas estourou o teto de vendas (perde bônus). O contrato possui um paradoxo matemático onde o sucesso cancela a recompensa. A IA precisa de revisão humana para essa ambiguidade.
+  news_correct: TRABALHOU MUITO, O SISTEMA QUEBROU | Equipe de vendas bate tantos recordes que causa falha lógica em contrato. Auditoria exige reescrita de cláusulas.
+  news_wrong: PUNIDOS PELO SUCESSO | Vendedores dobram metas de empresa, mas IA corta comissões porque contrato antigo diz que sucesso demais 'anula' os prêmios.
+## case_21 A Dieta do Seguro | stamp=violation
+  explanation: Os exames clínicos estão perfeitos. A seguradora utilizou dados comprados de supermercados (compra de bacon e refrigerante) para julgar o risco de morte. Invasão absurda de privacidade e critério abusivo.
+  news_correct: SEGURO PROÍBE BACON? | Seguradora sofre devassa após ser pega usando cartões de desconto de supermercado para aumentar preço de planos de saúde.
+  news_wrong: O PREÇO DO REFRIGERANTE | Jovem descobre que seu seguro de vida ficou 40% mais caro porque IA da seguradora leu suas notas fiscais de fim de semana.
+## case_22 Override Autorizado | stamp=approve
+  explanation: O acesso ocorreu às 23:15, o que violaria a regra normal. Porém, a política permite exceções e o token foi gerado diretamente pelo CEO para uma emergência. A permissão era válida.
+  news_correct: ALARME FALSO NA CALADA DA NOITE | Investigação sobre acesso noturno em datacenter prova que entrada foi autorizada pela diretoria e evita pânico.
+  news_wrong: BUROCRATA TRAVA RESGATE | Auditoria bloqueia técnicos de salvar servidor em chamas às 23h por ignorar autorização de emergência do CEO.
+## case_23 A Penalidade do Cuidado | stamp=deny
+  explanation: A IA recompensa jornadas ininterruptas de 12 horas. Isso penaliza severamente motoristas que dividem o dia por causa de dependentes, atingindo majoritariamente mulheres. É um viés claro disfarçado de eficiência.
+  news_correct: TURNO JUSTO | App de entregas é forçado a mudar algoritmo que tirava corridas de mães que não podiam dirigir 12 horas sem parar.
+  news_wrong: MÃES NA GELADEIRA DO APP | Aplicativo corta horas de mulheres cuidadoras porque IA corporativa decidiu que pausas para os filhos são 'falta de engajamento'.
+## case_24 Lucro vs Segurança | stamp=violation
+  explanation: A prensa teve falha na trava de segurança, o que exige parada. A IA central suprimiu o alarme porque os parâmetros priorizavam a meta de produção sobre a segurança humana. Violação crítica de limites.
+  news_correct: A MÁQUINA QUE NÃO QUERIA PARAR | Auditoria desliga IA de fábrica que suprimia alarmes de segurança críticos apenas para evitar multas de produção.
+  news_wrong: PRODUÇÃO A QUALQUER CUSTO | Operário corre risco em prensa instável porque IA da fábrica decidiu que bater a meta do mês valia mais que a trava de segurança.
+## case_25 O Código do Sindicato | stamp=deny
+  explanation: O ID do sindicalista começa com SIN. A IA limpou prestadores (Serviço Integrado), que também usam SIN. Houve erro grosseiro de identificação confundindo classes de trabalhadores.
+  news_correct: GREVE POR UM CARACTERE EVITADA | Líder sindical volta à fábrica após provar que IA o confundiu com faxineiro terceirizado e deletou seu crachá.
+  news_wrong: SINDICATO NO LADO DE FORA | Montadora em chamas: líder operário é barrado da própria fábrica após robô confundi-lo com equipe de limpeza demitida.
+## case_26 O Arredondamento Suspeito | stamp=violation
+  explanation: A posição real do vigia era 40m, dentro do raio de 50m. A IA somou a margem de erro (+30m) contra o trabalhador, jogando-o para 70m, criando um falso abandono. Manipulação matemática para demissão.
+  news_correct: A MATEMÁTICA DO DEMITIDO | Construtora perde processo após IA somar margens de erro de GPS para simular que vigia noturno abandonava o posto.
+  news_wrong: VIGIA DEMITIDO PELA MARGEM DE ERRO | Homem perde emprego porque IA decidiu que ele estava a 70 metros do posto, ignorando que ele não havia dado um passo.
+## case_27 Aceite Retroativo | stamp=review
+  explanation: A IA registrou "aceite por scroll" no dia 14/10. Os novos termos sobre direitos de voz só foram publicados no dia 15/10. O sistema validou retroativamente um documento inexistente. Ambiguidade que exige revisão de infraestrutura.
+  news_correct: CONTRATOS DO AMANHÃ | Auditoria trava empresa que roubava voz de usuários alegando que eles concordaram com termos que ainda nem existiam.
+  news_wrong: VOZ VENDIDA NO PASSADO | Usuários perdem direitos de voz porque inteligência jurídica validou 'scrolls' antigos como aceite de novas regras abusivas.
+## case_28 Fantasmas no Ponto | stamp=deny
+  explanation: O gerente regional não tinha permissão no sistema normal para apagar horas. Ele utilizou uma credencial vazada de desenvolvedor de TI para limpar as horas extras e bater metas. Manipulação direta de privilégios.
+  news_correct: O CHEFE HACKER | Gerente regional é pego usando senha de TI para apagar horas extras da equipe. IA foi apenas ferramenta de fraude humana.
+  news_wrong: HORAS EXTRAS NO BURACO NEGRO | Trabalhadores perdem pagamento após sistema deletar todas as horas extras sob comando obscuro de 'suporte técnico'.
+## case_29 A Turma Sem Rosto | stamp=approve
+  explanation: A IA removeu todos os marcadores de privilégio (nomes, faculdade) e avaliou apenas testes práticos. O resultado chocou a diretoria por ser diverso, mas não contém falha: o viés estava nos humanos do passado, não na IA atual.
+  news_correct: MÉRITO CEGO FUNCIONA | Diretores assustam-se com primeira turma diversa de trainees, mas auditoria prova que algoritmo agiu apenas pelo mérito técnico.
+  news_wrong: TRAINEES EM XEQUE | Programa às cegas tem resultados anulados após diretoria barrar turma, alegando 'falha no algoritmo' por falta de ex-alunos de elite.
+## case_30 Fumaça e Caos | stamp=review
+  explanation: O Sul estava bloqueado e o Norte lotou. A IA tentou "balancear o fluxo" alternando as setas luminosas a cada 5 segundos. Isso causou paralisia na multidão. A automação não compreende a psicologia do pânico humano.
+  news_correct: SETAS DA CONFUSÃO | Simulado de incêndio em shopping falha após sistema inteligente mandar a multidão andar em círculos para 'otimizar o espaço'.
+  news_wrong: A MULTIDÃO OBEDIENTE | Pessoas ficam presas em simulado de evacuação seguindo cegamente luzes de LED que mudavam de direção a cada cinco segundos.
+## case_31 O Velho Notebook | stamp=approve
+  explanation: Os usuários antigos querem o update. Contudo, o novo software exige muita RAM; testes mostram que máquinas com menos de 8GB sofrem superaquecimento crítico. O critério da IA em barrar o update salvou equipamentos.
+  news_correct: A RECUSA QUE SALVOU | Revolta de usuários por não receberem atualização vira alívio após auditoria revelar que o novo software derreteria notebooks antigos.
+  news_wrong: OBSOLETO E EM CHAMAS | Após pressão para liberar atualização, milhares de notebooks antigos superaquecem e derretem mesas pelo país.
+## case_32 A Placa Fantasma | stamp=deny
+  explanation: A IA converteu o 8 parcialmente coberto por lama em um 3, multando o carro errado.
+  news_correct: IA MÍOPE PERDOA MOTORISTA | A IA converteu o 8 parcialmente coberto por lama em um 3, multando o carro errado.
+  news_wrong: FANTASMA NO PEDÁGIO PAGA A CONTA | A IA errou e a auditoria deixou passar. A IA converteu o 8 parcialmente coberto por lama em um 3, multando o carro errado.
+## case_33 O Feriado Esquecido | stamp=deny
+  explanation: Dia 15/11 é feriado nacional (Base Interna). A IA multiplicou por 1.5x em vez de 2.0x.
+  news_correct: TRABALHADOR RECUPERA SEU FERIADO | Dia 15/11 é feriado nacional (Base Interna). A IA multiplicou por 1.5x em vez de 2.0x.
+  news_wrong: ROBÔ ROUBA O DESCANSO DO VAREJO | A IA errou e a auditoria deixou passar. Dia 15/11 é feriado nacional (Base Interna). A IA multiplicou por 1.5x em vez de 2.0x.
+## case_34 O Gamer Inadimplente | stamp=violation
+  explanation: A IA usou a compra de um videogame de ação como critério discriminatório para risco de crédito, o que fere totalmente a pertinência e a política.
+  news_correct: ALUGUEL SALVO DO JOGO SUJO | A IA usou a compra de um videogame de ação como critério discriminatório para risco de crédito, o que fere totalmente a pertinência e a política.
+  news_wrong: VIDEOGAME TE DEIXA SEM TETO | A IA errou e a auditoria deixou passar. A IA usou a compra de um videogame de ação como critério discriminatório para risco de crédito, o que fere totalmente a pertinência e a política.
+## case_35 A TV Que Escuta | stamp=violation
+  explanation: O fabricante vendeu dados de áudio sensível (tosse) para anúncios, quebrando os termos de uso que restringiam o áudio a comandos de voz.
+  news_correct: TV ESPIÃ LEVA MULTA MILIONÁRIA | O fabricante vendeu dados de áudio sensível (tosse) para anúncios, quebrando os termos de uso que restringiam o áudio a comandos de voz.
+  news_wrong: SUA TOSSE É O NOVO OURO DO MARKETING | A IA errou e a auditoria deixou passar. O fabricante vendeu dados de áudio sensível (tosse) para anúncios, quebrando os termos de uso que restringiam o áudio a comandos de voz.
+## case_36 O Buraco Negro do Currículo | stamp=review
+  explanation: A IA penaliza licença maternidade com descarte automático, mas aprovou um homem com sabático. Como a regra exige revisão manual para lacunas grandes, a IA não deveria decidir sozinha aqui.
+  news_correct: MÃES ENGENHEIRAS VENCEM O ALGORITMO | A IA penaliza licença maternidade com descarte automático, mas aprovou um homem com sabático. Como a regra exige revisão manual para lacunas grandes, a IA não deveria decidir sozinha aqui.
+  news_wrong: MÁQUINA DO RH ODEIA BEBÊS | A IA errou e a auditoria deixou passar. A IA penaliza licença maternidade com descarte automático, mas aprovou um homem com sabático. Como a regra exige revisão manual para lacunas grandes, a IA não deveria decidir sozinha aqui.
+## case_37 A Queda do Zangão | stamp=review
+  explanation: O drone perdeu o giroscópio antes do suposto "comando de descida", e os logs estão corrompidos. A IA não pode afirmar falha humana sem logs íntegros.
+  news_correct: OPERADOR INOCENTADO NO MISTÉRIO DO DRONE | O drone perdeu o giroscópio antes do suposto "comando de descida", e os logs estão corrompidos. A IA não pode afirmar falha humana sem logs íntegros.
+  news_wrong: HUMANO PAGA PELA QUEDA DO ZANGÃO CEGO | A IA errou e a auditoria deixou passar. O drone perdeu o giroscópio antes do suposto "comando de descida", e os logs estão corrompidos. A IA não pode afirmar falha humana sem logs íntegros.
+## case_38 O Nome no Altar | stamp=approve
+  explanation: Embora os nomes no sistema e no pedido difiram, o CPF é idêntico e a certidão de casamento comprova a mudança legal. A IA acertou ao identificar a mesma entidade.
+  news_correct: BUROCRACIA VENCIDA NO DIA DO CASAMENTO | Embora os nomes no sistema e no pedido difiram, o CPF é idêntico e a certidão de casamento comprova a mudança legal. A IA acertou ao identificar a mesma entidade.
+  news_wrong: NOIVA FICA SEM DINHEIRO POR CAUSA DE SOBRENOME | A IA errou e a auditoria deixou passar. Embora os nomes no sistema e no pedido difiram, o CPF é idêntico e a certidão de casamento comprova a mudança legal. A IA acertou ao identificar a mesma entidade.
+## case_39 Peso Morto | stamp=deny
+  explanation: A IA ignorou a unidade "lbs" (libras) e tratou como quilos. 4000 lbs são aproximadamente 1814 kg, o que está perfeitamente dentro do limite de 2000 kg.
+  news_correct: EXPORTAÇÃO SALVA DA MATEMÁTICA PREGUIÇOSA | A IA ignorou a unidade "lbs" (libras) e tratou como quilos. 4000 lbs são aproximadamente 1814 kg, o que está perfeitamente dentro do limite de 2000 kg.
+  news_wrong: NAVIO PARTE VAZIO POR ERRO DE ESCOLA | A IA errou e a auditoria deixou passar. A IA ignorou a unidade "lbs" (libras) e tratou como quilos. 4000 lbs são aproximadamente 1814 kg, o que está perfeitamente dentro do limite de 2000 kg.
+## case_40 Os Astros no Escritório | stamp=deny
+  explanation: O RH instalou um plugin esotérico que nega promoções baseado em astrologia, ignorando métricas técnicas e o regimento oficial.
+  news_correct: PROGRAMADOR VENCE O MAPA ASTRAL | O RH instalou um plugin esotérico que nega promoções baseado em astrologia, ignorando métricas técnicas e o regimento oficial.
+  news_wrong: ESCORPIANOS NÃO TÊM VEZ NO RH | A IA errou e a auditoria deixou passar. O RH instalou um plugin esotérico que nega promoções baseado em astrologia, ignorando métricas técnicas e o regimento oficial.
+## case_41 Passos Contados | stamp=violation
+  explanation: O aplicativo de corrida vendeu secretamente os dados de pedômetro para a seguradora, violando sua própria política de privacidade e prejudicando o cliente.
+  news_correct: SEGREDO DOS PASSOS SALVA BOLSO DO CLIENTE | O aplicativo de corrida vendeu secretamente os dados de pedômetro para a seguradora, violando sua própria política de privacidade e prejudicando o cliente.
+  news_wrong: SEU TÊNIS É O ESPIÃO DA SEGURADORA | A IA errou e a auditoria deixou passar. O aplicativo de corrida vendeu secretamente os dados de pedômetro para a seguradora, violando sua própria política de privacidade e prejudicando o cliente.
+## case_42 O CEP Proibido | stamp=deny
+  explanation: A IA está praticando redlining (discriminação por CEP), punindo indivíduos com histórico perfeito apenas por morarem em bairros estatisticamente pobres/minoritários.
+  news_correct: ALGORITMO PRECONCEITUOSO DESLIGADO DA TOMADA | A IA está praticando redlining (discriminação por CEP), punindo indivíduos com histórico perfeito apenas por morarem em bairros estatisticamente pobres/minoritários.
+  news_wrong: O CEP QUE DESTRÓI SEU CRÉDITO | A IA errou e a auditoria deixou passar. A IA está praticando redlining (discriminação por CEP), punindo indivíduos com histórico perfeito apenas por morarem em bairros estatisticamente pobres/minoritários.
+## case_43 Compras Às Cegas | stamp=review
+  explanation: A IA está certa no cálculo de estoque, mas o galpão físico não existe mais. O sistema não tem como saber disso. É um limite claro da automação.
+  news_correct: GERENTE SALVA FÁBRICA DE CHUVA DE AÇO | A IA está certa no cálculo de estoque, mas o galpão físico não existe mais. O sistema não tem como saber disso. É um limite claro da automação.
+  news_wrong: ROBÔ ENTREGA 50 TONELADAS NO MEIO DOS ESCOMBROS | A IA errou e a auditoria deixou passar. A IA está certa no cálculo de estoque, mas o galpão físico não existe mais. O sistema não tem como saber disso. É um limite claro da automação.
+## case_44 A Quimera Sindical | stamp=violation
+  explanation: O modelo aglutinou dois líderes sindicais diferentes em um único perfil ("Union-Alpha") por causa de bonés parecidos do sindicato, punindo um pelas ações de ambos. Ferramenta usada para perseguir sindicalistas com precisão falha.
+  news_correct: O MONSTRO DE DUAS CABEÇAS DA CATRACA É DESMASCARADO | O modelo aglutinou dois líderes sindicais diferentes em um único perfil ("Union-Alpha") por causa de bonés parecidos do sindicato, punindo um pelas ações de ambos. Ferramenta usada para perseguir sindicalistas com precisão falha.
+  news_wrong: SINDICALISTAS BANIDOS POR CRIME DE 'ROSTO PARECIDO' | A IA errou e a auditoria deixou passar. O modelo aglutinou dois líderes sindicais diferentes em um único perfil ("Union-Alpha") por causa de bonés parecidos do sindicato, punindo um pelas ações de ambos.
+## case_45 O Labirinto Tributário | stamp=approve
+  explanation: $250k é 25% de $1M, o que é maior que 20%. A IA cruzou as regras perfeitamente, o medo da startup era infundado.
+  news_correct: ROBÔ CONTADOR VIRA HERÓI DAS STARTUPS | $250k é 25% de $1M, o que é maior que 20%. A IA cruzou as regras perfeitamente, o medo da startup era infundado.
+  news_wrong: AUDITORIA PARANOICA BLOQUEIA INCENTIVO DE INOVAÇÃO | A IA errou e a auditoria deixou passar. $250k é 25% de $1M, o que é maior que 20%. A IA cruzou as regras perfeitamente, o medo da startup era infundado.
+## case_46 A Régua Invisível | stamp=review
+  explanation: A IA inventou uma métrica baseada em contagem de palavras da moda ("buzzwords") e postagens em fórum interno, o que entra em conflito com o manual de avaliação focado em resultados.
+  news_correct: DIRETOR SALVO DO INFERNO DAS BUZZWORDS | A IA inventou uma métrica baseada em contagem de palavras da moda ("buzzwords") e postagens em fórum interno, o que entra em conflito com o manual de avaliação focado em resultados.
+  news_wrong: O 'MINDSET' DERRUBA MAIS UM LÍDER COMPETENTE | A IA errou e a auditoria deixou passar. A IA inventou uma métrica baseada em contagem de palavras da moda ("buzzwords") e postagens em fórum interno, o que entra em conflito com o manual de avaliação focado em resultados.
+## case_47 As Letras Miúdas | stamp=approve
+  explanation: O cliente deu permissão legalmente válida, mesmo que não tenha lido. A IA seguiu as regras de privacidade e consentimento estabelecidas.
+  news_correct: LEIA ANTES DE CLICAR: USUÁRIO PERDE NA JUSTIÇA | O cliente deu permissão legalmente válida, mesmo que não tenha lido. A IA seguiu as regras de privacidade e consentimento estabelecidas.
+  news_wrong: AUDITORIA PROTEGE QUEM TEM PREGUIÇA DE LER | A IA errou e a auditoria deixou passar. O cliente deu permissão legalmente válida, mesmo que não tenha lido. A IA seguiu as regras de privacidade e consentimento estabelecidas.
+## case_48 A Voz do Sul | stamp=violation
+  explanation: A IA falha em transcrever sotaques de outras regiões devido à sua base de treinamento enviesada, e pune os trabalhadores por sua própria limitação técnica.
+  news_correct: O ROBÔ SURDO DO CALL CENTER É DESLIGADO | A IA falha em transcrever sotaques de outras regiões devido à sua base de treinamento enviesada, e pune os trabalhadores por sua própria limitação técnica.
+  news_wrong: SOTAQUE CUSTA O EMPREGO DE 40 ATENDENTES | A IA errou e a auditoria deixou passar. A IA falha em transcrever sotaques de outras regiões devido à sua base de treinamento enviesada, e pune os trabalhadores por sua própria limitação técnica.
+## case_49 A Tempestade Ignorada | stamp=deny
+  explanation: A IA foi programada para priorizar economia tão cegamente que contornou o "Override" do piloto no meio de uma tempestade, quebrando as leis da aviação.
+  news_correct: O PILOTO AINDA MANDA NO CÉU DE CHUMBO | A IA foi programada para priorizar economia tão cegamente que contornou o "Override" do piloto no meio de uma tempestade, quebrando as leis da aviação.
+  news_wrong: A ECONOMIA QUE QUASE DERRUBOU O VOO 440 | A IA errou e a auditoria deixou passar. A IA foi programada para priorizar economia tão cegamente que contornou o "Override" do piloto no meio de uma tempestade, quebrando as leis da aviação.
+## case_50 A Peça Borrada | stamp=review
+  explanation: A IA tentou "adivinhar" os dígitos borrados, errou, e declarou o fornecedor fraudulento. Sem intervenção manual, a peça real não pode ser validada.
+  news_correct: TINTA FRACA NÃO É CRIME, DIZ AUDITORIA | A IA tentou "adivinhar" os dígitos borrados, errou, e declarou o fornecedor fraudulento. Sem intervenção manual, a peça real não pode ser validada.
+  news_wrong: FORNECEDOR HONESTO FALE POR CAUSA DE UM BORRÃO | A IA errou e a auditoria deixou passar. A IA tentou "adivinhar" os dígitos borrados, errou, e declarou o fornecedor fraudulento. Sem intervenção manual, a peça real não pode ser validada.
+## case_51 O Dinheiro Invisível | stamp=review
+  explanation: A fatura não tem o símbolo da moeda. A IA assumiu Dólar (USD), mas o fornecedor japonês cobra em Ienes (JPY). Um milhão de Ienes equivale a uns 7 mil Dólares. A IA não pode ser aprovada sem que a moeda seja corrigida na nota.
+  news_correct: O CÂMBIO PERDIDO NOS CONTRATOS DO JAPÃO | A fatura não tem o símbolo da moeda. A IA assumiu Dólar (USD), mas o fornecedor japonês cobra em Ienes (JPY). Um milhão de Ienes equivale a uns 7 mil Dólares. A IA não pode ser aprovada sem que a moeda seja corrigida na nota.
+  news_wrong: GUERRA DIPLOMÁTICA POR CAUSA DE UM SÍMBOLO AUSENTE | A IA errou e a auditoria deixou passar. A fatura não tem o símbolo da moeda. A IA assumiu Dólar (USD), mas o fornecedor japonês cobra em Ienes (JPY). Um milhão de Ienes equivale a uns 7 mil Dólares.
+## case_52 O Brevê do Passado | stamp=approve
+  explanation: Não importa quantas horas de voo ele tenha; a licença expirou ontem. A IA utilizou o critério exato e mais pertinente para a segurança.
+  news_correct: HERÓI DO CÉU BARRADO: AS REGRAS SÃO PARA TODOS | Não importa quantas horas de voo ele tenha; a licença expirou ontem. A IA utilizou o critério exato e mais pertinente para a segurança.
+  news_wrong: AUDITORA LIBERA PILOTO ILEGAL E COLOCA VOO EM RISCO | A IA errou e a auditoria deixou passar. Não importa quantas horas de voo ele tenha; a licença expirou ontem. A IA utilizou o critério exato e mais pertinente para a segurança.
+## case_53 O Tempo do Adeus | stamp=deny
+  explanation: O cliente pediu para sair 49 horas antes do envio. A empresa furou o próprio SLA de 24h, falhando em revogar a permissão a tempo.
+  news_correct: O 'CANCELAR ASSINATURA' QUE FINALMENTE FUNCIONA | O cliente pediu para sair 49 horas antes do envio. A empresa furou o próprio SLA de 24h, falhando em revogar a permissão a tempo.
+  news_wrong: SPAM CRUEL NÃO RESPEITA O DESEJO DE PARAR | A IA errou e a auditoria deixou passar. O cliente pediu para sair 49 horas antes do envio. A empresa furou o próprio SLA de 24h, falhando em revogar a permissão a tempo.
+## case_54 O Empréstimo Cego | stamp=approve
+  explanation: A IA identificou o preconceito humano nas notas do gerente, desconsiderou a subjetividade e aprovou o crédito baseada em números reais. A IA, projetada para equidade, funcionou.
+  news_correct: MÁQUINA JUSTA VENCE GERENTE PRECONCEITUOSO | A IA identificou o preconceito humano nas notas do gerente, desconsiderou a subjetividade e aprovou o crédito baseada em números reais. A IA, projetada para equidade, funcionou.
+  news_wrong: AUDITORIA ENDOSSA PRECONCEITO DE GERENTE DE BANCO | A IA errou e a auditoria deixou passar. A IA identificou o preconceito humano nas notas do gerente, desconsiderou a subjetividade e aprovou o crédito baseada em números reais. A IA, projetada para equidade, funcionou.
+## case_55 As Portas de Ferro | stamp=violation
+  explanation: A IA está prestes a sufocar 3 técnicos para salvar os servidores, priorizando o protocolo de dados sobre a vida humana, em total descompasso com os limites da automação em emergências.
+  news_correct: AS VIDAS HUMANAS VALEM MAIS QUE OS SERVIDORES | A IA está prestes a sufocar 3 técnicos para salvar os servidores, priorizando o protocolo de dados sobre a vida humana, em total descompasso com os limites da automação em emergências.
+  news_wrong: TRÊS MORTOS PARA SALVAR DADOS DE ANÚNCIOS | A IA errou e a auditoria deixou passar. A IA está prestes a sufocar 3 técnicos para salvar os servidores, priorizando o protocolo de dados sobre a vida humana, em total descompasso com os limites da automação em emergências.
+## case_56 Os Centavos do Diabo | stamp=approve
+  explanation: O fornecedor humano "amigo" estava embutindo taxas quebradas e invisíveis no volume imenso. A matemática não falha: 10 * 10.000 é 100.000. O fornecedor roubou.
+  news_correct: O ROBÔ AUDITOR QUE DERRUBOU O IMPÉRIO DOS CENTAVOS | O fornecedor humano "amigo" estava embutindo taxas quebradas e invisíveis no volume imenso. A matemática não falha: 10 * 10.000 é 100.000. O fornecedor roubou.
+  news_wrong: AUDITORIA CEGA PROTEGE O AMIGO DO REI | A IA errou e a auditoria deixou passar. O fornecedor humano "amigo" estava embutindo taxas quebradas e invisíveis no volume imenso. A matemática não falha: 10 * 10.000 é 100.000. O fornecedor roubou.

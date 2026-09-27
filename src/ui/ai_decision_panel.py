@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pygame
 
-from src.gameplay.cases import AuditCase
+from src.gameplay.cases import AuditCase, DataSource
 
 
 INK = (214, 219, 128)
@@ -24,9 +24,10 @@ DATA_ROWS_RECT = pygame.Rect(1212, 405, 286, 212)
 DATA_SCROLL_UP_RECT = pygame.Rect(1506, 395, 22, 25)
 DATA_SCROLL_TRACK_RECT = pygame.Rect(1506, 424, 22, 179)
 DATA_SCROLL_DOWN_RECT = pygame.Rect(1506, 607, 22, 25)
-DATA_ROW_HEIGHT = 68
+DATA_ROW_HEIGHT = 50
 DATA_ROW_GAP = 4
-VISIBLE_DATA_ROWS = 3
+SHEET_ID = "final"
+VISIBLE_DATA_ROWS = 4
 
 POPUP_RECT = pygame.Rect(90, 42, 1374, 612)
 CLOSE_RECT = pygame.Rect(1397, 59, 43, 43)
@@ -79,9 +80,9 @@ class AIDecisionPanel:
         for visible_index, rect in enumerate(self._visible_row_rects()):
             if rect.collidepoint(position):
                 source_index = self.data_scroll_offset + visible_index
-                if source_index >= len(self.case.data_sources):
+                if source_index >= len(self._rows()):
                     return "scroll", None
-                source = self.case.data_sources[source_index]
+                source = self._rows()[source_index]
                 return "toggle", source.document_id
         return None
 
@@ -203,10 +204,10 @@ class AIDecisionPanel:
 
         for visible_index, rect in enumerate(self._visible_row_rects()):
             source_index = self.data_scroll_offset + visible_index
-            if source_index >= len(self.case.data_sources):
+            if source_index >= len(self._rows()):
                 break
-            source = self.case.data_sources[source_index]
-            on_desk = source.document_id in visible_document_ids
+            source = self._rows()[source_index]
+            on_desk = source.document_id in visible_document_ids  # here: "already read"
             hovered = self.hovered_control == f"row_{visible_index}"
             pygame.draw.rect(surface, PANEL_MID if hovered else PANEL, rect)
             pygame.draw.rect(surface, INK_BRIGHT if hovered else BORDER_DARK, rect, 2)
@@ -214,13 +215,16 @@ class AIDecisionPanel:
             pygame.draw.rect(surface, GREEN if on_desk else BORDER_DARK, state_rect, 2)
             if on_desk:
                 pygame.draw.rect(surface, GREEN, state_rect.inflate(-6, -6))
-            is_key = source.document_id in self.case.key_document_ids
-            label_color = INK_BRIGHT if is_key else INK
-            self._draw_text(surface, source.label.upper(), self.font_tiny, label_color, (rect.x + 37, rect.y + 4))
+            if source.document_id == SHEET_ID:
+                self._draw_text(surface, source.label, self.font_tiny, (237, 193, 91), (rect.x + 37, rect.y + 4))
+                action = "NA MESA • USE PARA CARIMBAR" if on_desk else "USE NO FINAL • CLIQUE PARA ABRIR"
+                self._draw_text(surface, action, self.font_tiny, GREEN if on_desk else (176, 148, 74), (rect.x + 37, rect.y + 24))
+                continue
+            self._draw_text(surface, f"{source_index + 1}  {source.label.upper()}", self.font_tiny, INK, (rect.x + 37, rect.y + 4))
             if on_desk:
-                action = "ESSENCIAL • NA MESA" if is_key else "NA MESA • CLIQUE PARA RETIRAR"
+                action = "JÁ LI • CLIQUE PARA VER NA MESA"
             else:
-                action = "ESSENCIAL • COLOCAR NA MESA" if is_key else "CLIQUE PARA COLOCAR NA MESA"
+                action = "CLIQUE PARA VER NA MESA"
             self._draw_text(surface, action, self.font_tiny, GREEN if on_desk else INK_MUTED, (rect.x + 37, rect.y + 24))
         self._draw_data_scrollbar(surface)
 
@@ -229,7 +233,7 @@ class AIDecisionPanel:
             return
 
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 215))
+        dim.fill((0, 0, 0, 255))
         surface.blit(dim, (0, 0))
         self._draw_layered_rect(surface, POPUP_RECT, SCREEN_BLACK, BORDER)
 
@@ -353,7 +357,7 @@ class AIDecisionPanel:
         source_index = next(
             (
                 index
-                for index, source in enumerate(self.case.data_sources)
+                for index, source in enumerate(self._rows())
                 if source.document_id == document_id
             ),
             None,
@@ -374,12 +378,19 @@ class AIDecisionPanel:
 
     @property
     def _maximum_scroll(self) -> int:
-        return max(0, len(self.case.data_sources) - VISIBLE_DATA_ROWS)
+        return max(0, len(self._rows()) - VISIBLE_DATA_ROWS)
 
     @property
     def _verdict_color(self) -> tuple[int, int, int]:
         verdict = self.case.ai_decision.verdict.upper()
         return GREEN if verdict.startswith(("APROVAR", "LIBERAR")) else RED
+
+    def _rows(self) -> tuple[DataSource, ...]:
+        """The papers of the case plus the audit sheet, which the player opens at the end."""
+        return (*self.case.data_sources, DataSource("FOLHA DE AUDITORIA", SHEET_ID))
+
+    def scroll_to_end(self) -> None:
+        self._set_scroll_offset(self._maximum_scroll)
 
     def _visible_row_rects(self) -> tuple[pygame.Rect, ...]:
         return tuple(
@@ -399,9 +410,9 @@ class AIDecisionPanel:
         self._set_scroll_offset(self.data_scroll_offset + direction)
 
     def _scroll_thumb_rect(self) -> pygame.Rect:
-        if not self.case.data_sources:
+        if not self._rows():
             return DATA_SCROLL_TRACK_RECT.copy()
-        visible_ratio = min(1.0, VISIBLE_DATA_ROWS / len(self.case.data_sources))
+        visible_ratio = min(1.0, VISIBLE_DATA_ROWS / len(self._rows()))
         height = max(24, round(DATA_SCROLL_TRACK_RECT.height * visible_ratio))
         travel = DATA_SCROLL_TRACK_RECT.height - height
         progress = self.data_scroll_offset / self._maximum_scroll if self._maximum_scroll else 0.0

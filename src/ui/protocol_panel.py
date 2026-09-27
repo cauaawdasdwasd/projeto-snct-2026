@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import math
-from collections.abc import Iterable
+from collections.abc import Callable, Iterable
 
 import pygame
 
 from src.gameplay.protocols import PROTOCOLS, Protocol
+from src.rendering.protocol_films import DURATION as FILM_DURATION, Film, create_film
 
 
 PAGE_SIZE = 3
+AMBER_BAR = (237, 193, 91)
 
 INK = (214, 219, 128)
 INK_BRIGHT = (244, 236, 157)
@@ -41,7 +43,12 @@ VIDEO_RECT = pygame.Rect(906, 174, 548, 293)
 class ProtocolPanel:
     """Paged protocol menu and its educational popup."""
 
-    def __init__(self, portraits: dict[str, pygame.Surface]) -> None:
+    def __init__(
+        self,
+        portraits: dict[str, pygame.Surface],
+        play_sound: Callable[[str, float], None] | None = None,
+    ) -> None:
+        self.play_sound = play_sound
         self.protocols = PROTOCOLS
         self.portraits = {
             slug: self._fit_portrait(image)
@@ -51,7 +58,10 @@ class ProtocolPanel:
         self.selected_protocol: Protocol | None = None
         self.hovered_protocol_slug: str | None = None
         self.hovered_control: str | None = None
-        self.video_pressed = False
+        self.films: dict[str, Film] = {}
+        self.film_time = 0.0
+        self.film_playing = False
+        self._film_event_index = 0
 
         self.font_tiny = self._make_font(15)
         self.font_small = self._make_font(18)
@@ -71,7 +81,7 @@ class ProtocolPanel:
                 return True
 
             if VIDEO_RECT.collidepoint(position):
-                self.video_pressed = not self.video_pressed
+                self._video_click(position)
                 return True
 
             return POPUP_RECT.collidepoint(position)
@@ -79,7 +89,7 @@ class ProtocolPanel:
         for protocol, rect in zip(self._page_protocols(), BUTTON_RECTS, strict=True):
             if rect.collidepoint(position):
                 self.selected_protocol = protocol
-                self.video_pressed = False
+                self.start_film()
                 return True
 
         if PREVIOUS_PAGE_RECT.collidepoint(position):
@@ -112,7 +122,50 @@ class ProtocolPanel:
 
     def close_popup(self) -> None:
         self.selected_protocol = None
-        self.video_pressed = False
+        self.film_playing = False
+
+    # -- tutorial film --------------------------------------------------
+    def _film(self) -> Film | None:
+        protocol = self.selected_protocol
+        if protocol is None:
+            return None
+        if protocol.slug not in self.films:
+            self.films[protocol.slug] = create_film(protocol.slug, self.portraits.get(protocol.slug))
+        return self.films[protocol.slug]
+
+    def start_film(self) -> None:
+        self.film_time = 0.0
+        self.film_playing = True
+        self._film_event_index = 0
+
+    def update(self, dt: float) -> None:
+        film = self._film() if self.selected_protocol is not None else None
+        if film is None or not self.film_playing:
+            return
+        previous = self.film_time
+        self.film_time = min(FILM_DURATION, previous + dt)
+        events = film.events
+        while self._film_event_index < len(events) and events[self._film_event_index][0] <= self.film_time:
+            time, sound = events[self._film_event_index]
+            if time >= previous - 0.001 and self.play_sound is not None:
+                self.play_sound(sound, 0.45)
+            self._film_event_index += 1
+        if self.film_time >= FILM_DURATION:
+            self.film_playing = False
+
+    def _video_click(self, position: tuple[int, int]) -> None:
+        film = self._film()
+        if film is None:
+            return
+        bar = pygame.Rect(VIDEO_RECT.x + 4, VIDEO_RECT.bottom - 18, VIDEO_RECT.width - 8, 16)
+        if bar.collidepoint(position):
+            self.film_time = FILM_DURATION * (position[0] - bar.x) / bar.width
+            self._film_event_index = sum(1 for time, _ in film.events if time < self.film_time)
+            self.film_playing = True
+        elif self.film_time >= FILM_DURATION and not self.film_playing:
+            self.start_film()
+        else:
+            self.film_playing = not self.film_playing
 
     def open_protocol(self, slug: str) -> None:
         for index, protocol in enumerate(self.protocols):
@@ -120,7 +173,7 @@ class ProtocolPanel:
                 continue
             self.page = index // PAGE_SIZE
             self.selected_protocol = protocol
-            self.video_pressed = False
+            self.start_film()
             return
         raise ValueError(f"Unknown protocol: {slug}")
 
@@ -166,7 +219,7 @@ class ProtocolPanel:
             return
 
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 208))
+        dim.fill((0, 0, 0, 255))
         surface.blit(dim, (0, 0))
 
         self._draw_layered_rect(surface, POPUP_RECT, PANEL_DARK, BORDER_LIGHT)
@@ -419,52 +472,11 @@ class ProtocolPanel:
         border = INK_BRIGHT if hovered else BORDER_LIGHT
         self._draw_layered_rect(surface, VIDEO_RECT, (7, 11, 10), border)
 
-        for y in range(VIDEO_RECT.y + 8, VIDEO_RECT.bottom - 8, 6):
-            line_alpha = 16 + ((y // 6) % 3) * 7
-            scanline = pygame.Surface((VIDEO_RECT.width - 16, 2), pygame.SRCALPHA)
-            scanline.fill((*INK_MUTED, line_alpha))
-            surface.blit(scanline, (VIDEO_RECT.x + 8, y))
-
-        center = VIDEO_RECT.center
-        if self.video_pressed:
-            self._draw_text(
-                surface,
-                "ARQUIVO DE VÍDEO AINDA NÃO INSTALADO",
-                self.font_body,
-                INK_BRIGHT,
-                (center[0], center[1] - 8),
-                anchor="center",
-            )
-            self._draw_text(
-                surface,
-                f"assets/videos/{protocol.video_filename}",
-                self.font_small,
-                INK_MUTED,
-                (center[0], center[1] + 24),
-                anchor="center",
-            )
-        else:
-            play_rect = pygame.Rect(0, 0, 90, 70)
-            play_rect.center = center
-            pygame.draw.rect(surface, PANEL_MID, play_rect)
-            pygame.draw.rect(surface, INK_MUTED, play_rect, 3)
-            pygame.draw.polygon(
-                surface,
-                INK_BRIGHT,
-                [
-                    (center[0] - 12, center[1] - 21),
-                    (center[0] + 22, center[1]),
-                    (center[0] - 12, center[1] + 21),
-                ],
-            )
-            self._draw_text(
-                surface,
-                "REPRODUZIR",
-                self.font_small,
-                INK_MUTED,
-                (center[0], center[1] + 58),
-                anchor="center",
-            )
+        film = self._film()
+        if film is not None:
+            frame = film.render(self.film_time)
+            surface.blit(frame, (VIDEO_RECT.x + 4, VIDEO_RECT.y + 4))
+            self._draw_film_controls(surface, hovered)
 
         note_rect = pygame.Rect(906, 489, 548, 132)
         self._draw_layered_rect(surface, note_rect, PANEL_MID, BORDER_DARK)
@@ -477,6 +489,44 @@ class ProtocolPanel:
             pygame.Rect(924, 542, 510, 62),
             line_height=25,
             max_lines=3,
+        )
+
+    def _draw_film_controls(self, surface: pygame.Surface, hovered: bool) -> None:
+        bar = pygame.Rect(VIDEO_RECT.x + 4, VIDEO_RECT.bottom - 10, VIDEO_RECT.width - 8, 6)
+        pygame.draw.rect(surface, (20, 28, 22), bar)
+        fill = round(bar.width * self.film_time / FILM_DURATION)
+        pygame.draw.rect(surface, AMBER_BAR, (bar.x, bar.y, fill, bar.height))
+        finished = self.film_time >= FILM_DURATION and not self.film_playing
+        if self.film_playing:
+            if hovered:
+                self._draw_text(surface, "CLIQUE PARA PAUSAR", self.font_tiny, INK_BRIGHT, (VIDEO_RECT.right - 12, VIDEO_RECT.y + 10), anchor="topright")
+            return
+        if finished:
+            replay = pygame.Rect(VIDEO_RECT.right - 150, VIDEO_RECT.y + 10, 138, 30)
+            pygame.draw.rect(surface, PANEL_MID, replay)
+            pygame.draw.rect(surface, INK_BRIGHT if hovered else INK_MUTED, replay, 2)
+            self._draw_text(surface, "REPETIR", self.font_small, INK_BRIGHT, replay.center, anchor="center")
+            return
+        center = (VIDEO_RECT.centerx, VIDEO_RECT.y + 128)
+        veil = pygame.Surface((VIDEO_RECT.width - 8, VIDEO_RECT.height - 8 - 44), pygame.SRCALPHA)
+        veil.fill((0, 0, 0, 110))
+        surface.blit(veil, (VIDEO_RECT.x + 4, VIDEO_RECT.y + 4))
+        play_rect = pygame.Rect(0, 0, 90, 70)
+        play_rect.center = center
+        pygame.draw.rect(surface, PANEL_MID, play_rect)
+        pygame.draw.rect(surface, INK_BRIGHT, play_rect, 3)
+        pygame.draw.polygon(
+            surface,
+            INK_BRIGHT,
+            [(center[0] - 12, center[1] - 21), (center[0] + 22, center[1]), (center[0] - 12, center[1] + 21)],
+        )
+        self._draw_text(
+            surface,
+            "CONTINUAR",
+            self.font_small,
+            INK_BRIGHT,
+            (center[0], center[1] + 58),
+            anchor="center",
         )
 
     def _draw_close_button(self, surface: pygame.Surface) -> None:

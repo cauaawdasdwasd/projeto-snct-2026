@@ -16,7 +16,7 @@ BORDER = (127, 137, 80)
 BORDER_DARK = (55, 64, 45)
 PAPER = (180, 148, 83)
 
-HINT_BUTTON_RECT = pygame.Rect(870, 72, 128, 34)
+HINT_BUTTON_RECT = pygame.Rect(901, 72, 98, 34)
 HINT_POPUP_RECT = pygame.Rect(385, 174, 786, 348)
 HINT_CLOSE_RECT = pygame.Rect(1112, 191, 42, 42)
 HINT_PROTOCOL_RECT = pygame.Rect(784, 450, 337, 48)
@@ -95,7 +95,7 @@ class CaseHint:
         if not self.is_open:
             return
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 218))
+        dim.fill((0, 0, 0, 255))
         surface.blit(dim, (0, 0))
 
         self._draw_layered_rect(surface, HINT_POPUP_RECT, SCREEN_BLACK, BORDER)

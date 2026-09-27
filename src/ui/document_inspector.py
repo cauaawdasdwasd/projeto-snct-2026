@@ -143,7 +143,7 @@ class DocumentInspector:
             return
 
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 218))
+        dim.fill((0, 0, 0, 255))
         surface.blit(dim, (0, 0))
         self._draw_layered_rect(surface, PANEL_RECT, SCREEN_BLACK, BORDER)
 

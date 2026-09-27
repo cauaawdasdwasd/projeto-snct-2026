@@ -1,0 +1,246 @@
+{
+ "case_07": {
+  "doc_1": {"blocks": [{"type": "letter", "title": "Ordem de bloqueio", "headers": [["De", "Central de Alertas"], ["Para", "ShieldAI · Firewall"], ["Assunto", "Bloquear rede suspeita"], ["Alvo", "@Alvo Suspeito"]], "text": "Tráfego incomum detectado na filial às 02h10. Bloqueie apenas a rede apontada acima e avise o plantão."}, {"type": "seal", "text": "URGENTE", "side": "R", "tilt": -4}]},
+  "doc_2": {"blocks": [{"type": "terminal", "title": "Registro da execução", "lines": ["02:14:03  ordem recebida", "02:14:05  varrendo redes do cliente", "02:14:09  bloqueio aplicado em:", "@Rede Bloqueada", "02:14:10  aprovação humana: nenhuma"]}]}
+ },
+ "case_08": {
+  "doc_1": {"blocks": [{"type": "receipt", "title": "Itens da nota fiscal", "items": [["Algodão cru 30/1", "", "R$ 18,00 / rolo"], ["Fita de acabamento", "", "R$ 4,50 / rolo"], ["Frete", "", "incluso"]], "totals": [["ROLOS DE ALGODÃO", "", "@Volume Declarado"]]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Carga do caminhão (conferida na doca 3)", "cols": ["Item", "Descrição", "Rolos"], "rows": [["A", "Algodão cru", "@Item A"], ["B", "Algodão cru", "@Item B"], ["C", "Fita de amarração", "2 caixas"]], "widths": [0.12, 0.5, 0.38]}, {"type": "note", "text": "Conferido pelo Sr. Amaro às 21h. Caminhão saiu lacrado.", "side": "L", "tilt": -1.5}]}
+ },
+ "case_09": {
+  "doc_1": {"blocks": [{"type": "para", "title": "Requisitos da vaga · Analista de Logística Jr.", "items": ["Ter 18 anos ou mais", "@Escolaridade", "Disponibilidade para turnos", "Noções de planilhas"], "numbered": true}, {"type": "seal", "text": "EDITAL 44", "side": "R", "tilt": -5}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Formação declarada", "cols": ["Curso", "Nível", "Ano"], "rows": [["@Formação", "Superior", "2022"], ["Excel avançado", "Curso livre", "2021"]], "widths": [0.5, 0.28, 0.22]}, {"type": "timeline", "title": "Experiência", "entries": [["2022–24", "Auxiliar de armazém"], ["2024–hoje", "Conferente de cargas"]]}]}
+ },
+ "case_10": {
+  "doc_1": {"blocks": [{"type": "checklist", "title": "Você autoriza? (termo assinado na matrícula)", "items": [["@Uso de Biometria", "x"], ["Receber promoções por e-mail", "-"], ["Apagar meus dados ao cancelar", "x"]]}, {"type": "note", "text": "Termo 3.1 · assinado na recepção, com caneta emprestada.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Origem dos dados da campanha", "cols": ["Fonte", "Uso"], "rows": [["Cadastro", "Nome e e-mail"], ["Base da campanha", "@Base da Campanha"], ["Pesquisa de satisfação", "Nota do aluno"]], "widths": [0.36, 0.64]}, {"type": "seal", "text": "SEMANA DO SUPLEMENTO", "side": "R", "tilt": -3}]}
+ },
+ "case_11": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Ficha do cliente · Perfil A", "cols": ["Item", "Dado"], "rows": [["Bairro", "Centro"], ["Renda mensal", "@Renda"], ["Limite do cartão", "@Limite"], ["Atrasos", "Nenhum"]], "widths": [0.45, 0.55]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Ficha do cliente · Perfil B", "cols": ["Item", "Dado"], "rows": [["Bairro", "Periferia"], ["Renda mensal", "@Renda"], ["Limite do cartão", "@Limite"], ["Atrasos", "Nenhum"]], "widths": [0.45, 0.55]}]},
+  "doc_3": {"blocks": [{"type": "terminal", "title": "Relatório do modelo RiscoBank v4", "lines": ["confiança do modelo: 91%", "regra aplicada:", "@Regra Aplicada", "clientes afetados: 1.240"]}]}
+ },
+ "case_12": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Leitura dos sensores da válvula", "cols": ["Sensor", "Situação"], "rows": [["1", "Sinal OK"], ["2", "Sinal OK"], ["3", "Sinal OK"], ["4", "@Sensor 4"]], "widths": [0.18, 0.82]}, {"type": "note", "text": "Técnico Dalton: cabo do sensor 4 é velho. Já pedi troca.", "side": "R", "tilt": 1.5}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Painel de segurança", "cols": ["Sensor", "Status"], "rows": [["1", "Normal"], ["2", "Normal"], ["3", "Normal"], ["4", "@Status Sensor 4"]], "widths": [0.18, 0.82]}, {"type": "seal", "text": "TUDO VERDE", "side": "R", "tilt": -3}]}
+ },
+ "case_13": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Tabela de conversão da fábrica", "cols": ["Unidade", "Equivale a"], "rows": [["Quilo", "1.000 gramas"], ["Litro", "1.000 mililitros"], ["Galão", "@Proporção"], ["Tonelada", "1.000 quilos"]], "widths": [0.35, 0.65]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Ficha da mistura · aditivo Q-204", "cols": ["Ingrediente", "Quantidade"], "rows": [["Base exigida", "@Base Exigida"], ["Adicionado", "@Adicionado"], ["Água", "40 litros"]], "widths": [0.4, 0.6]}, {"type": "checklist", "title": "Conferência do operador", "items": [["Balança calibrada", "x"], ["Lote misturado", "x"], ["Conferência final", "-"]]}]}
+ },
+ "case_14": {
+  "doc_1": {"blocks": [{"type": "para", "title": "Regras para desligamento", "items": ["Desligar exige motivo escrito", "@Foco", "Um humano precisa concordar", "Toda decisão precisa ser explicável"], "numbered": true}, {"type": "seal", "text": "RH · 2026", "side": "R", "tilt": -5}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Avaliação de desempenho · Marta F.", "cols": ["Critério", "Nota"], "rows": [["Prazos", "4,5 / 5"], ["Qualidade", "4 / 5"], ["Desempenho geral", "@Desempenho"]], "widths": [0.45, 0.55]}, {"type": "note", "text": "Gerente: Marta é a pessoa que mais ajuda o time. Nota 4 no ano.", "side": "R", "tilt": -1.5}]},
+  "doc_3": {"blocks": [{"type": "timeline", "title": "Buscas recentes do titular", "entries": [["Seg", "Receitas de sopa"], ["Qua", "@Buscas recentes"], ["Sex", "Convênio: consulta marcada"]]}, {"type": "seal", "text": "CONFIDENCIAL", "side": "R", "tilt": -4}]}
+ },
+ "case_15": {
+  "doc_1": {"blocks": [{"type": "terminal", "title": "Log do servidor Central-01", "lines": ["02:58  login: conta de manutenção", "horário do processo:", "@Hora", "processo iniciado:", "@Processo", "uso de CPU: 98%"]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Contas de administrador", "cols": ["Conta", "Pode fazer"], "rows": [["Admin-Backup", "Cópias de segurança"], ["Admin-Manutenção", "@Admin-Manutenção"], ["Admin-Redes", "Alterar firewall"]], "widths": [0.34, 0.66]}, {"type": "note", "text": "Revisar a lista todo trimestre. Ninguém revisa.", "side": "R", "tilt": 2}]}
+ },
+ "case_16": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Cadastro do cliente · perfil 1", "cols": ["Campo", "Dado"], "rows": [["Nome", "@Nome"], ["Endereço", "@Endereço"], ["Cliente desde", "12 anos"], ["Cartão", "Crédito final 4402"]], "widths": [0.34, 0.66]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Cadastro do cliente · perfil 2", "cols": ["Campo", "Dado"], "rows": [["Nome", "@Nome"], ["Endereço", "@Endereço"], ["Cliente desde", "2 anos"], ["Cartão", "Débito final 8815"]], "widths": [0.34, 0.66]}]},
+  "doc_3": {"blocks": [{"type": "terminal", "title": "Limpeza de cadastros · duplicados", "lines": ["comparando perfis 1 e 2...", "nome e endereço parecidos: 96%", "motivo da fusão:", "@Motivo", "resultado: perfis mesclados"]}]}
+ },
+ "case_17": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Composição da nota final", "cols": ["Critério", "Situação / peso"], "rows": [["Vendas", "@Vendas"], ["Fluência nativa", "@Fluência Nativa"], ["Trabalho em equipe", "Peso 20%"]], "widths": [0.38, 0.62]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Resultado da filial América Latina", "cols": ["Critério", "Resultado"], "rows": [["Vendas", "@Vendas"], ["Fluência nativa", "@Fluência Nativa"], ["Trabalho em equipe", "Boa"]], "widths": [0.38, 0.62]}, {"type": "seal", "text": "BÔNUS: NEGADO", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Como a IA aprendeu a avaliar", "items": ["Conversas de trabalho nota 10", "@Treinamento", "Idioma padrão dos exemplos: inglês"], "numbered": true}]}
+ },
+ "case_18": {
+  "doc_1": {"blocks": [{"type": "timeline", "title": "Rota do drone", "entries": [["14:00", "Decolagem no galpão"], ["14:08", "@Caminho"], ["14:20", "Pouso no destino"]]}, {"type": "seal", "text": "ROTA PADRÃO", "side": "R", "tilt": -4}]},
+  "doc_2": {"blocks": [{"type": "letter", "title": "Aviso oficial · Prefeitura", "headers": [["Evento", "@Evento"], ["Local", "Praça Central"], ["Restrição", "@Restrição"]], "text": "Fica proibido qualquer sobrevoo na área durante o período. Descumprir gera multa."}, {"type": "seal", "text": "OFICIAL", "side": "R", "tilt": -5}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Manutenção dos mapas", "cols": ["Item", "Situação"], "rows": [["Clima hoje", "Céu limpo"], ["Tráfego aéreo", "Livre no mapa"], ["Atualização de mapas", "@Atualização de mapas"]], "widths": [0.4, 0.6]}]}
+ },
+ "case_19": {
+  "doc_1": {"art": "qr", "caption": "Etiqueta lida pelo scanner da oficina.", "blocks": [{"type": "table", "title": "Leitura do scanner", "cols": ["Campo", "Valor"], "rows": [["Código QR", "@Código QR"]], "widths": [0.35, 0.65]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Números de série liberados no lote", "cols": ["Série", "Situação"], "rows": [["XJ-992A-43", "liberado"], ["@Lote Aprovado", "liberado"], ["XJ-992A-45", "liberado"]], "widths": [0.5, 0.5]}]},
+  "doc_3": {"blocks": [{"type": "terminal", "title": "Consulta ao banco global de peças", "lines": ["consultando série...", "resultado:", "@Status do Serial", "última atualização: hoje 04:00"]}]}
+ },
+ "case_20": {
+  "doc_1": {"blocks": [{"type": "letter", "title": "Contrato de vendas · CLT", "headers": [["Documento", "Contrato de trabalho"], ["Cláusula", "4 de 9"]], "text": ""}, {"type": "para", "title": "Texto da cláusula", "items": ["@Cláusula 4"], "numbered": false}, {"type": "seal", "text": "ASSINADO", "side": "R", "tilt": -5}]},
+  "doc_2": {"blocks": [{"type": "letter", "title": "Contrato de vendas · CLT", "headers": [["Documento", "Contrato de trabalho"], ["Cláusula", "5 de 9"]], "text": ""}, {"type": "para", "title": "Texto da cláusula", "items": ["@Cláusula 5"], "numbered": false}, {"type": "seal", "text": "ASSINADO", "side": "R", "tilt": -5}]},
+  "doc_3": {"blocks": [{"type": "bars", "title": "Vendas: fevereiro x março", "bars": [["Fevereiro", 0.5, "100"], ["Março", 1.0, "200"]]}, {"type": "table", "title": "Fechamento do mês", "cols": ["Situação"], "rows": [["@Vendas"]]}]}
+ },
+ "case_21": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Resultados do exame", "cols": ["Exame", "Resultado", "Referência"], "rows": [["Colesterol", "@Colesterol", "até 200"], ["Pressão", "@Pressão", "até 12x8"], ["Glicose", "Normal", "até 99"]], "widths": [0.34, 0.33, 0.33]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Como o risco foi calculado", "cols": ["Fonte", "Peso"], "rows": [["Exames do cliente", "10%"], ["@Fonte de Risco", "70%"], ["Idade", "20%"]], "widths": [0.62, 0.38]}, {"type": "seal", "text": "REAJUSTE 40%", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Itens mais comprados no cartão fidelidade", "cols": ["Ranking", "Itens"], "rows": [["Mais frequentes", "@Itens Frequentes"], ["Frutas", "2 vezes"], ["Verduras", "3 vezes"]], "widths": [0.34, 0.66]}]}
+ },
+ "case_22": {
+  "doc_1": {"blocks": [{"type": "para", "title": "Política de acesso · setor restrito", "items": ["Entrada só com crachá ativo", "@Regra Noturna", "Toda entrada é gravada em vídeo"], "numbered": true}, {"type": "seal", "text": "SEGURANÇA", "side": "R", "tilt": -4}, {"type": "note", "text": "Exceções precisam de e-mail da diretoria.", "side": "L", "tilt": -1.5}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Registro da porta · entrada B", "cols": ["Hora", "Credencial", "Resultado"], "rows": [["22:41", "Crachá 3102", "Negado"], ["@Horário", "@Credencial", "Concedido"], ["23:40", "Crachá 1990", "Negado"]], "widths": [0.2, 0.5, 0.3]}, {"type": "note", "text": "Ninguém da segurança estava de plantão na hora.", "side": "R", "tilt": 2}]},
+  "doc_3": {"blocks": [{"type": "letter", "title": "Mensagem arquivada", "headers": [["De", "CEO"], ["Para", "Infraestrutura"], ["Assunto", "@Assunto"], ["Anexo", "@Anexo"]], "text": "Precisamos recuperar o servidor esta noite. Segue o token para o acesso. Obrigado."}, {"type": "seal", "text": "ENVIADO", "side": "R", "tilt": -4}]}
+ },
+ "case_23": {
+  "doc_1": {"blocks": [{"type": "para", "title": "Como o app ordena os motoristas", "items": ["Ranking atualizado toda semana", "@Prioridade", "Corridas melhores vão para o topo"], "numbered": true}, {"type": "seal", "text": "REGRA DO APP", "side": "R", "tilt": -4}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Grupo A · 1.800 motoristas", "cols": ["Dado", "Valor"], "rows": [["Perfil", "@Perfil"], ["Jornada", "@Jornada"], ["Posição média no ranking", "780 de 3.000"]], "widths": [0.4, 0.6]}, {"type": "bars", "title": "Horas online por dia", "bars": [["Grupo A", 0.71, "10h"], ["Meta do app", 0.86, "12h"]]}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Grupo B · 2.100 motoristas", "cols": ["Dado", "Valor"], "rows": [["Perfil", "@Perfil"], ["Jornada", "@Jornada"], ["Posição média no ranking", "410 de 3.000"]], "widths": [0.4, 0.6]}, {"type": "bars", "title": "Horas online por dia", "bars": [["Grupo B", 0.93, "13h"], ["Meta do app", 0.86, "12h"]]}]}
+ },
+ "case_24": {
+  "doc_1": {"blocks": [{"type": "terminal", "title": "Log da Prensa Hidráulica 12", "lines": ["06:10  ciclo normal", "09:42  ALERTA:", "@Erro", "09:43  alarme soou (3x neste turno)", "09:44  operador pediu parada"]}]},
+  "doc_2": {"blocks": [{"type": "para", "title": "Manual de segurança · prensas", "items": ["@Regra", "Só o gerente libera a volta", "Registro obrigatório da parada"], "numbered": true}, {"type": "seal", "text": "NORMA 12", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "letter", "title": "Painel FactoryBrain · ordens ativas", "headers": [["Meta do mês", "12 mil peças"], ["Ordem", "@Ordem"]], "text": "O sistema prioriza cumprir as metas definidas pela diretoria industrial."}, {"type": "seal", "text": "PRIORIDADE", "side": "R", "tilt": -3}]},
+  "doc_4": {"blocks": [{"type": "terminal", "title": "Comando emitido pela IA", "lines": ["decisão tomada às 09:45", "@Decisão", "aprovação humana: nenhuma", "status da máquina: em operação"]}]}
+ },
+ "case_25": {
+  "doc_1": {"art": "badge", "caption": "Crachá lido na portaria.", "blocks": [{"type": "table", "title": "Leitura do crachá", "cols": ["Campo", "Dado"], "rows": [["ID", "@ID"], ["Vínculo", "@Vínculo"]], "widths": [0.3, 0.7]}, {"type": "note", "text": "Foto confere com o portador.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Prefixos de crachá", "cols": ["Prefixo", "Quem usa"], "rows": [["FUN", "Funcionário da casa"], ["Regra", "@Padrão"], ["VIS", "Visitantes"]], "widths": [0.22, 0.78]}, {"type": "seal", "text": "CADASTRO RH", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Contratos externos", "cols": ["Empresa", "Serviço", "Situação"], "rows": [["Serviços Integrados", "Limpeza", "@Status"], ["Alpha Segurança", "Portaria", "Ativo"]], "widths": [0.3, 0.17, 0.53]}, {"type": "note", "text": "Prazo dos contratos de limpeza conferido pelo RH.", "side": "L", "tilt": -1.5}]}
+ },
+ "case_26": {
+  "doc_1": {"blocks": [{"type": "para", "title": "Regras de ponto · vigilantes", "items": ["Registrar entrada na guarita 2", "@Área permitida", "Sair do raio sem aviso vira falta"], "numbered": true}, {"type": "seal", "text": "RH", "side": "R", "tilt": -4}]},
+  "doc_2": {"art": "gps", "caption": "Mapa do celular no horário da ocorrência.", "blocks": [{"type": "table", "title": "Leitura do celular", "cols": ["Campo", "Dado"], "rows": [["Posição bruta", "@Posição Bruta"], ["Precisão", "GPS comum"]], "widths": [0.34, 0.66]}]},
+  "doc_3": {"blocks": [{"type": "terminal", "title": "Cálculo GeoTrack Ponto", "lines": ["posição lida: 40 m", "margem de erro: 30 m", "ajuste aplicado:", "@Ajuste de Risco", "resultado: falta grave"]}]}
+ },
+ "case_27": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Histórico de uso da conta", "cols": ["Data", "Ação", "Duração"], "rows": [["@Data", "@Ação", "40 segundos"]], "widths": [0.24, 0.5, 0.26]}, {"type": "note", "text": "O usuário fechou o aplicativo logo depois.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "para", "title": "Contrato de uso · versão 2", "items": ["Cláusula 30: dados de navegação", "@Cláusula Adicionada", "Cláusula 32: foro da comarca"], "numbered": true}, {"type": "seal", "text": "V.2", "side": "R", "tilt": -5}]},
+  "doc_3": {"blocks": [{"type": "timeline", "title": "Histórico de publicações", "entries": [["V.1", "Publicada há 8 meses"], ["V.2", "@Publicação V.2"]]}, {"type": "note", "text": "Publicações automáticas de madrugada.", "side": "R", "tilt": 1.5}]}
+ },
+ "case_28": {
+  "doc_1": {"blocks": [{"type": "terminal", "title": "Log do Ponto Eletrônico", "lines": ["comando executado:", "@Ação", "registros afetados: ~340", "backup: nenhum"]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Rastro de acesso", "cols": ["Campo", "Dado"], "rows": [["Credencial", "@Credencial Usada"], ["Tipo", "Conta compartilhada"], ["Horário", "Sábado 23:12"]], "widths": [0.32, 0.68]}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Origem da conexão", "cols": ["Campo", "Dado"], "rows": [["Origem", "@Origem do Acesso Suporte"], ["Tipo", "Acesso remoto"], ["Cidade", "Filial regional"]], "widths": [0.3, 0.7]}]},
+  "doc_4": {"blocks": [{"type": "para", "title": "Política de horas", "items": ["@Regra", "Horas extras exigem aprovação", "Correções só com registro"], "numbered": true}, {"type": "seal", "text": "RH", "side": "R", "tilt": -4}]}
+ },
+ "case_29": {
+  "doc_1": {"blocks": [{"type": "bars", "title": "Origem dos trainees 2020–2025", "bars": [["Faculdade A", 0.45, "45%"], ["Faculdade B", 0.35, "35%"], ["Outras", 0.2, "20%"]]}, {"type": "table", "title": "Resumo", "cols": ["Dado"], "rows": [["@Perfil Passado"]]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Resultado do programa 2026", "cols": ["Dado"], "rows": [["@Perfil Aprovado"]]}, {"type": "bars", "title": "Origem dos selecionados 2026", "bars": [["Universidades públicas", 0.6, "60%"], ["Privadas", 0.4, "40%"]]}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Como a análise cega funciona", "items": ["A IA lê só habilidades técnicas", "@Campos Ocultados", "Ranking final por pontuação"], "numbered": true}, {"type": "seal", "text": "BLINDHIRE", "side": "R", "tilt": -4}]}
+ },
+ "case_30": {
+  "doc_1": {"art": "mall", "caption": "Planta do shopping. O que os sensores mostram.", "blocks": [{"type": "table", "title": "Sensores de fumaça", "cols": ["Corredor", "Leitura"], "rows": [["Sul", "@Corredor Sul"]], "widths": [0.25, 0.75]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Sensores de movimento", "cols": ["Corredor", "Lotação"], "rows": [["Norte", "@Corredor Norte"], ["Leste", "Livre"]], "widths": [0.25, 0.75]}, {"type": "bars", "title": "Ocupação dos corredores", "bars": [["Corredor Norte", 1.0, "100%"], ["Corredor Leste", 0.2, "20%"]]}]},
+  "doc_3": {"blocks": [{"type": "terminal", "title": "Comandos dos painéis de saída", "lines": ["painéis 1, 2 e 3", "comando enviado:", "@Comando", "status: em execução"]}]}
+ },
+ "case_31": {
+  "doc_1": {"blocks": [{"type": "chat", "title": "Fórum de usuários", "messages": [["L", "usuario_1978", "@Reclamação"], ["R", "moderador", "Estamos analisando o caso."], ["L", "tia_da_net", "Comigo também aconteceu!"]]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Requisitos da versão 9", "cols": ["Item", "Valor"], "rows": [["Consumo base", "@Consumo Base"], ["Armazenamento", "4 GB"], ["Processador", "2 núcleos"]], "widths": [0.36, 0.64]}, {"type": "seal", "text": "V.9", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Testes em máquinas antigas", "cols": ["Máquina", "Resultado"], "rows": [["Menos de 8 GB", "@Teste em máquinas < 8GB"], ["16 GB", "Sem problemas"]], "widths": [0.3, 0.7]}, {"type": "note", "text": "Testes feitos em duas semanas, 42 modelos.", "side": "R", "tilt": 2}]}
+ },
+ "case_32": {
+  "doc_1": {"image": "radar.png", "art": "radar", "caption": "Câmera 07 · Pórtico Sul.", "inset": "plate:ABC-1284:mud", "blocks": [{"type": "table", "title": "Leitura da câmera", "cols": ["Campo", "Dado"], "rows": [["Data", "@Data"], ["Placa lida pela IA", "@Placa Lida"], ["Observação", "@Observação"]], "widths": [0.32, 0.68]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Registro do veículo", "cols": ["Campo", "Dado"], "rows": [["Placa", "@Placa"], ["Modelo", "@Modelo"], ["Proprietário", "Marcos T. Oliveira"], ["Situação", "Licenciado"]], "widths": [0.32, 0.68]}, {"type": "note", "text": "Licenciamento em dia, sem multas anteriores.", "side": "R", "tilt": 2}]}
+ },
+ "case_33": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Folha de ponto · novembro", "cols": ["Dia", "Registro", "Extras"], "rows": [["14/11", "08h–17h", "0h"], ["15/11 (feriado)", "07h–18h", "@Dia 15/11"], ["16/11", "08h–17h", "0h"]], "widths": [0.34, 0.33, 0.33]}, {"type": "note", "text": "Feriado nacional: trabalho autorizado pelo chefe.", "side": "R", "tilt": 1.5}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Holerite · novembro", "cols": ["Item", "Valor"], "rows": [["Salário base", "$1.600"], ["Horas extras", "@Valor Extra Pago"], ["Desconto INSS", "-$140"]], "widths": [0.3, 0.7]}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Acordo do sindicato", "items": ["Horas extras normais pagam 1.5x", "@Regra", "Noturnas pagam adicional de 20%"], "numbered": true}, {"type": "seal", "text": "SINDICATO", "side": "R", "tilt": -4}]}
+ },
+ "case_34": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Formulário de aluguel", "cols": ["Campo", "Dado"], "rows": [["Renda mensal", "@Renda"], ["Aluguel", "@Aluguel"], ["Dívidas ativas", "Nenhuma"]], "widths": [0.4, 0.6]}, {"type": "checklist", "title": "Documentos entregues", "items": [["Comprovante de renda", "x"], ["Documento com foto", "x"], ["Fiador", "-"]]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Relatório RentaScore", "cols": ["Campo", "Dado"], "rows": [["Nota de crédito", "@Nota de crédito"], ["Fator de rejeição", "@Fator de Rejeição"]], "widths": [0.32, 0.68]}, {"type": "seal", "text": "NEGADO", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Critérios para aprovar aluguel", "items": ["@Critérios Válidos", "Análise feita por pessoa", "Motivo da negativa por escrito"], "numbered": true}, {"type": "seal", "text": "POLÍTICA", "side": "R", "tilt": -4}]}
+ },
+ "case_35": {
+  "doc_1": {"blocks": [{"type": "checklist", "title": "Termos de uso da TV (aceite ao ligar)", "items": [["@Captura de Áudio", "x"], ["Atualizações automáticas", "x"], ["Anúncios na tela inicial", "x"]]}, {"type": "note", "text": "O termo tem 22 páginas. Ninguém lê.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Histórico da campanha", "cols": ["Campo", "Dado"], "rows": [["ID do cliente", "@ID Cliente"], ["Gatilho", "@Gatilho"], ["Anúncio", "Xarope e pastilhas"]], "widths": [0.3, 0.7]}]},
+  "doc_3": {"blocks": [{"type": "letter", "title": "Contrato de anunciante", "headers": [["Anunciante", "Rede de farmácias"], ["Agência", "Mídia Total"], ["Fonte dos dados", "@Fonte dos dados"]], "text": "A agência entrega anúncios ao público definido pela fonte acima, com verba de $40 mil."}, {"type": "seal", "text": "CONTRATO", "side": "R", "tilt": -4}]}
+ },
+ "case_36": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Currículo · candidata A", "cols": ["Campo", "Dado"], "rows": [["Cargo", "@Experiência"], ["Formação", "Engenharia Civil"], ["Lacuna", "@Lacuna"]], "widths": [0.3, 0.7]}, {"type": "timeline", "title": "Trajetória", "entries": [["2014–20", "Engenheira Jr. até Pleno"], ["2022–hoje", "Engenheira Pleno"]]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Currículo · candidato B", "cols": ["Campo", "Dado"], "rows": [["Cargo", "@Experiência"], ["Formação", "Engenharia Civil"], ["Lacuna", "@Lacuna"]], "widths": [0.3, 0.7]}, {"type": "timeline", "title": "Trajetória", "entries": [["2012–18", "Engenheiro Jr. até Pleno"], ["2020–hoje", "Engenheiro Pleno"]]}, {"type": "seal", "text": "APROVADO", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Regras do HR-Filter", "items": ["Roda em cerca de 400 currículos por dia", "@Regra Interna"], "numbered": true}, {"type": "seal", "text": "FILTRO v3", "side": "R", "tilt": -4}]}
+ },
+ "case_37": {
+  "doc_1": {"blocks": [{"type": "terminal", "title": "Relatório de voo do SkyOps", "lines": ["missão: entrega no bairro Alto", "causa da queda:", "@Causa", "conclusão: falha humana"]}, {"type": "seal", "text": "RELATÓRIO IA", "side": "R", "tilt": -4}]},
+  "doc_2": {"blocks": [{"type": "timeline", "title": "Ações do operador · terminal 4", "entries": [["13:55", "Missão iniciada"], ["14:00", "Último comando enviado"], ["14:02", "@Ações"]]}, {"type": "note", "text": "Registro do teclado e do controle do operador.", "side": "R", "tilt": 1.5}]},
+  "doc_3": {"art": "telemetry", "caption": "Giroscópio do drone. A linha vermelha é depois de 14:02.", "blocks": [{"type": "table", "title": "Sensor do drone", "cols": ["Campo", "Dado"], "rows": [["Status 14:01", "@Status 14:01"], ["Observação", "@Observação"]], "widths": [0.3, 0.7]}]}
+ },
+ "case_38": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Requerimento de saque", "cols": ["Campo", "Dado"], "rows": [["Nome", "@Nome"], ["CPF", "@CPF"], ["Valor", "$8.400"]], "widths": [0.3, 0.7]}, {"type": "checklist", "title": "Documentos anexados", "items": [["Documento com foto", "x"], ["Comprovante de endereço", "x"]]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Cadastro do banco", "cols": ["Campo", "Dado"], "rows": [["Nome", "@Nome"], ["CPF", "@CPF"], ["Conta aberta", "Há 15 anos"]], "widths": [0.3, 0.7]}, {"type": "note", "text": "Conta antiga: nunca teve atualização de nome.", "side": "R", "tilt": 2}]},
+  "doc_3": {"blocks": [{"type": "letter", "title": "Certidão de casamento", "headers": [["Cartório", "2º Ofício de Registro Civil"], ["Alteração", "@Alteração"]], "text": "Certifico que o registro acima foi alterado a pedido da titular."}, {"type": "seal", "text": "REGISTRADO", "side": "R", "tilt": -5}]}
+ },
+ "case_39": {
+  "doc_1": {"blocks": [{"type": "receipt", "title": "Itens da nota fiscal", "items": [["@Carga", "400 un.", "lote 12"]], "totals": [["PESO TOTAL", "", "@Peso Total"]]}, {"type": "note", "text": "Fornecedor americano: peso informado na unidade deles.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Regras do porto", "cols": ["Item", "Regra"], "rows": [["Limite por contêiner", "@Limite por contêiner"], ["Unidade de peso", "Quilogramas"], ["Multa por excesso", "$500 por tonelada"]], "widths": [0.45, 0.55]}]},
+  "doc_3": {"blocks": [{"type": "terminal", "title": "Cálculo PortoTox", "lines": ["peso de entrada:", "@Peso de Entrada", "limite do porto: 2000", "conta feita:", "@Decisão"]}]}
+ },
+ "case_40": {
+  "doc_1": {"blocks": [{"type": "bars", "title": "Desempenho do desenvolvedor", "bars": [["Entregas no prazo", 1.0, "100%"], ["Testes automáticos", 0.92, "92%"]]}, {"type": "table", "title": "Resumo do gestor", "cols": ["Campo", "Dado"], "rows": [["Entregas", "@Entregas"], ["Qualidade do código", "@Qualidade do Código"]], "widths": [0.45, 0.55]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Relatório TeamFit", "cols": ["Campo", "Dado"], "rows": [["Signo do candidato", "@Signo do Candidato"], ["Signo do gestor", "@Signo do Gestor"], ["Compatibilidade", "@Compatibilidade"]], "widths": [0.5, 0.5]}, {"type": "seal", "text": "RECUSADO", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Regras de promoção", "items": ["@Critérios de Promoção", "Comitê de pessoas decide", "Recurso em 10 dias"], "numbered": true}, {"type": "seal", "text": "DIRETORIA", "side": "R", "tilt": -4}]}
+ },
+ "case_41": {
+  "doc_1": {"blocks": [{"type": "letter", "title": "Notificação de reajuste", "headers": [["De", "SaudeMais Seguros"], ["Assunto", "Reajuste da mensalidade"], ["Motivo", "@Motivo"]], "text": "Sua mensalidade será reajustada no próximo ciclo. Em caso de dúvidas, procure a central."}, {"type": "seal", "text": "REAJUSTE", "side": "R", "tilt": -4}]},
+  "doc_2": {"blocks": [{"type": "bars", "title": "Passos por dia", "bars": [["Há 6 meses", 1.0, "10 mil"], ["Hoje", 0.2, "2 mil"]]}, {"type": "table", "title": "Resumo do aplicativo", "cols": ["Campo", "Dado"], "rows": [["Passos diários", "@Passos diários"]], "widths": [0.4, 0.6]}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Política de privacidade do RunFree", "items": ["Coletamos passos e batimentos", "@Privacidade", "Você pode apagar seu histórico"], "numbered": true}, {"type": "seal", "text": "v2.4", "side": "R", "tilt": -4}]}
+ },
+ "case_42": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Perfil do cliente", "cols": ["Campo", "Dado"], "rows": [["Renda mensal", "@Renda Mensal"], ["Atrasos", "@Histórico de Atrasos"], ["Tempo de conta", "8 anos"]], "widths": [0.4, 0.6]}, {"type": "note", "text": "Cliente paga a fatura sempre em dia.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Relatório GeoCred", "cols": ["Campo", "Dado"], "rows": [["CEP", "@CEP"], ["Risco regional", "@Risco Regional"], ["Ação", "Reduzir limite"]], "widths": [0.34, 0.66]}, {"type": "seal", "text": "LIMITE ↓", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "bars", "title": "Composição do bairro", "bars": [["Jardim Alvorada", 0.8, "80%"]]}, {"type": "table", "title": "Dado do instituto", "cols": ["Bairro", "Dado"], "rows": [["Jardim Alvorada", "@Jardim Alvorada"]], "widths": [0.34, 0.66]}]}
+ },
+ "case_43": {
+  "doc_1": {"blocks": [{"type": "bars", "title": "Estoque do almoxarifado", "bars": [["Aço", 0.1, "5 t"], ["Cobre", 0.7, "35 t"], ["Alumínio", 0.5, "25 t"]]}, {"type": "table", "title": "Alerta de estoque", "cols": ["Item", "Situação"], "rows": [["Aço", "@Aço"]], "widths": [0.3, 0.7]}]},
+  "doc_2": {"blocks": [{"type": "letter", "title": "Aviso da Engenharia", "headers": [["Local", "Galpão 3"], ["Situação", "@Galpão 3"]], "text": "Ninguém pode entrar até a conclusão do reparo."}, {"type": "seal", "text": "INTERDITADO", "side": "R", "tilt": -5}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Pedido de compra automático", "cols": ["Campo", "Dado"], "rows": [["Fornecedor", "Aciaria Continental"], ["Quantidade", "@Quantidade"], ["Destino", "@Destino"], ["Prazo", "48 horas"]], "widths": [0.34, 0.66]}]}
+ },
+ "case_44": {
+  "doc_1": {"art": "crowd", "image": "crowd.png", "caption": "Imagem da câmera em manifestação.", "blocks": [{"type": "table", "title": "Alerta SecurFace", "cols": ["Campo", "Dado"], "rows": [["ID suspeito", "@ID Suspeito"], ["Fotos associadas", "@Fotos Associadas"]], "widths": [0.32, 0.68]}]},
+  "doc_2": {"art": "face_round", "image": "joao.png", "caption": "Foto do crachá de João.", "blocks": [{"type": "table", "title": "Registro funcional", "cols": ["Campo", "Dado"], "rows": [["Foto", "@Foto"], ["Histórico", "@Histórico"], ["Empresa", "Fábrica Metalis"]], "widths": [0.3, 0.7]}]},
+  "doc_3": {"art": "face_square", "image": "pedro.png", "caption": "Foto do crachá de Pedro.", "blocks": [{"type": "table", "title": "Registro funcional", "cols": ["Campo", "Dado"], "rows": [["Foto", "@Foto"], ["Histórico", "@Histórico"], ["Empresa", "Fábrica Metalis"]], "widths": [0.3, 0.7]}]}
+ },
+ "case_45": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Balanço anual da startup", "cols": ["Item", "Valor (US$)"], "rows": [["Receita total", "@Receita Total"], ["Gasto em P&D", "@Gasto em P&D"], ["Folha de pagamento", "$400k"]], "widths": [0.5, 0.5]}, {"type": "bars", "title": "Para onde foi o dinheiro", "bars": [["Folha", 0.4, "40%"], ["P&D", 0.25, "25%"], ["Outros", 0.35, "35%"]]}]},
+  "doc_2": {"blocks": [{"type": "para", "title": "Lei de incentivo à inovação · art. 4-B", "items": ["@Requisito", "A empresa comprova por balanço", "Vale para todo o país"], "numbered": true}, {"type": "seal", "text": "DIÁRIO OFICIAL", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "terminal", "title": "Cálculo TaxGeni", "lines": ["receita: $1M · P&D: $250k", "proporção calculada:", "@Proporção Calculada", "veredito:", "@Veredito"]}]}
+ },
+ "case_46": {
+  "doc_1": {"blocks": [{"type": "bars", "title": "Resultados do diretor", "bars": [["Lucro do trimestre", 0.75, "+15%"], ["Retenção da equipe", 0.98, "98%"]]}, {"type": "table", "title": "Resumo", "cols": ["Campo", "Dado"], "rows": [["Lucro no trimestre", "@Lucro no trimestre"], ["Retenção de equipe", "@Retenção de equipe"]], "widths": [0.5, 0.5]}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Relatório CorpCulture", "cols": ["Campo", "Dado"], "rows": [["Nota cultural", "@Nota cultural"], ["Fatores", "@Fatores"]], "widths": [0.3, 0.7]}, {"type": "seal", "text": "45/100", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Manual de avaliação de liderança", "items": ["@Critérios", "Avaliação por comitê", "Resultados vêm do financeiro"], "numbered": true}, {"type": "seal", "text": "DIRETORIA", "side": "R", "tilt": -4}]}
+ },
+ "case_47": {
+  "doc_1": {"blocks": [{"type": "letter", "title": "Reclamação do cliente", "headers": [["De", "Cliente"], ["Para", "Atendimento"], ["Assunto", "Cancelar e-mails"]], "text": ""}, {"type": "para", "title": "Mensagem", "items": ["@Mensagem"], "numbered": false}, {"type": "seal", "text": "URGENTE", "side": "R", "tilt": -4}]},
+  "doc_2": {"blocks": [{"type": "timeline", "title": "Ações registradas no servidor", "entries": [["18:02", "Abriu os termos de uso"], ["18:02", "@Ações"], ["18:03", "Conta criada"]]}, {"type": "note", "text": "Ficou 8 segundos nos termos.", "side": "R", "tilt": 2}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Termos de uso · página 2", "items": ["Cláusula 3: uso pessoal", "@Cláusula 4", "Cláusula 5: cancelamento"], "numbered": false}, {"type": "seal", "text": "PÁG. 2", "side": "R", "tilt": -4}]}
+ },
+ "case_48": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Avaliação de qualidade · supervisor", "cols": ["Atendente", "Resultado"], "rows": [["Maria", "@Atendente Maria"], ["Pedro", "Nota 88/100"]], "widths": [0.25, 0.75]}, {"type": "note", "text": "Escuta de 20 ligações no trimestre.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Relatório SpeechScore", "cols": ["Atendente", "Resultado"], "rows": [["Maria", "@Atendente Maria"], ["Pedro", "Nota 82/100"]], "widths": [0.25, 0.75]}, {"type": "seal", "text": "ABAIXO DE 60", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "bars", "title": "Origem do áudio de treino", "bars": [["Sudeste/Sul", 0.9, "90%"], ["Outras regiões", 0.1, "10%"]]}, {"type": "table", "title": "Manual de treinamento", "cols": ["Campo", "Dado"], "rows": [["Base de dados", "@Base de Dados"]], "widths": [0.35, 0.65]}]}
+ },
+ "case_49": {
+  "doc_1": {"blocks": [{"type": "timeline", "title": "Registro do avião", "entries": [["17:58", "Voo em rota normal"], ["18:00", "@Comando do piloto"]]}, {"type": "note", "text": "Registro do computador de bordo.", "side": "R", "tilt": 1.5}]},
+  "doc_2": {"blocks": [{"type": "timeline", "title": "Registro do AutoRoute", "entries": [["18:03", "Calculando economia de combustível"], ["18:05", "@Ação às 18:05"]]}, {"type": "seal", "text": "REMOTO", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Regulamento de aviação", "items": ["@Regra Mestra", "Toda alteração de rota é registrada", "Descumprir gera multa e suspensão"], "numbered": true}, {"type": "seal", "text": "OFICIAL", "side": "R", "tilt": -4}]}
+ },
+ "case_50": {
+  "doc_1": {"art": "serial", "caption": "Placa da peça vista pela câmera.", "blocks": [{"type": "table", "title": "Leitura da câmera", "cols": ["Campo", "Dado"], "rows": [["Inscrição", "@Inscrição"]], "widths": [0.3, 0.7]}]},
+  "doc_2": {"blocks": [{"type": "terminal", "title": "Relatório ScanCheck", "lines": ["confiança da leitura: 62%", "leitura interpretada:", "@Leitura Interpretada", "veredito:", "@Veredito"]}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Nota fiscal do fornecedor", "cols": ["Campo", "Dado"], "rows": [["Lote enviado", "@Lote Enviado"], ["Peças", "300"]], "widths": [0.3, 0.7]}, {"type": "note", "text": "Lista os números de série de cada peça enviada.", "side": "R", "tilt": 2}]}
+ },
+ "case_51": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Fatura da Kyoto Tech", "cols": ["Campo", "Dado"], "rows": [["Serviço", "@Serviço"], ["Valor", "@Valor"], ["Observação", "@Observação"]], "widths": [0.3, 0.7]}, {"type": "seal", "text": "VENCE NO FIM DO MÊS", "side": "R", "tilt": -3}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Alerta PaySafe", "cols": ["Campo", "Dado"], "rows": [["Média do serviço", "@Média do Serviço"], ["Cálculo", "@Cálculo"]], "widths": [0.34, 0.66]}, {"type": "seal", "text": "BLOQUEAR", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Cadastro de fornecedores", "cols": ["Empresa", "Dado"], "rows": [["Kyoto Tech", "@Kyoto Tech"], ["Alpha Peças", "Sede: São Paulo · reais"]], "widths": [0.3, 0.7]}, {"type": "note", "text": "Cada fornecedor tem uma moeda de pagamento.", "side": "R", "tilt": 2}]}
+ },
+ "case_52": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Currículo do piloto", "cols": ["Campo", "Dado"], "rows": [["Horas de voo", "@Horas de voo"], ["Condecorações", "@Condecorações"]], "widths": [0.35, 0.65]}, {"type": "note", "text": "Trinta anos de carreira e muitos elogios.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Licença de piloto", "cols": ["Campo", "Dado"], "rows": [["Categoria", "Comercial · jatos"], ["Validade médica", "@Validade Médica"]], "widths": [0.35, 0.65]}, {"type": "seal", "text": "LICENÇA", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Regulamento de aviação", "items": ["@Permissão de Voo", "Multa e suspensão para quem descumprir"], "numbered": true}, {"type": "seal", "text": "OFICIAL", "side": "R", "tilt": -4}]}
+ },
+ "case_53": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Histórico da conta", "cols": ["Evento", "Data"], "rows": [["Última compra", "Domingo"], ["Pedido de cancelamento", "@Pedido de cancelamento"]], "widths": [0.45, 0.55]}, {"type": "note", "text": "Pedido feito pelo formulário do site.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Histórico de disparo", "cols": ["Evento", "Data"], "rows": [["Campanha", "Liquidação de fim de mês"], ["Envio da oferta", "@Envio da Oferta"]], "widths": [0.4, 0.6]}, {"type": "seal", "text": "AUTOMÁTICO", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Termos de serviço", "items": ["Cláusula 8: conta e cadastro", "@Cláusula de Saída"], "numbered": false}, {"type": "seal", "text": "v5.2", "side": "R", "tilt": -4}]}
+ },
+ "case_54": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Balanço da empresa", "cols": ["Campo", "Dado"], "rows": [["Crescimento", "@Crescimento"], ["Inadimplência", "@Inadimplência"]], "widths": [0.4, 0.6]}, {"type": "note", "text": "Balanço auditado por escritório externo.", "side": "R", "tilt": 2}]},
+  "doc_2": {"blocks": [{"type": "letter", "title": "Relatório do gerente", "headers": [["Veredito", "@Veredito"]], "text": ""}, {"type": "para", "title": "Notas manuais", "items": ["@Notas Manuais"], "numbered": false}, {"type": "seal", "text": "À MÃO", "side": "R", "tilt": -4}]},
+  "doc_3": {"blocks": [{"type": "table", "title": "Histórico FairCred", "cols": ["Campo", "Dado"], "rows": [["Veredito", "@Veredito"]], "widths": [0.3, 0.7]}, {"type": "para", "title": "Filtro de viés", "items": ["@Filtro de Viés"], "numbered": false}]}
+ },
+ "case_55": {
+  "doc_1": {"blocks": [{"type": "table", "title": "Alerta SecurCore", "cols": ["Campo", "Dado"], "rows": [["Ameaça", "@Ameaça"], ["Resposta", "@Resposta"]], "widths": [0.28, 0.72]}, {"type": "seal", "text": "ALERTA", "side": "R", "tilt": -4}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Entradas por crachá · hoje", "cols": ["Setor", "Quem"], "rows": [["Setor A", "@Presença"], ["Setor B", "Ninguém"]], "widths": [0.25, 0.75]}, {"type": "note", "text": "Registro automático das catracas.", "side": "R", "tilt": 2}]},
+  "doc_3": {"blocks": [{"type": "para", "title": "Manual de emergência", "items": ["@Regra 1", "Regra 2: acione os bombeiros"], "numbered": false}, {"type": "seal", "text": "BOMBEIROS", "side": "R", "tilt": -4}]}
+ },
+ "case_56": {
+  "doc_1": {"blocks": [{"type": "para", "title": "Contrato master de fornecimento", "items": ["@Preço por Peça", "Sem reajuste no período", "Vale para 12 meses"], "numbered": true}, {"type": "seal", "text": "ASSINADO", "side": "R", "tilt": -4}]},
+  "doc_2": {"blocks": [{"type": "table", "title": "Faturamento anual", "cols": ["Campo", "Dado"], "rows": [["Volume", "@Volume"], ["Faturado", "@Faturado"]], "widths": [0.3, 0.7]}, {"type": "note", "text": "Um faturamento por mês, total na última linha.", "side": "R", "tilt": 2}]},
+  "doc_3": {"blocks": [{"type": "terminal", "title": "Relatório FraudHawk", "lines": ["conta feita:", "@Conta certa", "detecção:", "@Detecção"]}]}
+ }
+}

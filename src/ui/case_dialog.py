@@ -20,8 +20,8 @@ BLUE = (93, 159, 177)
 AMBER = (211, 149, 47)
 PURPLE = (143, 74, 154)
 
-BRIEFING_RECT = pygame.Rect(273, 118, 1008, 462)
-BRIEFING_START_RECT = pygame.Rect(884, 526, 342, 43)
+BRIEFING_RECT = pygame.Rect(120, 20, 1314, 656)
+BRIEFING_START_RECT = pygame.Rect(1030, 602, 368, 46)
 
 CONFIRM_RECT = pygame.Rect(354, 168, 846, 350)
 CONFIRM_YES_RECT = pygame.Rect(756, 431, 393, 58)
@@ -32,6 +32,7 @@ STAMP_LABELS = {
     "deny": "NEGAR",
     "review": "REVISÃO HUMANA",
     "violation": "VIOLAÇÃO",
+    "timeout": "TEMPO ESGOTADO",
 }
 
 STAMP_COLORS = {
@@ -48,11 +49,13 @@ class CaseDialog:
     def __init__(self, case: AuditCase) -> None:
         self.case = case
         self.mode: str | None = "briefing"
+        self.reopened = False
         self.pending_stamp_id: str | None = None
         self.hovered_control: str | None = None
         self.font_tiny = self._font(15)
         self.font_small = self._font(18)
         self.font_body = self._font(22)
+        self.font_story = self._font(20)
         self.font_body_bold = self._font(22, bold=True)
         self.font_title = self._font(31, bold=True)
         self.font_header = self._font(38, bold=True)
@@ -64,6 +67,12 @@ class CaseDialog:
     def request_confirmation(self, stamp_id: str) -> None:
         self.pending_stamp_id = stamp_id
         self.mode = "confirm"
+
+    def reopen(self) -> None:
+        """Show the case dossier again without touching the case progress."""
+        self.mode = "briefing"
+        self.reopened = True
+        self.hovered_control = None
 
     def reset(self) -> None:
         self.pending_stamp_id = None
@@ -117,7 +126,7 @@ class CaseDialog:
         if self.mode is None:
             return
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 220))
+        dim.fill((0, 0, 0, 255))
         surface.blit(dim, (0, 0))
 
         if self.mode == "briefing":
@@ -126,58 +135,126 @@ class CaseDialog:
             self._render_confirmation(surface)
 
     def _render_briefing(self, surface: pygame.Surface) -> None:
+        case = self.case
         self._draw_layered_rect(surface, BRIEFING_RECT, SCREEN_BLACK, BORDER)
-        eyebrow = "TREINAMENTO GUIADO" if self.case.is_tutorial else f"CASO {self.case.sequence:02d}"
-        self._draw_text(surface, eyebrow, self.font_small, PAPER, (310, 151))
-        self._draw_text(surface, self.case.title.upper(), self.font_header, INK_BRIGHT, (310, 184))
-        pygame.draw.line(surface, BORDER, (310, 235), (1241, 235), 3)
-        self._draw_text(surface, "PERGUNTA DA AUDITORIA", self.font_tiny, PAPER, (310, 260))
-        question_rect = pygame.Rect(310, 284, 900, 49)
-        pygame.draw.rect(surface, PANEL_MID, question_rect)
-        pygame.draw.rect(surface, BORDER_DARK, question_rect, 2)
+        left = BRIEFING_RECT.x + 36
+        eyebrow = "TREINAMENTO GUIADO" if case.is_tutorial else f"CASO {case.sequence:02d}  ·  {case.newspaper_section}"
+        self._draw_text(surface, eyebrow, self.font_small, PAPER, (left, BRIEFING_RECT.y + 22))
+        self._draw_text(surface, case.title.upper(), self.font_header, INK_BRIGHT, (left, BRIEFING_RECT.y + 46))
         self._draw_text(
             surface,
-            self.case.review_question,
-            self.font_body_bold,
-            INK_BRIGHT,
-            (question_rect.x + 14, question_rect.y + 11),
+            "DOSSIÊ DO CASO — leia com calma, você pode reabrir quando quiser",
+            self.font_tiny,
+            INK_MUTED,
+            (BRIEFING_RECT.right - 36, BRIEFING_RECT.y + 30),
+            anchor="topright",
         )
+        pygame.draw.line(surface, BORDER, (left, BRIEFING_RECT.y + 96), (BRIEFING_RECT.right - 36, BRIEFING_RECT.y + 96), 3)
+
+        # left column: the story, the papers on the desk and what to look at
+        text_width = 700
+        y = BRIEFING_RECT.y + 112
+        self._draw_text(surface, "A HISTÓRIA", self.font_tiny, PAPER, (left, y))
         self._draw_wrapped_text(
             surface,
-            self.case.briefing,
-            self.font_small,
+            case.story or case.briefing,
+            self.font_story,
             INK,
-            pygame.Rect(310, 350, 900, 50),
+            pygame.Rect(left, y + 24, text_width, 240),
+            line_height=25,
+            max_lines=9,
+        )
+        y = BRIEFING_RECT.y + 372
+        papers_label = "DOCUMENTOS-CHAVE (JÁ ESTÃO NA MESA)" if case.is_tutorial else "OS PAPÉIS JÁ ESTÃO NA MESA — LEIA NESTA ORDEM"
+        self._draw_text(surface, papers_label, self.font_tiny, PAPER, (left, y))
+        for index, document in enumerate(case.documents[:4]):
+            self._draw_text(surface, f"{index + 1}   {document.title}", self.font_small, INK_BRIGHT, (left + 8, y + 20 + index * 22))
+            if document.issuer:
+                self._draw_text(surface, f"emitido por {document.issuer}", self.font_tiny, INK_MUTED, (left + 420, y + 24 + index * 22))
+        y = BRIEFING_RECT.y + 506
+        pygame.draw.line(surface, BORDER_DARK, (left, y - 8), (left + text_width, y - 8), 2)
+        self._draw_text(surface, "O QUE CHAMA ATENÇÃO", self.font_tiny, AMBER, (left, y))
+        self._draw_wrapped_text(
+            surface,
+            case.attention,
+            self.font_small,
+            INK_BRIGHT,
+            pygame.Rect(left, y + 22, text_width, 96),
             line_height=24,
-            max_lines=2,
+            max_lines=4,
         )
 
-        key_labels = [
-            source.label
-            for source in self.case.data_sources
-            if source.document_id in self.case.key_document_ids
-        ]
+        # right column: what the AI decided and the question to answer
+        right = left + text_width + 44
+        width = BRIEFING_RECT.right - 36 - right
+        ai = case.ai_decision
+        decision_rect = pygame.Rect(right, BRIEFING_RECT.y + 112, width, 218)
+        pygame.draw.rect(surface, PANEL, decision_rect)
+        pygame.draw.rect(surface, BORDER_DARK, decision_rect, 2)
+        self._draw_text(surface, "O QUE A IA DECIDIU", self.font_tiny, PAPER, (decision_rect.x + 16, decision_rect.y + 14))
+        self._draw_wrapped_text(
+            surface,
+            ai.verdict,
+            self.font_title,
+            INK_BRIGHT,
+            pygame.Rect(decision_rect.x + 16, decision_rect.y + 40, width - 32, 70),
+            line_height=32,
+            max_lines=2,
+        )
         self._draw_text(
             surface,
-            "DOCUMENTOS-CHAVE: " + "  /  ".join(label.upper() for label in key_labels),
+            f"{ai.model_name}  ·  confiança {ai.confidence}",
             self.font_tiny,
-            PAPER,
-            (312, 407),
+            INK_MUTED,
+            (decision_rect.x + 16, decision_rect.y + 104),
         )
-        steps = (
-            "1. Abra a decisão da IA.",
-            "2. Coloque os documentos destacados na mesa.",
-            "3. Clique nos campos destacados para compará-los.",
-            "4. Carimbe, assine e envie.",
+        self._draw_text(surface, "MOTIVO DADO PELA IA", self.font_tiny, PAPER, (decision_rect.x + 16, decision_rect.y + 130))
+        self._draw_wrapped_text(
+            surface,
+            f"“{ai.reason}”",
+            self.font_small,
+            INK,
+            pygame.Rect(decision_rect.x + 16, decision_rect.y + 152, width - 32, 64),
+            line_height=23,
+            max_lines=3,
         )
+        mission_rect = pygame.Rect(right, decision_rect.bottom + 14, width, 132)
+        pygame.draw.rect(surface, PANEL_MID, mission_rect)
+        pygame.draw.rect(surface, BORDER, mission_rect, 2)
+        self._draw_text(surface, "SUA MISSÃO: RESPONDER", self.font_tiny, AMBER, (mission_rect.x + 16, mission_rect.y + 14))
+        self._draw_wrapped_text(
+            surface,
+            case.review_question,
+            self.font_body_bold,
+            INK_BRIGHT,
+            pygame.Rect(mission_rect.x + 16, mission_rect.y + 42, width - 32, 86),
+            line_height=27,
+            max_lines=3,
+        )
+
+        # how to play: explicit steps in the training, general ones afterwards
+        if case.is_tutorial:
+            steps = (
+                "1. Abra a decisão da IA.",
+                "2. Os papéis já estão na mesa: compare os dados destacados.",
+                "3. Abra a FOLHA DE AUDITORIA (painel da direita) e carimbe.",
+                "4. Assine a folha e envie.",
+            )
+        else:
+            steps = (
+                "1. Abra a decisão da IA.",
+                "2. Leia os papéis 1, 2, 3... e compare os dados amarelos.",
+                "3. Ao comparar, o jogo diz qual protocolo consultar.",
+                "4. Abra a FOLHA DE AUDITORIA, carimbe, assine e envie.",
+            )
+        steps_top = mission_rect.bottom + 12
         for index, step in enumerate(steps):
-            y = 428 + index * 25
-            self._draw_text(surface, step, self.font_small, INK_MUTED, (312, y))
+            self._draw_text(surface, step, self.font_tiny, INK_MUTED, (right, steps_top + index * 20))
 
         self._draw_button(
             surface,
             BRIEFING_START_RECT,
-            "COMEÇAR AUDITORIA",
+            "CONTINUAR AUDITORIA" if self.reopened else "COMEÇAR AUDITORIA",
             self.hovered_control == "start",
         )
 

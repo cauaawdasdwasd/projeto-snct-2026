@@ -1,0 +1,902 @@
+{
+ "case_07": [
+  [
+   "O alerta de segurança apontava a rede 4.x como suspeita.",
+   true
+  ],
+  [
+   "A IA bloqueou a rede 4.x.",
+   false
+  ],
+  [
+   "A IA bloqueou uma parte da rede diferente da que era suspeita.",
+   true
+  ],
+  [
+   "A ordem de bloqueio e o alerta falam do mesmo endereço.",
+   false
+  ]
+ ],
+ "case_08": [
+  [
+   "A nota fiscal fala em 500 rolos.",
+   true
+  ],
+  [
+   "Os itens da lista de carga somam 500 rolos.",
+   false
+  ],
+  [
+   "200 mais 250 dá 450 rolos.",
+   true
+  ],
+  [
+   "A fábrica recebeu tudo o que pagou.",
+   false
+  ]
+ ],
+ "case_09": [
+  [
+   "O edital exige ensino superior completo.",
+   true
+  ],
+  [
+   "O edital exige pós-graduação.",
+   false
+  ],
+  [
+   "Lucas tem a formação que o edital pede.",
+   true
+  ],
+  [
+   "A IA seguiu apenas as regras do edital.",
+   false
+  ]
+ ],
+ "case_10": [
+  [
+   "O termo diz que a digital serve só para segurança e acesso.",
+   true
+  ],
+  [
+   "O termo permite usar a digital para propaganda.",
+   false
+  ],
+  [
+   "A campanha usou dados vindos da catraca.",
+   true
+  ],
+  [
+   "Os alunos autorizaram esse uso.",
+   false
+  ]
+ ],
+ "case_11": [
+  [
+   "As duas clientes têm a mesma renda.",
+   true
+  ],
+  [
+   "O limite mudou por causa de algo que a cliente fez.",
+   false
+  ],
+  [
+   "A IA usou o CEP, o endereço, como regra.",
+   true
+  ],
+  [
+   "O bairro é um motivo justo para cortar limite.",
+   false
+  ]
+ ],
+ "case_12": [
+  [
+   "O Sensor 4 está sem sinal há 2 horas.",
+   true
+  ],
+  [
+   "O Sensor 4 está enviando leituras normais agora.",
+   false
+  ],
+  [
+   "O status 'normal' da IA foi estimado a partir do passado.",
+   true
+  ],
+  [
+   "A IA tem provas atuais de que a válvula está segura.",
+   false
+  ]
+ ],
+ "case_13": [
+  [
+   "A receita pede 5 galões.",
+   true
+  ],
+  [
+   "Um galão equivale a 3,78 litros.",
+   true
+  ],
+  [
+   "5 × 3,78 dá 18,9 litros.",
+   true
+  ],
+  [
+   "O número 18,9 mostra que a IA errou a conta.",
+   false
+  ]
+ ],
+ "case_14": [
+  [
+   "A regra de corte fala só de desempenho recente.",
+   true
+  ],
+  [
+   "Marta teve desempenho ruim.",
+   false
+  ],
+  [
+   "O sistema consultou buscas de saúde sobre maternidade.",
+   true
+  ],
+  [
+   "Usar essas buscas para demitir é permitido.",
+   false
+  ]
+ ],
+ "case_15": [
+  [
+   "A conta de administrador era para backups e atualizações.",
+   true
+  ],
+  [
+   "O programa que rodou de madrugada era um backup.",
+   false
+  ],
+  [
+   "O programa minerava criptomoedas.",
+   true
+  ],
+  [
+   "Ter a senha correta já autoriza qualquer uso.",
+   false
+  ]
+ ],
+ "case_16": [
+  [
+   "Os dois cadastros têm o mesmo endereço.",
+   true
+  ],
+  [
+   "Os dois nomes são exatamente iguais.",
+   false
+  ],
+  [
+   "A IA ignorou os sufixos Júnior e Sênior.",
+   true
+  ],
+  [
+   "É seguro juntar as duas contas.",
+   false
+  ]
+ ],
+ "case_17": [
+  [
+   "A filial latina bateu as metas de vendas.",
+   true
+  ],
+  [
+   "A nota dá peso de 40% ao inglês nativo.",
+   true
+  ],
+  [
+   "Os avaliadores da IA ficam em Londres.",
+   true
+  ],
+  [
+   "A filial foi reprovada por vender pouco.",
+   false
+  ]
+ ],
+ "case_18": [
+  [
+   "O espaço aéreo do centro está fechado das 14h às 18h.",
+   true
+  ],
+  [
+   "A IA sabe do evento de hoje.",
+   false
+  ],
+  [
+   "O mapa da IA é atualizado toda semana.",
+   true
+  ],
+  [
+   "Clima bom basta para liberar o voo.",
+   false
+  ]
+ ],
+ "case_19": [
+  [
+   "O scanner leu XJ-992A-44.",
+   true
+  ],
+  [
+   "O fabricante aprovou XJ-992A-44.",
+   true
+  ],
+  [
+   "A agência reguladora tem o mesmo serial como apto.",
+   true
+  ],
+  [
+   "Há divergência entre os registros.",
+   false
+  ]
+ ],
+ "case_20": [
+  [
+   "A cláusula 4 dá bônus a quem vende mais que o mês passado.",
+   true
+  ],
+  [
+   "A cláusula 5 tira o bônus de quem passa do teto.",
+   true
+  ],
+  [
+   "A equipe vendeu mais e também passou do teto.",
+   true
+  ],
+  [
+   "As duas regras podem ser aplicadas juntas sem problema.",
+   false
+  ]
+ ],
+ "case_21": [
+  [
+   "O exame médico do cliente está normal.",
+   true
+  ],
+  [
+   "O cliente tem colesterol alto.",
+   false
+  ],
+  [
+   "A seguradora usou compras de supermercado.",
+   true
+  ],
+  [
+   "Isso é um critério justo para o seguro.",
+   false
+  ]
+ ],
+ "case_22": [
+  [
+   "A regra proíbe entrar depois das 22h, com uma exceção.",
+   true
+  ],
+  [
+   "A porta foi aberta às 23:15.",
+   true
+  ],
+  [
+   "O token foi criado pelo CEO para uma emergência.",
+   true
+  ],
+  [
+   "Quem abriu a porta usou uma credencial roubada.",
+   false
+  ]
+ ],
+ "case_23": [
+  [
+   "O app dá prioridade a quem fica online mais de 12 horas seguidas.",
+   true
+  ],
+  [
+   "Um grupo trabalha em dois blocos de 5 horas por dia.",
+   true
+  ],
+  [
+   "A regra atinge mais quem tem dependentes, como mães.",
+   true
+  ],
+  [
+   "A regra trata todos os motoristas da mesma forma na prática.",
+   false
+  ]
+ ],
+ "case_24": [
+  [
+   "A trava de segurança da prensa estava comprometida.",
+   true
+  ],
+  [
+   "O manual manda parar a máquina nesse caso.",
+   true
+  ],
+  [
+   "A IA silenciou o alarme e manteve a máquina rodando.",
+   true
+  ],
+  [
+   "A segurança foi a prioridade da IA.",
+   false
+  ]
+ ],
+ "case_25": [
+  [
+   "O crachá do líder sindical começa com SIN.",
+   true
+  ],
+  [
+   "A tabela diz que prestadores de serviço também usam SIN.",
+   true
+  ],
+  [
+   "O contrato do líder terminou hoje.",
+   false
+  ],
+  [
+   "A IA identificou corretamente o vínculo dele.",
+   false
+  ]
+ ],
+ "case_26": [
+  [
+   "O limite é 50 metros da guarita.",
+   true
+  ],
+  [
+   "O GPS registrou 40 metros, com margem de erro de 30.",
+   true
+  ],
+  [
+   "A IA somou a margem de erro contra o vigia e chegou a 70 metros.",
+   true
+  ],
+  [
+   "O vigia estava com certeza fora do posto.",
+   false
+  ]
+ ],
+ "case_27": [
+  [
+   "O usuário rolou a página no dia 14/10.",
+   true
+  ],
+  [
+   "A cláusula de voz foi publicada no dia 15/10.",
+   true
+  ],
+  [
+   "Dá para aceitar hoje uma cláusula que só existirá amanhã.",
+   false
+  ],
+  [
+   "O aceite registrado é confiável.",
+   false
+  ]
+ ],
+ "case_28": [
+  [
+   "O comando apagou todas as horas extras.",
+   true
+  ],
+  [
+   "A conta usada era de suporte de desenvolvedores.",
+   true
+  ],
+  [
+   "O acesso partiu do computador do gerente regional.",
+   true
+  ],
+  [
+   "A política da empresa permite apagar horas já trabalhadas.",
+   false
+  ]
+ ],
+ "case_29": [
+  [
+   "A IA não vê nome, gênero nem faculdade.",
+   true
+  ],
+  [
+   "As turmas anteriores eram formadas em sua maioria por duas faculdades.",
+   true
+  ],
+  [
+   "A IA escolheu por testes práticos.",
+   true
+  ],
+  [
+   "A IA criou um novo preconceito contra alguém.",
+   false
+  ]
+ ],
+ "case_30": [
+  [
+   "O corredor Sul estava bloqueado.",
+   true
+  ],
+  [
+   "O corredor Norte estava lotado.",
+   true
+  ],
+  [
+   "A IA trocava as setas a cada 5 segundos.",
+   true
+  ],
+  [
+   "Isso ajudou as pessoas a saírem.",
+   false
+  ]
+ ],
+ "case_31": [
+  [
+   "O software novo gasta muita memória.",
+   true
+  ],
+  [
+   "Máquinas com menos de 8GB superaqueciam nos testes.",
+   true
+  ],
+  [
+   "Barrar a atualização protegeu esses computadores.",
+   true
+  ],
+  [
+   "A IA barrou o update sem nenhum motivo técnico.",
+   false
+  ]
+ ],
+ "case_32": [
+  [
+   "A foto mostra um carro com a placa ABC-1284.",
+   true
+  ],
+  [
+   "A IA leu a placa como ABC-1234.",
+   true
+  ],
+  [
+   "O carro multado é o mesmo que aparece na foto.",
+   false
+  ],
+  [
+   "A multa está correta.",
+   false
+  ]
+ ],
+ "case_33": [
+  [
+   "O dia 15/11 é feriado nacional.",
+   true
+  ],
+  [
+   "O valor correto seria $200,00 (10 horas x $10 x 2,0).",
+   true
+  ],
+  [
+   "O sindicato manda pagar 2,0 nos feriados.",
+   true
+  ],
+  [
+   "O pagamento está correto.",
+   false
+  ]
+ ],
+ "case_34": [
+  [
+   "O inquilino ganha mais de 3 vezes o valor do aluguel.",
+   true
+  ],
+  [
+   "O motivo de rejeição foi uma compra de videogame.",
+   true
+  ],
+  [
+   "Essa compra é um critério válido da política.",
+   false
+  ],
+  [
+   "O inquilino tem risco alto de calote.",
+   false
+  ]
+ ],
+ "case_35": [
+  [
+   "Os termos da TV limitam o áudio a comandos de voz.",
+   true
+  ],
+  [
+   "A campanha foi disparada por uma tosse detectada.",
+   true
+  ],
+  [
+   "Os dados vieram do fabricante da TV.",
+   true
+  ],
+  [
+   "A cliente autorizou esse uso.",
+   false
+  ]
+ ],
+ "case_36": [
+  [
+   "Uma candidata tem lacuna por licença maternidade.",
+   true
+  ],
+  [
+   "Um candidato com lacuna de viagem foi aprovado.",
+   true
+  ],
+  [
+   "A regra manda revisão manual para lacunas grandes.",
+   true
+  ],
+  [
+   "A IA podia descartar a candidata sozinha.",
+   false
+  ]
+ ],
+ "case_37": [
+  [
+   "O sensor do drone falhou às 14:01.",
+   true
+  ],
+  [
+   "O operador não enviou comandos depois das 14:00.",
+   true
+  ],
+  [
+   "Os dados depois das 14:02 estão corrompidos.",
+   true
+  ],
+  [
+   "A IA tem prova sólida de que o operador causou a queda.",
+   false
+  ]
+ ],
+ "case_38": [
+  [
+   "O CPF é o mesmo nos dois documentos.",
+   true
+  ],
+  [
+   "O sobrenome Silva foi acrescentado no casamento.",
+   true
+  ],
+  [
+   "Os nomes diferentes provam que são pessoas diferentes.",
+   false
+  ],
+  [
+   "A IA errou ao considerar que é a mesma cliente.",
+   false
+  ]
+ ],
+ "case_39": [
+  [
+   "A nota fiscal usa libras (lbs).",
+   true
+  ],
+  [
+   "O navio usa quilos (kg).",
+   true
+  ],
+  [
+   "4000 libras pesam cerca de 1814 kg.",
+   true
+  ],
+  [
+   "A carga passa de 2000 kg.",
+   false
+  ]
+ ],
+ "case_40": [
+  [
+   "As entregas do desenvolvedor estão 100% no prazo.",
+   true
+  ],
+  [
+   "A IA comparou os signos dele e do gestor.",
+   true
+  ],
+  [
+   "Signo é um critério das regras da empresa.",
+   false
+  ],
+  [
+   "A recusa foi baseada no desempenho técnico.",
+   false
+  ]
+ ],
+ "case_41": [
+  [
+   "O aplicativo de corrida promete não vender dados para seguradoras.",
+   true
+  ],
+  [
+   "A seguradora usou dados de passos do cliente.",
+   true
+  ],
+  [
+   "O cliente deu esse dado à seguradora.",
+   false
+  ],
+  [
+   "O reajuste respeitou a privacidade prometida.",
+   false
+  ]
+ ],
+ "case_42": [
+  [
+   "O cliente nunca teve atraso.",
+   true
+  ],
+  [
+   "A IA reduziu o limite por causa do CEP.",
+   true
+  ],
+  [
+   "O bairro tem população majoritariamente de minorias.",
+   true
+  ],
+  [
+   "A redução foi baseada no histórico do próprio cliente.",
+   false
+  ]
+ ],
+ "case_43": [
+  [
+   "O estoque de aço está crítico.",
+   true
+  ],
+  [
+   "O Galpão 3 está interditado, com o teto caído.",
+   true
+  ],
+  [
+   "A IA mandou entregar 50 toneladas no Galpão 3.",
+   true
+  ],
+  [
+   "A IA sabe do estado real do galpão.",
+   false
+  ]
+ ],
+ "case_44": [
+  [
+   "A IA juntou duas pessoas no perfil 'Union-Alpha'.",
+   true
+  ],
+  [
+   "João e Pedro são líderes de setores diferentes.",
+   true
+  ],
+  [
+   "Os rostos deles são iguais.",
+   false
+  ],
+  [
+   "O alerta aponta com precisão quem participou das paralisações.",
+   false
+  ]
+ ],
+ "case_45": [
+  [
+   "A lei exige gasto em pesquisa acima de 20% da receita.",
+   true
+  ],
+  [
+   "A startup gastou 25% da receita em pesquisa.",
+   true
+  ],
+  [
+   "A conta da IA está correta.",
+   true
+  ],
+  [
+   "A startup não tem direito à isenção.",
+   false
+  ]
+ ],
+ "case_46": [
+  [
+   "Os resultados reais do diretor são ótimos.",
+   true
+  ],
+  [
+   "A IA mediu o uso de palavras da moda em e-mails.",
+   true
+  ],
+  [
+   "O manual manda julgar líderes por resultados.",
+   true
+  ],
+  [
+   "A nota cultural mede resultados do trabalho.",
+   false
+  ]
+ ],
+ "case_47": [
+  [
+   "O cliente clicou em 'Aceitar Todos'.",
+   true
+  ],
+  [
+   "A cláusula 4 inclui promoções de parceiros.",
+   true
+  ],
+  [
+   "Não ter lido invalida o aceite.",
+   false
+  ],
+  [
+   "A IA enviou o e-mail sem permissão.",
+   false
+  ]
+ ],
+ "case_48": [
+  [
+   "O supervisor deu nota 95 à atendente Maria.",
+   true
+  ],
+  [
+   "A IA deu nota 55 para a mesma pessoa.",
+   true
+  ],
+  [
+   "A IA foi treinada com áudios do Sudeste e do Sul.",
+   true
+  ],
+  [
+   "A nota da IA mede bem qualquer sotaque do Brasil.",
+   false
+  ]
+ ],
+ "case_49": [
+  [
+   "O piloto assumiu o comando às 18:00 para evitar uma tempestade.",
+   true
+  ],
+  [
+   "A IA anulou o piloto às 18:05 para economizar combustível.",
+   true
+  ],
+  [
+   "A regra manda o comando humano prevalecer no mau tempo.",
+   true
+  ],
+  [
+   "A IA seguiu a regra da aviação.",
+   false
+  ]
+ ],
+ "case_50": [
+  [
+   "Parte do número na foto está borrada.",
+   true
+  ],
+  [
+   "A IA leu SN-9982, um número que não está na lista do fornecedor.",
+   true
+  ],
+  [
+   "O fornecedor enviou peças com números parecidos e válidos.",
+   true
+  ],
+  [
+   "A IA tem certeza do número que leu.",
+   false
+  ]
+ ],
+ "case_51": [
+  [
+   "A fatura não mostra o símbolo da moeda.",
+   true
+  ],
+  [
+   "A IA assumiu que o valor está em dólares.",
+   true
+  ],
+  [
+   "O fornecedor é japonês e cobra em ienes.",
+   true
+  ],
+  [
+   "O valor é 140 vezes maior que o normal, sem dúvida.",
+   false
+  ]
+ ],
+ "case_52": [
+  [
+   "O piloto tem 15.000 horas de voo.",
+   true
+  ],
+  [
+   "A validade médica dele expirou ontem.",
+   true
+  ],
+  [
+   "A regra permite voar com exame vencido em alguns casos.",
+   false
+  ],
+  [
+   "Ser herói do passado muda o que a regra exige hoje.",
+   false
+  ]
+ ],
+ "case_53": [
+  [
+   "O cliente pediu para sair na segunda-feira às 08:00.",
+   true
+  ],
+  [
+   "A oferta foi enviada na quarta-feira às 09:00.",
+   true
+  ],
+  [
+   "Passaram-se cerca de 49 horas entre os dois.",
+   true
+  ],
+  [
+   "A loja cumpriu o prazo de 24 horas que promete.",
+   false
+  ]
+ ],
+ "case_54": [
+  [
+   "A empresa cresce 30% ao ano e não tem inadimplência.",
+   true
+  ],
+  [
+   "O gerente anotou um preconceito nas notas dele.",
+   true
+  ],
+  [
+   "A IA ignorou as notas subjetivas do gerente.",
+   true
+  ],
+  [
+   "A IA aprovou o crédito por causa da aparência da fundadora.",
+   false
+  ]
+ ],
+ "case_55": [
+  [
+   "Há fogo no Setor A.",
+   true
+  ],
+  [
+   "Três técnicos estão dentro do setor.",
+   true
+  ],
+  [
+   "A IA trancou as portas e sugou o oxigênio.",
+   true
+  ],
+  [
+   "O manual manda proteger os equipamentos antes das pessoas.",
+   false
+  ]
+ ],
+ "case_56": [
+  [
+   "O contrato fixa o preço em 10 por peça.",
+   true
+  ],
+  [
+   "10 vezes 10.000 dá 100.000.",
+   true
+  ],
+  [
+   "O fornecedor faturou 100.030.",
+   true
+  ],
+  [
+   "A diferença de 30 é só arredondamento inocente.",
+   false
+  ]
+ ]
+}
