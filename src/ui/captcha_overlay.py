@@ -114,12 +114,16 @@ class CaptchaOverlay:
         if not self.is_open or self.captcha is None:
             return
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 255))
+        dim.fill((0, 0, 0, 165))  # translucent: the desk stays faintly visible behind the popup
         surface.blit(dim, (0, 0))
-        pygame.draw.rect(surface, (0, 0, 0), RECT.move(6, 6))
-        pygame.draw.rect(surface, SCREEN_BLACK, RECT)
-        pygame.draw.rect(surface, RED if self.failures else BORDER, RECT, 4)
-        pygame.draw.rect(surface, (120, 34, 30), pygame.Rect(RECT.x, RECT.y, RECT.width, 44))
+        radius = 22
+        pygame.draw.rect(surface, (0, 0, 0), RECT.move(6, 6), border_radius=radius)
+        pygame.draw.rect(surface, SCREEN_BLACK, RECT, border_radius=radius)
+        pygame.draw.rect(surface, RED if self.failures else BORDER, RECT, 4, border_radius=radius)
+        pygame.draw.rect(
+            surface, (120, 34, 30), pygame.Rect(RECT.x, RECT.y, RECT.width, 44),
+            border_top_left_radius=radius, border_top_right_radius=radius,
+        )
         draw_text(surface, "VERIFICAÇÃO DE HUMANIDADE", font(20, True), INK_BRIGHT, (RECT.x + 18, RECT.y + 11))
         draw_text(surface, f"VERIFY-9  ·  teste {self.number}", font(15), (240, 190, 180), (RECT.right - 18, RECT.y + 14), "topright")
 

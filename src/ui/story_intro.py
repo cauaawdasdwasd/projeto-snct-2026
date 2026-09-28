@@ -72,11 +72,11 @@ class StoryIntro:
 
     def render(self, surface: pygame.Surface) -> None:
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 255))
+        dim.fill((0, 0, 0, 165))  # translucent: the desk stays faintly visible behind the popup
         surface.blit(dim, (0, 0))
-        pygame.draw.rect(surface, BORDER_DARK, RECT.move(4, 4))
-        pygame.draw.rect(surface, SCREEN_BLACK, RECT)
-        pygame.draw.rect(surface, (176, 60, 52), RECT, 4)
+        pygame.draw.rect(surface, BORDER_DARK, RECT.move(4, 4), border_radius=22)
+        pygame.draw.rect(surface, SCREEN_BLACK, RECT, border_radius=22)
+        pygame.draw.rect(surface, (176, 60, 52), RECT, 4, border_radius=22)
         draw_text(surface, INTRO_TITLE, font(20, True), AMBER, (RECT.x + 40, RECT.y + 30))
         draw_text(surface, "ALERTA: SISTEMA COMPROMETIDO", font(38, True), INK_BRIGHT, (RECT.x + 40, RECT.y + 60))
         pygame.draw.line(surface, (176, 60, 52), (RECT.x + 40, RECT.y + 116), (RECT.right - 40, RECT.y + 116), 3)

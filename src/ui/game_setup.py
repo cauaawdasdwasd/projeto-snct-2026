@@ -108,11 +108,12 @@ class GameSetup:
 
     def render(self, surface: pygame.Surface) -> None:
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 255))
+        dim.fill((0, 0, 0, 165))  # translucent: the desk stays faintly visible behind the popup
         surface.blit(dim, (0, 0))
-        pygame.draw.rect(surface, BORDER_DARK, SETUP_RECT.move(4, 4))
-        pygame.draw.rect(surface, SCREEN_BLACK, SETUP_RECT)
-        pygame.draw.rect(surface, BORDER, SETUP_RECT, 3)
+        radius = 22
+        pygame.draw.rect(surface, BORDER_DARK, SETUP_RECT.move(4, 4), border_radius=radius)
+        pygame.draw.rect(surface, SCREEN_BLACK, SETUP_RECT, border_radius=radius)
+        pygame.draw.rect(surface, BORDER, SETUP_RECT, 3, border_radius=radius)
         self._text(surface, "MONTE O SEU TURNO", self.font_title, INK_BRIGHT, (270, 70))
         self._text(surface, "Quantos casos você quer auditar? Eles são sorteados de um banco de 50.", self.font_small, INK, (270, 126))
         pygame.draw.line(surface, BORDER, (270, 160), (1284, 160), 2)
@@ -133,12 +134,13 @@ class GameSetup:
                        "Começar pelo treinamento guiado (recomendado para quem nunca jogou)")
         self._checkbox(surface, CLOCK_RECT, self.with_clock, self.hovered == "clock",
                        "Modo relógio: cota de tempo e as verificações do VERIFY-9 (mais emoção!)")
-        self._text(surface, "Dica: setas escolhem, T liga o treinamento, C liga o relógio e Enter começa.", self.font_tiny, INK_MUTED, (270, 566))
 
         hovered = self.hovered == "start"
         pygame.draw.rect(surface, PANEL_MID if hovered else PANEL, START_RECT)
         pygame.draw.rect(surface, INK_BRIGHT if hovered else AMBER, START_RECT, 3)
         self._text(surface, "COMEÇAR TURNO", self.font_body, INK_BRIGHT, START_RECT.center, "center")
+        # Own row below everything else, so it never runs under the button regardless of length.
+        self._text(surface, "Dica: setas escolhem, T liga o treinamento, C liga o relógio e Enter começa.", self.font_tiny, INK_MUTED, (270, START_RECT.bottom + 8))
 
     def _checkbox(self, surface: pygame.Surface, area: pygame.Rect, checked: bool, hovered: bool, label: str) -> None:
         box = pygame.Rect(area.x, area.y + 3, 34, 34)

@@ -84,11 +84,11 @@ class ConclusionPanel:
 
     def render(self, surface: pygame.Surface) -> None:
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 255))
+        dim.fill((0, 0, 0, 165))  # translucent: the desk stays faintly visible behind the popup
         surface.blit(dim, (0, 0))
-        pygame.draw.rect(surface, BORDER_DARK, PANEL_RECT.move(4, 4))
-        pygame.draw.rect(surface, SCREEN_BLACK, PANEL_RECT)
-        pygame.draw.rect(surface, BORDER, PANEL_RECT, 3)
+        pygame.draw.rect(surface, BORDER_DARK, PANEL_RECT.move(4, 4), border_radius=22)
+        pygame.draw.rect(surface, SCREEN_BLACK, PANEL_RECT, border_radius=22)
+        pygame.draw.rect(surface, BORDER, PANEL_RECT, 3, border_radius=22)
         self._text(surface, "ANTES DE CARIMBAR: O QUE VOCÊ DESCOBRIU?", self.font_title, INK_BRIGHT, (240, 58))
         self._text(surface, "Marque as frases que você acredita serem VERDADEIRAS. Use o que viu nos papéis.", self.font_row, INK, (240, 112))
         self._text(surface, "Não é prova: serve para você organizar o raciocínio. O jornal mostra quantas você acertou.", self.font_tiny, INK_MUTED, (240, 148))

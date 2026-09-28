@@ -254,7 +254,10 @@ class DocumentRenderer:
                 max_lines=5,
             )
         self._draw_signature_line(surface, "Responsável pelo documento", (350, 710), 232)
-        self._draw_scribble(surface, document.issuer or document.organization or document.title, (352, 672), 228, theme.signature)
+        # Seeded by the specific document, not just its organization: "RH" alone signs 16 different
+        # papers across 16 different cases, and they must not all get the exact same scribble.
+        signer_seed = f"{case_id}:{document.document_id}:{document.issuer or document.organization or document.title}"
+        self._draw_scribble(surface, signer_seed, (352, 672), 228, theme.signature)
         return RenderedDocument(document.document_id, document.title, surface, tuple(evidence), image_rect=image_rect)
 
     @staticmethod
@@ -353,23 +356,38 @@ class DocumentRenderer:
 
     @staticmethod
     def _draw_scribble(surface: pygame.Surface, seed_text: str, origin: tuple[int, int], width: int, ink: tuple[int, int, int] = (28, 42, 104)) -> None:
-        """A believable hand-written signature, unique per issuer (seeded by its name)."""
+        """A believable hand-written signature, unique per document (seeded by case + document + issuer).
+
+        Three different handwriting "styles" (looping cursive, sharp zigzag, tall spaced print) plus
+        per-letter jitter, so two signatures never read as the same doodle just because two unrelated
+        cases both happen to have a document issued by "RH" or "TI".
+        """
         rng = random.Random(seed_text)
         x0, y0 = origin
+        style = rng.choice(("loop", "zigzag", "print"))
+        baseline = y0 + rng.uniform(-3, 3)
         points: list[tuple[float, float]] = []
-        letters = rng.randint(5, 8)
+        letters = rng.randint(5, 9)
         x = 0.0
         for _ in range(letters):
-            height = rng.uniform(14, 34)
-            span = width / (letters + 1) * rng.uniform(0.7, 1.15)
-            steps = 7
+            height = rng.uniform(12, 36)
+            span = width / (letters + 1) * rng.uniform(0.65, 1.2)
+            jitter = rng.uniform(-4, 4)
+            steps = 5 if style == "zigzag" else 7
             for step in range(steps + 1):
                 phase = step / steps
-                loop = math.sin(phase * math.pi * 2) * height * 0.5
-                points.append((x0 + x + phase * span, y0 + 20 - abs(math.sin(phase * math.pi)) * height + loop * 0.25))
-            x += span * 0.85
+                if style == "zigzag":
+                    lift = height * (1 - abs(2 * phase - 1))
+                elif style == "print":
+                    lift = height * (0.15 + 0.85 * (1 - abs(2 * phase - 1) ** 3))
+                else:
+                    loop = math.sin(phase * math.pi * 2) * height * 0.5
+                    lift = abs(math.sin(phase * math.pi)) * height - loop * 0.25
+                points.append((x0 + x + phase * span, baseline + jitter * phase + 20 - lift))
+            x += span * (0.78 if style == "print" else 0.85)
         if len(points) > 2:
-            pygame.draw.lines(surface, ink, False, points, 3)
+            thickness = 4 if style == "print" else 3
+            pygame.draw.lines(surface, ink, False, points, thickness)
             pygame.draw.lines(surface, tuple(min(255, c + 30) for c in ink), False, [(px, py + 1) for px, py in points], 1)
         underline_y = y0 + 34
         pygame.draw.line(surface, ink, (x0 + 6, underline_y), (x0 + width * rng.uniform(0.7, 0.95), underline_y - rng.randint(2, 7)), 2)

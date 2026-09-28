@@ -397,3 +397,21 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
 - **Prompts para as 50 fotos** em [prompts_jornal.md](prompts_jornal.md), pasta de saída
   `assets/newspaper/`, com instrução explícita de pixel art de baixa resolução nativa (grade pequena
   ampliada sem suavizar), pra não repetir o problema das fotos realistas da rodada anterior.
+
+## Humor mais ácido no jornal, popups em card e assinatura única (rodada 12)
+
+- **Jornal mais ácido.** Os 100 textos (manchete + corpo dos 50 casos) foram reescritos de novo, bem
+  mais afiados. O caso da fábrica de tecido expõe trabalho infantil, o caso do porto termina com uma
+  piada de contrabando, os casos de demissão por gravidez e crédito negado por preconceito ficaram
+  explicitamente mais duros sobre machismo — só nos casos em que isso já fazia parte da história, sem
+  forçar em todo caso. Um teste novo (`tests/test_newspaper_content.py`) garante que a manchete e o
+  texto nunca repetem entre os dois lados do mesmo caso e nunca ficam cortados.
+- **Popups pequenos** (dica, conclusões, configurar turno, entrada da história, verificação do
+  VERIFY-9, assinatura) agora são cards com **bordas arredondadas** sobre um fundo **levemente
+  transparente** (a mesa aparece de leve atrás), em vez de uma caixa preta sólida cobrindo a tela.
+  Telas de tela cheia (dossiê, jornal, inspecionar documento, lado a lado, protocolo, decisão da IA)
+  continuam opacas, porque ali o objetivo é ler sem distração.
+- **Assinatura dos documentos:** era sempre o mesmo rabisco pra qualquer papel emitido por "RH" (16
+  papéis diferentes, em 16 casos diferentes, com a assinatura idêntica) porque a semente do desenho
+  usava só o nome do órgão. Agora a semente usa caso + documento + emissor, e o desenho tem três
+  estilos (cursivo, ziguezague, letra de forma), então cada um dos 144 documentos assina diferente.

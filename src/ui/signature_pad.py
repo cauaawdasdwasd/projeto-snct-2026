@@ -118,13 +118,17 @@ class SignaturePad:
             return
 
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 255))
+        dim.fill((0, 0, 0, 165))  # translucent: the desk stays faintly visible behind the popup
         surface.blit(dim, (0, 0))
 
-        pygame.draw.rect(surface, SHADOW, MODAL_RECT.move(8, 8))
-        pygame.draw.rect(surface, PAPER, MODAL_RECT)
-        pygame.draw.rect(surface, PAPER_DARK, MODAL_RECT, 4)
-        pygame.draw.rect(surface, HEADER, (MODAL_RECT.x, MODAL_RECT.y, MODAL_RECT.width, 91))
+        radius = 22
+        pygame.draw.rect(surface, SHADOW, MODAL_RECT.move(8, 8), border_radius=radius)
+        pygame.draw.rect(surface, PAPER, MODAL_RECT, border_radius=radius)
+        pygame.draw.rect(surface, PAPER_DARK, MODAL_RECT, 4, border_radius=radius)
+        pygame.draw.rect(
+            surface, HEADER, (MODAL_RECT.x, MODAL_RECT.y, MODAL_RECT.width, 91),
+            border_top_left_radius=radius, border_top_right_radius=radius,
+        )
         self._draw_text(
             surface,
             "ASSINATURA DO AUDITOR",

@@ -95,7 +95,7 @@ class CaseHint:
         if not self.is_open:
             return
         dim = pygame.Surface(surface.get_size(), pygame.SRCALPHA)
-        dim.fill((0, 0, 0, 255))
+        dim.fill((0, 0, 0, 165))  # translucent: the desk stays faintly visible behind the popup
         surface.blit(dim, (0, 0))
 
         self._draw_layered_rect(surface, HINT_POPUP_RECT, SCREEN_BLACK, BORDER)
@@ -162,9 +162,9 @@ class CaseHint:
         fill: tuple[int, int, int],
         border: tuple[int, int, int],
     ) -> None:
-        pygame.draw.rect(surface, BORDER_DARK, rect.move(4, 4))
-        pygame.draw.rect(surface, fill, rect)
-        pygame.draw.rect(surface, border, rect, 3)
+        pygame.draw.rect(surface, BORDER_DARK, rect.move(4, 4), border_radius=22)
+        pygame.draw.rect(surface, fill, rect, border_radius=22)
+        pygame.draw.rect(surface, border, rect, 3, border_radius=22)
 
     def _draw_wrapped_text(
         self,
