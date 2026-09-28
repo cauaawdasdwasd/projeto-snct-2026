@@ -28,7 +28,7 @@ RED = (176, 63, 45)
 GREEN = (100, 158, 72)
 LINE = (58, 75, 51)
 
-MAIN_COMMANDS = ("INICIAR TURNO", "CONFIGURAÇÕES", "CRÉDITOS")
+MAIN_COMMANDS = ("INICIAR TURNO", "ARENA VERIFY-9", "CONFIGURAÇÕES", "CRÉDITOS")
 TEAM = (
     "CAUÃ DANIEL ABREU",
     "LETÍCIA FAUSTINO SORCHETI",
@@ -205,6 +205,8 @@ class MainMenuScene(Scene):
         if index == 0:
             self.manager.switch_to("login")
         elif index == 1:
+            self.manager.switch_to("arcade")
+        elif index == 2:
             self.settings.open(self.preferences)
             self.view = "settings"
         else:

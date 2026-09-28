@@ -24,6 +24,7 @@ from src.core.settings import (
     VIRTUAL_HEIGHT,
     VIRTUAL_WIDTH,
 )
+from src.scenes.arcade import ArcadeScene
 from src.scenes.audit import AuditScene
 from src.scenes.login import LoginScene
 from src.scenes.main_menu import MainMenuScene
@@ -137,6 +138,15 @@ class Application:
         self.scene_manager.add_scene(
             "audit",
             audit_scene,
+        )
+        self.scene_manager.add_scene(
+            "arcade",
+            ArcadeScene(
+                self.scene_manager,
+                self.assets,
+                self.input_manager,
+                self.audio,
+            ),
         )
         self.scene_manager.switch_to("main_menu")
 

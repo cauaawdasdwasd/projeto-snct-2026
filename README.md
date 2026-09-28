@@ -50,10 +50,10 @@ O projeto está conectado ao repositório
 
 ## Controles atuais
 
-- O menu inicial usa uma estação CRT animada e permite iniciar o turno, abrir as
-  configurações ou consultar os créditos. Todas as opções funcionam por mouse ou
-  teclado, e o aparelho acompanha o cursor com um movimento sutil. A interface é
-  recortada pela curvatura do vidro e permanece dentro do visor.
+- O menu inicial usa uma estação CRT animada e permite iniciar o turno, entrar na
+  `ARENA VERIFY-9`, abrir as configurações ou consultar os créditos. Todas as opções
+  funcionam por mouse ou teclado, e o aparelho acompanha o cursor com um movimento
+  sutil. A interface é recortada pela curvatura do vidro e permanece dentro do visor.
 - `INICIAR TURNO` abre a tela de acesso da estação. Os campos de usuário e senha
   aceitam teclado, `Tab` alterna entre eles e `Enter` avança ou confirma. A dica
   aponta para o post-it físico de coração, que pode ser girado para revelar as
@@ -272,10 +272,18 @@ sob_analise/
     │   └── protocols.py          # Textos e regras dos protocolos
     ├── rendering/
     │   └── glb_renderer.py       # Renderização GLB isolada com ModernGL
+    ├── minigames/
+    │   ├── captchas.py           # As verificações "prove que é humano" em si
+    │   ├── arcade.py             # Regras da Arena VERIFY-9: ondas, vidas, combo, ranks
+    │   ├── director.py           # Escala quais captchas aparecem durante um caso
+    │   ├── popups.py             # Enxame de pop-ups falsos do VERIFY-9
+    │   ├── story.py              # Falas do VERIFY-9
+    │   └── verify9.py            # Avatar do VERIFY-9
     ├── scenes/
     │   ├── main_menu.py          # Menu inicial
     │   ├── login.py              # Login estilo XP e acesso ao post-it 3D
-    │   └── audit.py              # Aplicativo principal de auditoria
+    │   ├── audit.py              # Aplicativo principal de auditoria
+    │   └── arcade.py             # Arena VERIFY-9: fase arcade separada dos casos
     └── ui/
         ├── ai_decision_panel.py  # Resumo e popup da decisão da IA
         ├── calculator_popup.py   # Calculadora flutuante da mesa
@@ -338,6 +346,60 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
 - Textos, regras e dados dos casos ficam separados da interface para facilitar
   alterações pela equipe. O treinamento está em `src/gameplay/cases.py`; os 50
   casos, em `data/case_bank.json`.
+
+## Arena VERIFY-9: fase arcade separada dos casos (rodada 13)
+
+- **O que é.** Um modo à parte, sem casos, sem documentos, sem jornal: só VERIFY-9
+  jogando verificações "prove que é humano" na sua cara, uma atrás da outra, num ritmo
+  de fliperama. Acessível pelo menu principal em `ARENA VERIFY-9`. Todo o código vive em
+  `src/minigames/arcade.py` (regras, pontuação, placar) e `src/scenes/arcade.py` (tela).
+- **Não é aleatório à toa.** A dificuldade sobe em **ondas fixas de 3 verificações**: a
+  cada onda o cronômetro fica um pouco mais curto (de 26 s até um piso de 12 s) e, em
+  marcos definidos (`WAVE_UNLOCKS` em `arcade.py`), um novo tipo de verificação entra no
+  jogo — o repertório só cresce, nunca troca de uma hora para outra.
+- **Vidas e combo.** Começa com 3 vidas (até 5 no total). Zerar o cronômetro de uma
+  verificação custa 1 vida e zera o combo; errar dentro da verificação custa 2 s mas não
+  quebra a sequência. Cada acerto empilha **combo** (multiplicador de pontos de x1 até
+  x3) e soma pontos com bônus por velocidade — quanto mais sobra de tempo, mais vale.
+- **OVERCLOCK.** Sequências limpas (sem erro) enchem um medidor; ao lotar, devolve
+  1 vida automaticamente. É o principal jeito de sobreviver às ondas mais avançadas, e é
+  puramente proporcional a jogar bem, não a sorte.
+- **Grind entre partidas.** O placar (recorde, onda máxima, maior combo, total de
+  verificações resolvidas) fica salvo em `data/arcade_stats.json` (git-ignorado, é save
+  local) e desbloqueia **ranks** cumulativos, de `ESTAGIÁRIO(A) DE TI` até
+  `LENDA ANTI-VERIFY-9`, mostrados na tela de início e na de fim de partida.
+- **Verificações novas** criadas para a arena (funcionam soltas, chamáveis por
+  `create_captcha` como qualquer outra): `traffic` (selecionar os quadrados com
+  semáforo), `simon` (repetir uma sequência de cores que pisca), `whackabot` (clicar só
+  nos robôs que aparecem, sem acertar os humanos) e `chimp` (Teste do Macaco, rodada 14).
+  Somadas às 6 verificações que já existiam nos casos (texto torto, gatinhos, girar foto,
+  quebra-cabeça, memória e Space Invaders), a arena tem 12 tipos ao todo.
+- `Esc` durante a arena pausa (continuar, reiniciar ou voltar ao menu); no resumo final
+  e na tela de entrada, volta direto ao menu principal.
+
+## Ranking local, teste do macaco e ajustes de layout da arena (rodada 14)
+
+- **Placar com nome, ao estilo fliperama antigo.** Ao terminar uma partida com pontuação
+  entre as 10 melhores (ou enquanto o placar tiver menos de 10 entradas), a tela pede
+  para digitar um nome/apelido antes do resumo final. Fica salvo em
+  `data/arcade_leaderboard.json` (git-ignorado, é save local da máquina) e aparece em
+  dois lugares: um TOP 5 compacto direto na tela inicial da arena, e um botão
+  `VER RANKING COMPLETO` que abre o TOP 10 inteiro (nome, onda e pontos). É pensado para
+  várias pessoas jogarem no mesmo computador e tentarem se superar. Regras e persistência
+  em `Leaderboard`/`LeaderboardEntry` (`src/minigames/arcade.py`).
+- **Verificação nova: Teste do Macaco** (`chimp`, kind `"chimp"`). Mostra alguns números
+  espalhados num grid, esconde todos depois de ~1,7s e pede para clicar na ordem certa,
+  de 1 até o último — cresce um número a cada rodada, 4 rodadas para vencer. O nome é uma
+  piada de propósito: é o teste em que chimpanzés treinados costumam vencer humanos.
+  Some entre as verificações liberadas a partir da onda 4.
+- **Sequência de cores corrigida.** Um clique errado reiniciava a sequência
+  instantaneamente, sem nenhum retorno visual — parecia travado. Agora entra numa pausa
+  de ~1,1s mostrando a cor errada em vermelho e a certa em verde antes de recomeçar. O
+  destaque de quem está piscando também ficou bem mais evidente (brilho branco, borda
+  grossa) e o ritmo ficou um pouco mais lento para dar tempo de acompanhar.
+- **Captchas da arena recentralizados.** O quadro de verificação ficava colado no topo
+  do painel, com um vão vazio enorme embaixo. `CANVAS_ORIGIN`, em
+  `src/scenes/arcade.py`, agora centraliza o conteúdo no espaço disponível do painel.
 
 ## Papéis dos casos (rodadas 7 e 8)
 

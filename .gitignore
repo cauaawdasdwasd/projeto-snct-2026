@@ -18,6 +18,10 @@ desktop.ini
 data/user_settings.json
 data/desktop_layout.json
 
+# Placar e progressão local da Arena VERIFY-9.
+data/arcade_stats.json
+data/arcade_leaderboard.json
+
 # Copia compactada e redundante da pasta de sprites editaveis.
 sprites_atuais_para_retrabalho.rar
 

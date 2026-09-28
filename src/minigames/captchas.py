@@ -832,6 +832,498 @@ class InvadersCaptcha(Captcha):
 
 
 # ---------------------------------------------------------------------------
+# 7. Traffic light grid (classic "select all squares with..." captcha)
+# ---------------------------------------------------------------------------
+def _draw_traffic_light(surface: pygame.Surface, rect: pygame.Rect, variant: int) -> None:
+    cx, cy = rect.center
+    body = pygame.Rect(0, 0, 34, 78)
+    body.center = (cx, cy)
+    pygame.draw.rect(surface, (46, 46, 52), body, border_radius=8)
+    pygame.draw.rect(surface, (20, 20, 24), body, 3, border_radius=8)
+    colors = ((224, 82, 67), (232, 193, 91), (101, 191, 91))
+    lit = variant % 3
+    for index, color in enumerate(colors):
+        on = index == lit
+        shade = color if on else tuple(max(0, c // 4) for c in color)
+        center = (cx, body.y + 16 + index * 24)
+        pygame.draw.circle(surface, shade, center, 9)
+        if on:
+            pygame.draw.circle(surface, color, center, 13, 2)
+    pygame.draw.rect(surface, (30, 30, 34), pygame.Rect(cx - 3, body.bottom, 6, 16))
+    pygame.draw.rect(surface, (30, 30, 34), pygame.Rect(cx - 16, body.bottom + 16, 32, 6))
+
+
+def _draw_car(surface: pygame.Surface, rect: pygame.Rect, variant: int) -> None:
+    palette = ((210, 70, 60), (70, 120, 200), (220, 190, 70))
+    body = palette[variant % len(palette)]
+    cx, cy = rect.center
+    pygame.draw.rect(surface, body, pygame.Rect(cx - 38, cy - 4, 76, 26), border_radius=8)
+    pygame.draw.rect(surface, body, pygame.Rect(cx - 22, cy - 22, 44, 22), border_top_left_radius=10, border_top_right_radius=10)
+    pygame.draw.rect(surface, (200, 226, 232), pygame.Rect(cx - 16, cy - 18, 32, 14))
+    for side in (-1, 1):
+        pygame.draw.circle(surface, (24, 24, 24), (cx + side * 24, cy + 24), 10)
+        pygame.draw.circle(surface, (140, 144, 150), (cx + side * 24, cy + 24), 4)
+
+
+def _draw_bike(surface: pygame.Surface, rect: pygame.Rect, variant: int) -> None:
+    cx, cy = rect.center
+    for side in (-1, 1):
+        pygame.draw.circle(surface, (30, 30, 34), (cx + side * 22, cy + 18), 18, 3)
+    pygame.draw.line(surface, (200, 80, 60), (cx - 22, cy + 18), (cx, cy - 6), 4)
+    pygame.draw.line(surface, (200, 80, 60), (cx, cy - 6), (cx + 22, cy + 18), 4)
+    pygame.draw.line(surface, (200, 80, 60), (cx - 8, cy + 18), (cx + 22, cy + 18), 4)
+    pygame.draw.line(surface, (60, 60, 66), (cx, cy - 6), (cx - 2, cy - 22), 4)
+
+
+def _draw_cone(surface: pygame.Surface, rect: pygame.Rect, variant: int) -> None:
+    cx, cy = rect.center
+    pygame.draw.polygon(surface, (224, 120, 40), [(cx, cy - 36), (cx - 26, cy + 30), (cx + 26, cy + 30)])
+    pygame.draw.rect(surface, (240, 236, 226), pygame.Rect(cx - 20, cy + 6, 40, 8))
+    pygame.draw.rect(surface, (40, 40, 40), pygame.Rect(cx - 32, cy + 30, 64, 8), border_radius=3)
+
+
+def _draw_hydrant(surface: pygame.Surface, rect: pygame.Rect, variant: int) -> None:
+    cx, cy = rect.center
+    pygame.draw.rect(surface, (196, 50, 46), pygame.Rect(cx - 14, cy - 26, 28, 52), border_radius=10)
+    pygame.draw.circle(surface, (196, 50, 46), (cx, cy - 30), 12)
+    for side in (-1, 1):
+        pygame.draw.circle(surface, (150, 40, 36), (cx + side * 16, cy - 4), 6)
+    pygame.draw.rect(surface, (150, 40, 36), pygame.Rect(cx - 18, cy + 24, 36, 8))
+
+
+def _draw_cloud(surface: pygame.Surface, rect: pygame.Rect, variant: int) -> None:
+    cx, cy = rect.center
+    for dx, dy, r in ((0, 0, 22), (20, 6, 16), (-20, 6, 16), (10, -10, 14), (-8, -12, 12)):
+        pygame.draw.circle(surface, (232, 234, 238), (cx + dx, cy + dy), r)
+
+
+NON_TRAFFIC_DRAWERS = (_draw_car, _draw_bike, _draw_cone, _draw_hydrant, _draw_cloud)
+
+
+class TrafficGridCaptcha(Captcha):
+    kind = "traffic"
+    instruction = "Selecione todos os quadrados que têm SEMÁFORO."
+    VERIFY = pygame.Rect(440, 300, 240, 44)
+    TILE = 104
+    GAP = 8
+    ORIGIN = (36, 10)
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.tiles: list[tuple[bool, int]] = []
+        self.selected: set[int] = set()
+        self._deal()
+
+    def _deal(self) -> None:
+        count = self.rng.randint(3, 5)
+        tiles = [(True, self.rng.randrange(3)) for _ in range(count)]
+        tiles += [(False, self.rng.randrange(len(NON_TRAFFIC_DRAWERS))) for _ in range(9 - count)]
+        self.rng.shuffle(tiles)
+        self.tiles = tiles
+        self.selected = set()
+
+    def tile_rect(self, index: int) -> pygame.Rect:
+        row, column = divmod(index, 3)
+        return pygame.Rect(
+            self.ORIGIN[0] + column * (self.TILE + self.GAP),
+            self.ORIGIN[1] + row * (self.TILE + self.GAP),
+            self.TILE,
+            self.TILE,
+        )
+
+    def target_indices(self) -> set[int]:
+        return {index for index, (is_target, _) in enumerate(self.tiles) if is_target}
+
+    def on_mouse_down(self, pos: tuple[int, int]) -> None:
+        for index in range(9):
+            if self.tile_rect(index).collidepoint(pos):
+                self.selected.symmetric_difference_update({index})
+                self.events.append("toggle")
+                return
+        if self.VERIFY.collidepoint(pos):
+            if self.selected == self.target_indices():
+                self.win()
+            else:
+                self.fail()
+                self._deal()
+
+    def render(self, surface: pygame.Surface) -> None:
+        for index, (is_target, variant) in enumerate(self.tiles):
+            rect = self.tile_rect(index)
+            pygame.draw.rect(surface, (32, 44, 36) if (index % 2) else (38, 50, 42), rect)
+            if is_target:
+                _draw_traffic_light(surface, rect, variant)
+            else:
+                NON_TRAFFIC_DRAWERS[variant % len(NON_TRAFFIC_DRAWERS)](surface, rect, variant)
+            selected = index in self.selected
+            pygame.draw.rect(surface, AMBER if selected else BORDER_DARK, rect, 4 if selected else 2)
+            if selected:
+                pygame.draw.circle(surface, AMBER, (rect.right - 14, rect.y + 14), 11)
+                pygame.draw.lines(surface, SCREEN_BLACK, False, [(rect.right - 20, rect.y + 14), (rect.right - 15, rect.y + 19), (rect.right - 8, rect.y + 9)], 3)
+        draw_wrapped(surface, "Clique em cada quadrado com semáforo. Depois verifique.", font(19), INK, pygame.Rect(440, 40, 240, 120), 26)
+        draw_wrapped(surface, "Atenção: cone e hidrante não contam.", font(15), INK_MUTED, pygame.Rect(440, 180, 240, 40), 20)
+        draw_button(surface, self.VERIFY, "VERIFICAR", self.hovering(self.VERIFY))
+
+
+# ---------------------------------------------------------------------------
+# 8. Simon-style beep sequence ("audio" captcha, played back as coloured flashes)
+# ---------------------------------------------------------------------------
+PAD_COLORS = ((224, 82, 67), (232, 193, 91), (101, 191, 91), (93, 159, 220))
+PAD_NAMES = ("vermelho", "amarelo", "verde", "azul")
+
+
+class SimonBeepCaptcha(Captcha):
+    kind = "simon"
+    instruction = "Memorize a sequência de cores que pisca e repita clicando na mesma ordem."
+    PAD_SIZE = 140
+    GAP = 18
+    ORIGIN = (200, 30)
+    ROUNDS_TO_WIN = 3
+    START_LENGTH = 3
+    STEP_SECONDS = 0.62
+    FLASH_SECONDS = 0.5
+    WRONG_PAUSE_SECONDS = 1.1
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.pads = tuple(self._pad_rect(index) for index in range(4))
+        self.round = 0
+        self.sequence: list[int] = []
+        self.input_index = 0
+        self.phase = "showing"
+        self.show_index = 0
+        self.show_timer = 0.0
+        self.time = 0.0
+        self.flash: dict[int, float] = {}
+        self.wrong_pad: int | None = None
+        self.correct_pad: int | None = None
+        self._new_sequence()
+
+    def _pad_rect(self, index: int) -> pygame.Rect:
+        row, column = divmod(index, 2)
+        return pygame.Rect(
+            self.ORIGIN[0] + column * (self.PAD_SIZE + self.GAP),
+            self.ORIGIN[1] + row * (self.PAD_SIZE + self.GAP),
+            self.PAD_SIZE,
+            self.PAD_SIZE,
+        )
+
+    def _new_sequence(self) -> None:
+        self.round = 0
+        self.sequence = [self.rng.randrange(4) for _ in range(self.START_LENGTH)]
+        self._start_showing()
+
+    def _start_showing(self) -> None:
+        self.phase = "showing"
+        self.show_index = 0
+        self.show_timer = 0.7
+        self.input_index = 0
+        self.wrong_pad = None
+        self.correct_pad = None
+        self.flash = {}
+
+    def update(self, dt: float) -> None:
+        self.time += dt
+        if self.phase == "wrong":
+            self.show_timer -= dt
+            if self.show_timer <= 0:
+                self._new_sequence()
+            return
+        if self.phase == "showing":
+            self.show_timer -= dt
+            if self.show_timer <= 0:
+                if self.show_index < len(self.sequence):
+                    pad = self.sequence[self.show_index]
+                    self.flash[pad] = self.FLASH_SECONDS
+                    self.events.append("click")
+                    self.show_index += 1
+                    self.show_timer = self.STEP_SECONDS
+                else:
+                    self.phase = "waiting"
+        for pad in list(self.flash):
+            self.flash[pad] -= dt
+            if self.flash[pad] <= 0:
+                del self.flash[pad]
+
+    def on_mouse_down(self, pos: tuple[int, int]) -> None:
+        if self.phase != "waiting":
+            return
+        for index, rect in enumerate(self.pads):
+            if not rect.collidepoint(pos):
+                continue
+            expected = self.sequence[self.input_index]
+            if index != expected:
+                self.wrong_pad = index
+                self.correct_pad = expected
+                self.phase = "wrong"
+                self.show_timer = self.WRONG_PAUSE_SECONDS
+                self.fail()
+                return
+            self.flash[index] = self.FLASH_SECONDS
+            self.events.append("toggle")
+            self.input_index += 1
+            if self.input_index == len(self.sequence):
+                self.round += 1
+                if self.round >= self.ROUNDS_TO_WIN:
+                    self.win()
+                else:
+                    self.sequence.append(self.rng.randrange(4))
+                    self._start_showing()
+            return
+
+    def render(self, surface: pygame.Surface) -> None:
+        pulse = 0.5 + 0.5 * math.sin(self.time * 5.0)
+        for index, rect in enumerate(self.pads):
+            base = PAD_COLORS[index]
+            lit = index in self.flash
+            if self.phase == "wrong" and index == self.wrong_pad:
+                color = RED
+            elif self.phase == "wrong" and index == self.correct_pad:
+                color = GREEN
+            elif lit:
+                color = (245, 245, 250)
+            else:
+                color = base
+            pygame.draw.rect(surface, color, rect, border_radius=16)
+            if self.phase == "wrong" and index in (self.wrong_pad, self.correct_pad):
+                glow = rect.inflate(14, 14)
+                pygame.draw.rect(surface, color, glow, 6, border_radius=20)
+                pygame.draw.rect(surface, SCREEN_BLACK, rect, 10, border_radius=16)
+            elif lit:
+                glow = rect.inflate(14, 14)
+                pygame.draw.rect(surface, INK_BRIGHT, glow, 6, border_radius=20)
+                pygame.draw.rect(surface, SCREEN_BLACK, rect, 10, border_radius=16)
+            elif self.phase == "waiting":
+                ready = round(160 + 70 * pulse)
+                pygame.draw.rect(surface, (ready, ready, ready), rect, 4, border_radius=16)
+            else:
+                pygame.draw.rect(surface, BORDER_DARK, rect, 4, border_radius=16)
+        if self.phase == "wrong":
+            status, status_color = f"ERRADO! Era o {PAD_NAMES[self.correct_pad]}.", RED
+        elif self.phase == "showing":
+            status, status_color = "MEMORIZE A SEQUÊNCIA...", AMBER
+        else:
+            status, status_color = "SUA VEZ: CLIQUE NA MESMA ORDEM", GREEN
+        chip = pygame.Rect(30, 26, 470, 40)
+        pygame.draw.rect(surface, SCREEN_BLACK, chip, border_radius=8)
+        pygame.draw.rect(surface, status_color, chip, 2, border_radius=8)
+        draw_text(surface, status, font(19, True), status_color, chip.center, "center")
+        draw_text(surface, f"Rodada {min(self.round + 1, self.ROUNDS_TO_WIN)} de {self.ROUNDS_TO_WIN}", font(16), INK_MUTED, (40, 80))
+        draw_text(surface, f"Sequência: {len(self.sequence)} passos", font(14), INK_MUTED, (40, 104))
+        draw_wrapped(surface, "Um robô decoraria isso fácil. Você consegue?", font(14), INK_MUTED, pygame.Rect(40, 300, 150, 50), 18)
+
+
+# ---------------------------------------------------------------------------
+# 9. Chimp test: memorize the numbered tiles, then click them back in order
+# ---------------------------------------------------------------------------
+class ChimpSequenceCaptcha(Captcha):
+    kind = "chimp"
+    instruction = "Memorize onde cada número está. Quando sumirem, clique na ordem de 1 até o último."
+    COLUMNS = 4
+    ROWS = 3
+    CELL = 110
+    ORIGIN = (40, 10)
+    ROUNDS_TO_WIN = 4
+    START_COUNT = 3
+    REVEAL_SECONDS = 1.7
+    WRONG_PAUSE_SECONDS = 1.2
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.slots = tuple(self._slot_rect(index) for index in range(self.COLUMNS * self.ROWS))
+        self.round = 0
+        self.count = self.START_COUNT
+        self.positions: list[int] = []
+        self.phase = "showing"
+        self.timer = 0.0
+        self.next_expected = 0
+        self.correct_slots: set[int] = set()
+        self.wrong_slot: int | None = None
+        self._deal()
+
+    def _slot_rect(self, index: int) -> pygame.Rect:
+        row, column = divmod(index, self.COLUMNS)
+        return pygame.Rect(
+            self.ORIGIN[0] + column * self.CELL,
+            self.ORIGIN[1] + row * self.CELL,
+            self.CELL - 14,
+            self.CELL - 14,
+        )
+
+    def _deal(self) -> None:
+        self.positions = self.rng.sample(range(len(self.slots)), min(self.count, len(self.slots)))
+        self.phase = "showing"
+        self.timer = self.REVEAL_SECONDS
+        self.next_expected = 0
+        self.correct_slots = set()
+        self.wrong_slot = None
+
+    def update(self, dt: float) -> None:
+        if self.phase in ("showing", "wrong"):
+            self.timer -= dt
+            if self.timer <= 0:
+                if self.phase == "showing":
+                    self.phase = "waiting"
+                else:
+                    self.count = self.START_COUNT
+                    self.round = 0
+                    self._deal()
+
+    def on_mouse_down(self, pos: tuple[int, int]) -> None:
+        if self.phase != "waiting":
+            return
+        for index, rect in enumerate(self.slots):
+            if not rect.collidepoint(pos):
+                continue
+            expected_slot = self.positions[self.next_expected]
+            if index != expected_slot:
+                self.wrong_slot = index
+                self.phase = "wrong"
+                self.timer = self.WRONG_PAUSE_SECONDS
+                self.fail()
+                return
+            self.correct_slots.add(index)
+            self.events.append("toggle")
+            self.next_expected += 1
+            if self.next_expected >= len(self.positions):
+                self.round += 1
+                if self.round >= self.ROUNDS_TO_WIN:
+                    self.win()
+                else:
+                    self.count += 1
+                    self._deal()
+            return
+
+    def render(self, surface: pygame.Surface) -> None:
+        reveal_all = self.phase in ("showing", "wrong")
+        for index, rect in enumerate(self.slots):
+            in_play = index in self.positions
+            if self.phase == "wrong" and index == self.wrong_slot:
+                pygame.draw.rect(surface, RED, rect, border_radius=10)
+                glow = rect.inflate(10, 10)
+                pygame.draw.rect(surface, RED, glow, 4, border_radius=14)
+            elif index in self.correct_slots:
+                pygame.draw.rect(surface, GREEN, rect, border_radius=10)
+            elif reveal_all and in_play:
+                pygame.draw.rect(surface, AMBER, rect, border_radius=10)
+            else:
+                pygame.draw.rect(surface, PANEL_MID, rect, border_radius=10)
+            pygame.draw.rect(surface, BORDER_DARK, rect, 2, border_radius=10)
+            if (reveal_all and in_play) or index in self.correct_slots:
+                number = self.positions.index(index) + 1
+                draw_text(surface, str(number), font(26, True), SCREEN_BLACK, rect.center, "center")
+
+        if self.phase == "wrong":
+            status, status_color = "ERRADO! Veja a ordem certa e tente de novo.", RED
+        elif self.phase == "showing":
+            status, status_color = "MEMORIZE AS POSIÇÕES...", AMBER
+        else:
+            status, status_color = f"CLIQUE NA ORDEM  ·  PRÓXIMO: {self.next_expected + 1}", GREEN
+        chip = pygame.Rect(500, 16, 210, 60)
+        pygame.draw.rect(surface, SCREEN_BLACK, chip, border_radius=8)
+        pygame.draw.rect(surface, status_color, chip, 2, border_radius=8)
+        draw_wrapped(surface, status, font(15, True), status_color, chip.inflate(-16, -12), 18, center=True)
+        draw_text(surface, f"Rodada {min(self.round + 1, self.ROUNDS_TO_WIN)} de {self.ROUNDS_TO_WIN}", font(15), INK_MUTED, (500, 84))
+        draw_text(surface, f"{self.count} números nesta rodada", font(14), INK_MUTED, (500, 106))
+        draw_wrapped(surface, "O nome é sério: chimpanzés treinados vencem humanos nesse teste.", font(13), INK_MUTED, pygame.Rect(500, 260, 210, 90), 17)
+
+
+# ---------------------------------------------------------------------------
+# 10. Whack-a-bot: reflex game, only click the robots
+# ---------------------------------------------------------------------------
+def _draw_human_icon(surface: pygame.Surface, rect: pygame.Rect) -> None:
+    cx, cy = rect.center
+    pygame.draw.ellipse(surface, (196, 92, 70), pygame.Rect(cx - 30, cy + 6, 60, 46))
+    pygame.draw.circle(surface, (230, 196, 160), (cx, cy - 16), 24)
+    pygame.draw.arc(surface, (60, 40, 30), pygame.Rect(cx - 24, cy - 40, 48, 36), math.pi * 0.05, math.pi * 0.95, 10)
+    for side in (-1, 1):
+        pygame.draw.circle(surface, (20, 20, 20), (cx + side * 8, cy - 18), 3)
+    pygame.draw.arc(surface, (140, 70, 50), pygame.Rect(cx - 10, cy - 8, 20, 12), math.pi, math.tau, 2)
+
+
+class WhackABotCaptcha(Captcha):
+    kind = "whackabot"
+    instruction = "Clique só nos ROBÔS assim que aparecerem. Um humano custa 2 acertos."
+    TARGET_HITS = 10
+    COLUMNS = 3
+    ROWS = 3
+    CELL = 112
+    ORIGIN = (50, 10)
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.hits = 0
+        self.spawn_timer = 0.0
+        self.active: dict[int, dict] = {}
+        self.slots = tuple(self._slot_rect(index) for index in range(self.COLUMNS * self.ROWS))
+        self.difficulty = 0.0
+        self._schedule_next()
+
+    def _slot_rect(self, index: int) -> pygame.Rect:
+        row, column = divmod(index, self.COLUMNS)
+        return pygame.Rect(
+            self.ORIGIN[0] + column * self.CELL,
+            self.ORIGIN[1] + row * self.CELL,
+            self.CELL - 14,
+            self.CELL - 14,
+        )
+
+    def _schedule_next(self) -> None:
+        self.spawn_timer = max(0.28, 0.62 - self.difficulty * 0.015)
+
+    def update(self, dt: float) -> None:
+        self.difficulty += dt
+        self.spawn_timer -= dt
+        if self.spawn_timer <= 0:
+            free = [index for index in range(len(self.slots)) if index not in self.active]
+            if free:
+                slot = self.rng.choice(free)
+                is_robot = self.rng.random() < 0.62
+                self.active[slot] = {
+                    "kind": "robot" if is_robot else "human",
+                    "life": self.rng.uniform(0.85, 1.25),
+                    "grow": 0.0,
+                }
+            self._schedule_next()
+        for slot in list(self.active):
+            entry = self.active[slot]
+            entry["grow"] = min(1.0, entry["grow"] + dt * 6)
+            entry["life"] -= dt
+            if entry["life"] <= 0:
+                del self.active[slot]
+
+    def on_mouse_down(self, pos: tuple[int, int]) -> None:
+        for slot, entry in list(self.active.items()):
+            if not self.slots[slot].collidepoint(pos):
+                continue
+            if entry["kind"] == "robot":
+                self.hits += 1
+                self.events.append("toggle")
+                del self.active[slot]
+                if self.hits >= self.TARGET_HITS:
+                    self.win()
+            else:
+                self.hits = max(0, self.hits - 2)
+                self.fail()
+                del self.active[slot]
+            return
+
+    def render(self, surface: pygame.Surface) -> None:
+        for rect in self.slots:
+            pygame.draw.rect(surface, PANEL_MID, rect, border_radius=10)
+            pygame.draw.rect(surface, BORDER_DARK, rect, 2, border_radius=10)
+        for slot, entry in self.active.items():
+            shrink = round(30 * (1 - entry["grow"]))
+            rect = self.slots[slot].inflate(-shrink, -shrink)
+            if entry["kind"] == "robot":
+                _draw_robot(surface, rect, 0)
+            else:
+                _draw_human_icon(surface, rect)
+        draw_text(surface, f"ROBÔS: {self.hits}/{self.TARGET_HITS}", font(20, True), INK_BRIGHT, (520, 20))
+        draw_wrapped(surface, "Clique nos robôs assim que surgirem. Cuidado: acertar um humano tira 2 pontos.", font(15), INK_MUTED, pygame.Rect(520, 60, 190, 160), 20)
+
+
+# ---------------------------------------------------------------------------
 TIERS = {
     "easy": ("wobbly", "cats", "rotate"),
     "medium": ("puzzle", "memory"),
@@ -856,4 +1348,12 @@ def create_captcha(kind: str, rng: random.Random, assets_root: Path) -> Captcha:
         return MemoryCaptcha(rng, assets_root, 6)
     if kind == "invaders":
         return InvadersCaptcha(rng, assets_root)
+    if kind == "traffic":
+        return TrafficGridCaptcha(rng, assets_root)
+    if kind == "simon":
+        return SimonBeepCaptcha(rng, assets_root)
+    if kind == "whackabot":
+        return WhackABotCaptcha(rng, assets_root)
+    if kind == "chimp":
+        return ChimpSequenceCaptcha(rng, assets_root)
     raise ValueError(f"Unknown captcha: {kind}")
