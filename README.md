@@ -552,6 +552,121 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
   7 fotos no girar e 16 fotos no banco de quebra-cabeça/gatos/memória — não gerei fotos
   novas nesta rodada porque são fotos reais, não desenhos, e não tenho como fotografar nada.
 
+## Campanha bem mais curta, captchas clássicos viram raridade, jogo novo e dois bugs visuais corrigidos (rodada 20)
+
+- **Campanha reduzida pra caber em ~5 minutos pra quem já manja.** A rodada 19 já tinha
+  cortado de 100 ondas pra 13, mas ainda estava longa demais na prática. Agora
+  `CAPTCHAS_PER_WAVE` caiu de 3 para **2** e `FINAL_WAVE` de 13 para **6** (5 ondas de
+  introdução/escalada + a onda 6 é o confronto final com `BOSS_CAPTCHAS` = **4**
+  verificações seguidas) — a partida inteira, do início ao chefe final, agora tem **14**
+  verificações no total em vez de 41.
+- **Captchas "clássicos" (texto torto, ache os gatos, semáforo, girar a foto,
+  quebra-cabeça) viraram os mais raros, não os mais comuns.** Isso é o oposto do que a
+  rodada 19 tinha feito (tinha aumentado a frequência de girar/quebra-cabeça por engano).
+  `KIND_WEIGHT` agora dá peso **0.4–0.5** pra esses (são os mais chatos, tipo captcha de
+  verdade) e peso **1.2–1.9** pros jogos dinâmicos (Simon, Macaco, Caça-Robôs, Invasores,
+  Memória, e principalmente os estilo Keep Talking/Turbulence: fio, cofre, botão,
+  labirinto, termo, instrumentos, rádio e o novo Memória Visual).
+- **Garantia de que um teste recém-liberado realmente aparece.** Antes, o aviso "novo
+  teste liberado: X" podia nunca ser seguido de um X de verdade dentro da partida (sorteio
+  ponderado entre 20 tipos é traiçoeiro numa partida curta) — foi exatamente o que
+  aconteceu no playtest, o Painel de Instrumentos e o Rádio da Torre nunca apareceram.
+  Agora `ArcadeRun` guarda qual teste acabou de ser liberado e força ele a ser a
+  **próxima** verificação sorteada, sempre.
+- **Verificação nova: Memória Visual** (`padrao`, kind `"padrao"`), inspirada no teste
+  "Visual Memory" do Human Benchmark: uma grade acende alguns quadrados por ~1,6s, apaga,
+  e você clica de volta nos que estavam acesos — 3 rodadas crescendo de 3x3 para 4x4 e
+  5x5. Errar reinicia do 3x3.
+- **Corrigido: o aviso "MEMORIZE A SEQUÊNCIA..." do Simon (Sequência de Cores) ficava
+  literalmente em cima dos quadrados coloridos** — ele ocupava uma faixa fixa no topo que
+  cruzava com as duas primeiras casas do tabuleiro. Meio pro painel de texto mudou de
+  lugar (coluna à esquerda, sem sobrepor nada) e os quadrados deslocaram um pouco pra
+  direita.
+- **Destaque exagerado do Simon reduzido.** O quadrado aceso tinha um anel de brilho
+  branco grosso (6px) mais uma borda preta de 10px por cima — ficava chamativo demais pra
+  um jogo de memorizar cores. Agora é só uma borda escura simples de 5px, igual o resto do
+  visual do jogo.
+- **Cada cor do Simon tem seu próprio som**, que é como o brinquedo "Simon" de verdade
+  funciona: 4 tons (notas Mi/Dó/Lá/Mi de oitavas diferentes) gerados na hora com
+  `numpy`/`pygame.sndarray` — não precisa de nenhum arquivo de áudio novo.
+- **Corrigido o texto que sobrepunha os painéis na tela inicial da Arena** ("SEU
+  PROGRESSO" / "RANKING — TOP 5" ficavam cobertos pelo fim das regras). As regras foram
+  reescritas bem mais curtas (cabem numa linha cada) e o espaçamento entre elas agora se
+  ajusta ao texto de verdade, em vez de um valor fixo que quebrava se o texto crescesse.
+- **Trilha própria da Arena, gerada na hora.** A Arena tocava a mesma música do modo
+  auditoria (`audit_1`/`audit_2`) — nada errado com ela, só que não combinava com "humano
+  vs. IA" e repetia o que já se ouve no resto do jogo. Perguntei ao Cauã como resolver e
+  ele preferiu uma trilha procedural (sem depender de baixar nada, sem dúvida de
+  licença): `_generate_arena_theme` em `src/core/audio.py` sintetiza um loop de um compasso
+  (baixo de onda quadrada + arpejo frenético + chimbal de ruído, ~168 BPM) com
+  `numpy`/`pygame.sndarray`, tocado num canal próprio (não é `pygame.mixer.music`, que só
+  aceita arquivo) — começa ao entrar na Arena e para ao sair, sem se sobrepor à música de
+  outras telas.
+
+## Boss fight de verdade (3 tarefas, relógio único, pode resetar), fila garante cobertura, fio estilo Among Us (rodada 21)
+
+- **O confronto final virou um "boss fight" de verdade, não só uma onda mais difícil.**
+  Antes o chefe sorteava `BOSS_CAPTCHAS` verificações de um pool, uma de cada vez, cada
+  uma com seu próprio cronômetro. Agora `draw_boss_tasks` monta uma sequência **fixa de 3
+  tarefas**: 2 verificações distintas sorteadas (nunca repetem entre si) do pool
+  "assinatura" (fio, cofre, botão, labirinto, termo, instrumentos, rádio, conectar os
+  fios) e a **Memória Visual sempre por último**, como pedido. As 3 correm contra **um
+  único relógio compartilhado de 120s** (`BOSS_TIME_LIMIT`) em vez de um cronômetro por
+  tarefa — o `time_limit`/`time_left` do `ArcadeRun` só são reiniciados uma vez, na
+  primeira tarefa, e seguem contando direto pelas 3.
+- **Perder o confronto reseta a tentativa, não a partida.** Se o relógio de 120s zerar,
+  custa uma vida (igual qualquer outro tempo esgotado) mas, se ainda sobrar vida,
+  `_start_boss()` sorteia 3 tarefas novas e reinicia o relógio do zero — a onda continua
+  sendo a 6, você não volta pra onda 1. Só acaba de vez se as vidas zerarem. Banner
+  próprio ("CONFRONTO REINICIADO") avisa quando isso acontece.
+- **Verificação nova: Conectar os Fios** (`conectar_fios`), a tarefa clássica de fiação do
+  Among Us: 4 conectores coloridos à esquerda, os mesmos 4 embaralhados à direita, clique
+  um de cada lado pra ligar a cor certa. Errar reinicia o quadro (embaralha de novo).
+- **As 5 ondas normais agora garantem cobertura, não só frequência.** Na rodada 20, dar
+  mais peso aos jogos dinâmicos ainda deixava a seleção aleatória de verdade — dava pra
+  terminar uma partida sem NUNCA ver o Painel de Instrumentos ou o Rádio, como aconteceu
+  num playtest. Agora `build_campaign_queue` embaralha as 15 verificações "dinâmicas"
+  (tudo, exceto os 6 captchas clássicos, que saíram de vez da rotação normal) numa fila
+  única por partida — as 5 ondas (3 verificações cada) consomem essa fila em ordem, então
+  toda verificação aparece **exatamente uma vez**, em posição aleatória, garantido. Se uma
+  tentativa falhar (tempo esgotado), a mesma verificação é sorteada de novo até ser
+  resolvida — a fila só avança em acertos, então a garantia de cobertura nunca é furada
+  por um erro.
+- **`CAPTCHAS_PER_WAVE` voltou a 3** (era 2 na rodada 20) pra caber as 15 verificações
+  dinâmicas exatamente em 5 ondas (3×5=15). O confronto final agora é seu próprio bloco de
+  ritmo (~2 min), separado do resto da campanha.
+- **Memória Visual com mais tempo** (multiplicador 1,9x → **2,4x**) — o motivo real do
+  "pouco tempo" era estrutural: ela tem 3 rodadas (3x3, 4x4, 5x5) e cada uma pede uma
+  pausa de leitura antes de poder clicar, então precisa de bem mais tempo que uma
+  verificação de resposta única.
+- **Corrigido: `MemoryCaptcha`/`SwapPuzzleCaptcha` sempre reportavam o mesmo `kind`
+  independente da variante.** `MemoryCaptcha(pairs=6)` (Memória Avançada) tinha
+  `.kind == "memory"` em vez de `"memory6"`, e o mesmo valia pro Quebra-cabeça 3x3
+  reportando `"puzzle"`. Não dava pra perceber isso antes porque nada comparava o `kind`
+  do objeto contra o que foi pedido; a fila de cobertura desta rodada comparou, e o bug
+  apareceu direto nos testes. Corrigido guardando o `kind` certo por instância; como
+  efeito colateral, o rótulo "QUEBRA-CABEÇA 3X3" no HUD agora aparece certo também (antes
+  sempre mostrava só "QUEBRA-CABEÇA").
+- **Sobre a música:** a trilha procedural da rodada 20 não agradou. Combinamos que eu
+  mandaria um prompt pronto pra gerar no Suno uma trilha "8-bit meio terror arcade" de
+  verdade — o prompt está na mensagem da entrega desta rodada (não em arquivo, já que
+  depende do Cauã gerar e mandar o .mp3 de volta pra eu encaixar no jogo). Resolvido na
+  rodada 22, com a faixa real gerada no Suno.
+
+## Trilha real da Arena (Suno) e botão jogável de verdade (rodada 22)
+
+- **Trilha procedural trocada pela faixa gerada no Suno** ("Glitching Guardian.mp3", a
+  partir do prompt "8-bit chiptune horror" da rodada anterior). Como agora é um arquivo
+  de verdade, `ArcadeScene` voltou a usar o mecanismo padrão de música do jogo
+  (`play_music_sequence`, o mesmo que toca `audit_1`/`menu`/etc.) em vez do canal
+  separado que a síntese por `numpy` exigia — `_generate_arena_theme` e todo o código
+  do canal dedicado (`arena_theme_channel`, `start_arena_theme`, `stop_arena_theme`)
+  foram removidos por não terem mais uso. Arquivo em `assets/music/arena_theme.mp3`.
+- **Segure e Solte corrigido: estava genuinamente injogável.** O número trocava a cada
+  `DIGIT_STEP_SECONDS = 0.4s` — tempo real demais curto pra ler o dígito, lembrar a regra
+  (par, ímpar, maior que 6, menor que 3) e decidir soltar ou não. Subiu para **0,9s**, mais
+  que o dobro, tempo suficiente pra realmente raciocinar em vez de só reagir por sorte.
+
 ## Papéis dos casos (rodadas 7 e 8)
 
 - Todos os papéis mantêm o bege do jogo, mas **cada um tem uma organização própria** pensada para o caso: tabelas,

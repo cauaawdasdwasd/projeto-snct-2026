@@ -1,19 +1,39 @@
 from __future__ import annotations
 
+import numpy as np
 import pygame
 
 from src.core.assets import AssetManager
+
+
+def _generate_tone(frequency: float, duration_ms: int = 220, volume: float = 0.5) -> pygame.mixer.Sound:
+    """A short sine-wave beep at `frequency` Hz, synthesized on the spot (no asset
+    file needed) - used for the Simon-style captcha, where each pad needs its own
+    distinct note like a real "Simon Says" toy."""
+    mixer_init = pygame.mixer.get_init()
+    sample_rate = mixer_init[0] if mixer_init else 44_100
+    channels = mixer_init[2] if mixer_init else 1
+    sample_count = int(sample_rate * duration_ms / 1000)
+    t = np.linspace(0, duration_ms / 1000, sample_count, endpoint=False)
+    fade_out = np.linspace(1.0, 0.0, sample_count) ** 2  # avoid an audible click at the tail
+    samples = (np.sin(2 * np.pi * frequency * t) * fade_out * volume * 32_767).astype(np.int16)
+    if channels >= 2:
+        samples = np.repeat(samples.reshape(-1, 1), channels, axis=1)
+    return pygame.sndarray.make_sound(samples)
 
 
 class AudioManager:
     """Small audio facade that keeps the game playable without an audio device."""
 
     MUSIC_END_EVENT = pygame.USEREVENT + 17
+    # Simon-pad notes (E4, C4, A3, E3) - matches the classic four-color memory toy.
+    PAD_TONE_FREQUENCIES: tuple[float, ...] = (329.63, 261.63, 220.00, 164.81)
     TYPING_MAXTIME_MS = 120
     MUSIC_PATHS = {
         "menu": "music/menu.mp3",
         "audit_1": "music/audit_1.mp3",
         "audit_2": "music/audit_2.mp3",
+        "arena_theme": "music/arena_theme.mp3",
     }
     SOUND_PATHS = {
         "click": "sfx/retro_click.mp3",
@@ -81,6 +101,11 @@ class AudioManager:
             self.ambience = self.assets.load_sound(self.AMBIENCE_PATH)
         except (FileNotFoundError, pygame.error):
             self.ambience = None
+        for index, frequency in enumerate(self.PAD_TONE_FREQUENCIES):
+            try:
+                self.sounds[f"pad_{index}"] = _generate_tone(frequency)
+            except (pygame.error, ValueError):
+                continue
 
     def start_music(self) -> None:
         self.play_music_sequence(("menu",), fade_ms=700)

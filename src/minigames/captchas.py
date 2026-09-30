@@ -419,6 +419,7 @@ class SwapPuzzleCaptcha(Captcha):
 
     def __init__(self, rng: random.Random, assets_root: Path, columns: int = 3, rows: int = 2) -> None:
         super().__init__(rng, assets_root)
+        self.kind = "puzzle9" if columns == 3 and rows == 3 else "puzzle"
         self.columns, self.rows = columns, rows
         portraits = load_scientists(assets_root)
         board = (columns * self.PIECE, rows * self.PIECE)
@@ -497,6 +498,7 @@ class MemoryCaptcha(Captcha):
 
     def __init__(self, rng: random.Random, assets_root: Path, pairs: int = 4) -> None:
         super().__init__(rng, assets_root)
+        self.kind = "memory6" if pairs == 6 else "memory"
         portraits = load_scientists(assets_root)
         rng.shuffle(portraits)
         self.faces = [fit_square(image, 84) for image in portraits[:pairs]]
@@ -887,7 +889,7 @@ class SimonBeepCaptcha(Captcha):
     instruction = "Memorize a sequência de cores que pisca e repita clicando na mesma ordem."
     PAD_SIZE = 140
     GAP = 18
-    ORIGIN = (200, 30)
+    ORIGIN = (260, 26)
     ROUNDS_TO_WIN = 3
     START_LENGTH = 3
     STEP_SECONDS = 0.62
@@ -945,7 +947,7 @@ class SimonBeepCaptcha(Captcha):
                 if self.show_index < len(self.sequence):
                     pad = self.sequence[self.show_index]
                     self.flash[pad] = self.FLASH_SECONDS
-                    self.events.append("click")
+                    self.events.append(f"pad_{pad}")
                     self.show_index += 1
                     self.show_timer = self.STEP_SECONDS
                 else:
@@ -970,7 +972,7 @@ class SimonBeepCaptcha(Captcha):
                 self.fail()
                 return
             self.flash[index] = self.FLASH_SECONDS
-            self.events.append("toggle")
+            self.events.append(f"pad_{index}")
             self.input_index += 1
             if self.input_index == len(self.sequence):
                 self.round += 1
@@ -995,32 +997,27 @@ class SimonBeepCaptcha(Captcha):
             else:
                 color = base
             pygame.draw.rect(surface, color, rect, border_radius=16)
-            if self.phase == "wrong" and index in (self.wrong_pad, self.correct_pad):
-                glow = rect.inflate(14, 14)
-                pygame.draw.rect(surface, color, glow, 6, border_radius=20)
-                pygame.draw.rect(surface, SCREEN_BLACK, rect, 10, border_radius=16)
-            elif lit:
-                glow = rect.inflate(14, 14)
-                pygame.draw.rect(surface, INK_BRIGHT, glow, 6, border_radius=20)
-                pygame.draw.rect(surface, SCREEN_BLACK, rect, 10, border_radius=16)
+            if lit or (self.phase == "wrong" and index in (self.wrong_pad, self.correct_pad)):
+                pygame.draw.rect(surface, SCREEN_BLACK, rect, 5, border_radius=16)
             elif self.phase == "waiting":
                 ready = round(160 + 70 * pulse)
                 pygame.draw.rect(surface, (ready, ready, ready), rect, 4, border_radius=16)
             else:
                 pygame.draw.rect(surface, BORDER_DARK, rect, 4, border_radius=16)
+
         if self.phase == "wrong":
             status, status_color = f"ERRADO! Era o {PAD_NAMES[self.correct_pad]}.", RED
         elif self.phase == "showing":
-            status, status_color = "MEMORIZE A SEQUÊNCIA...", AMBER
+            status, status_color = "MEMORIZE...", AMBER
         else:
-            status, status_color = "SUA VEZ: CLIQUE NA MESMA ORDEM", GREEN
-        chip = pygame.Rect(30, 26, 470, 40)
+            status, status_color = "SUA VEZ: CLIQUE NA ORDEM", GREEN
+        chip = pygame.Rect(20, 20, 220, 40)
         pygame.draw.rect(surface, SCREEN_BLACK, chip, border_radius=8)
         pygame.draw.rect(surface, status_color, chip, 2, border_radius=8)
-        draw_text(surface, status, font(19, True), status_color, chip.center, "center")
-        draw_text(surface, f"Rodada {min(self.round + 1, self.ROUNDS_TO_WIN)} de {self.ROUNDS_TO_WIN}", font(16), INK_MUTED, (40, 80))
-        draw_text(surface, f"Sequência: {len(self.sequence)} passos", font(14), INK_MUTED, (40, 104))
-        draw_wrapped(surface, "Um robô decoraria isso fácil. Você consegue?", font(14), INK_MUTED, pygame.Rect(40, 300, 150, 50), 18)
+        draw_wrapped(surface, status, font(15, True), status_color, chip.inflate(-16, -8), 18, center=True)
+        draw_text(surface, f"Rodada {min(self.round + 1, self.ROUNDS_TO_WIN)} de {self.ROUNDS_TO_WIN}", font(16), INK_MUTED, (20, 76))
+        draw_text(surface, f"Sequência: {len(self.sequence)} passos", font(14), INK_MUTED, (20, 100))
+        draw_wrapped(surface, "Um robô decoraria isso fácil. Você consegue?", font(14), INK_MUTED, pygame.Rect(20, 300, 220, 50), 18)
 
 
 # ---------------------------------------------------------------------------
@@ -1786,7 +1783,7 @@ class HoldReleaseCaptcha(Captcha):
     instruction = "Clique e segure o botão. Solte só quando o número satisfizer a regra."
     ROUNDS_TO_WIN = 3
     MIN_HOLD_SECONDS = 1.0
-    DIGIT_STEP_SECONDS = 0.4
+    DIGIT_STEP_SECONDS = 0.9
     RIGHT_PAUSE_SECONDS = 0.6
     WRONG_PAUSE_SECONDS = 1.3
     BUTTON_CENTER = (200, 180)
@@ -2229,6 +2226,265 @@ class RadioCaptcha(Captcha):
 
 
 # ---------------------------------------------------------------------------
+# 17. Visual memory: memorize a lit pattern on a grid that grows each round
+#     (3x3 -> 4x4 -> 5x5), inspired by Human Benchmark's "Visual Memory" test.
+# ---------------------------------------------------------------------------
+class VisualMemoryCaptcha(Captcha):
+    kind = "padrao"
+    instruction = "Memorize os quadrados acesos e clique de volta neles, na ordem que quiser."
+    SIZES = (3, 4, 5)
+    REVEAL_SECONDS = 1.6
+    RIGHT_PAUSE_SECONDS = 0.6
+    WRONG_PAUSE_SECONDS = 1.6
+    CELL = 52
+    GAP = 6
+    GRID_BOX = (20, 16, 340, 328)  # x, y, width, height the grid is centered inside
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.round_index = 0
+        self.phase = "showing"  # showing | answering | right | wrong
+        self.timer = 0.0
+        self.pattern: set[tuple[int, int]] = set()
+        self.clicked: set[tuple[int, int]] = set()
+        self.wrong_cell: tuple[int, int] | None = None
+        self._deal_round()
+
+    def _grid_size(self) -> int:
+        return self.SIZES[self.round_index]
+
+    def _deal_round(self) -> None:
+        size = self._grid_size()
+        cells = [(x, y) for x in range(size) for y in range(size)]
+        self.rng.shuffle(cells)
+        lit_count = size * size // 2
+        self.pattern = set(cells[:lit_count])
+        self.clicked = set()
+        self.wrong_cell = None
+        self.phase = "showing"
+        self.timer = self.REVEAL_SECONDS
+
+    def _origin(self) -> tuple[int, int]:
+        size = self._grid_size()
+        total = size * self.CELL + (size - 1) * self.GAP
+        box_x, box_y, box_w, box_h = self.GRID_BOX
+        return box_x + (box_w - total) // 2, box_y + (box_h - total) // 2
+
+    def _cell_rect(self, x: int, y: int) -> pygame.Rect:
+        origin_x, origin_y = self._origin()
+        return pygame.Rect(
+            origin_x + x * (self.CELL + self.GAP),
+            origin_y + y * (self.CELL + self.GAP),
+            self.CELL,
+            self.CELL,
+        )
+
+    def _cell_at(self, pos: tuple[int, int]) -> tuple[int, int] | None:
+        size = self._grid_size()
+        for x in range(size):
+            for y in range(size):
+                if self._cell_rect(x, y).collidepoint(pos):
+                    return x, y
+        return None
+
+    def on_mouse_down(self, pos: tuple[int, int]) -> None:
+        if self.phase != "answering":
+            return
+        cell = self._cell_at(pos)
+        if cell is None or cell in self.clicked:
+            return
+        if cell not in self.pattern:
+            self.wrong_cell = cell
+            self.phase = "wrong"
+            self.timer = self.WRONG_PAUSE_SECONDS
+            self.fail()
+            return
+        self.clicked.add(cell)
+        self.events.append("click")
+        if self.clicked == self.pattern:
+            self.phase = "right"
+            self.timer = self.RIGHT_PAUSE_SECONDS
+            self.events.append("toggle")
+
+    def update(self, dt: float) -> None:
+        if self.phase == "showing":
+            self.timer -= dt
+            if self.timer <= 0:
+                self.phase = "answering"
+        elif self.phase in ("right", "wrong"):
+            self.timer -= dt
+            if self.timer <= 0:
+                if self.phase == "right":
+                    if self.round_index >= len(self.SIZES) - 1:
+                        self.win()
+                        return
+                    self.round_index += 1
+                else:
+                    self.round_index = 0
+                self._deal_round()
+
+    def render(self, surface: pygame.Surface) -> None:
+        size = self._grid_size()
+        for x in range(size):
+            for y in range(size):
+                rect = self._cell_rect(x, y)
+                cell = (x, y)
+                if self.phase == "showing":
+                    color = CYAN if cell in self.pattern else (24, 32, 27)
+                elif self.phase == "wrong":
+                    if cell == self.wrong_cell:
+                        color = RED
+                    elif cell in self.pattern:
+                        color = GREEN
+                    else:
+                        color = (24, 32, 27)
+                elif cell in self.clicked:
+                    color = GREEN
+                else:
+                    color = (30, 40, 34)
+                pygame.draw.rect(surface, color, rect, border_radius=6)
+                pygame.draw.rect(surface, BORDER_DARK, rect, 2, border_radius=6)
+
+        panel_x = 400
+        draw_text(surface, "MEMÓRIA VISUAL", font(19, True), INK_BRIGHT, (panel_x, 20))
+        draw_text(surface, f"Grade {size}x{size} — rodada {self.round_index + 1} de {len(self.SIZES)}", font(14), INK_MUTED, (panel_x, 52))
+        if self.phase == "showing":
+            status, status_color = "MEMORIZE...", AMBER
+        elif self.phase == "wrong":
+            status, status_color = "ERRADO! Recomeçando do 3x3.", RED
+        elif self.phase == "right":
+            status, status_color = "TUDO CERTO!", GREEN
+        else:
+            status, status_color = f"CLIQUE OS {len(self.pattern)} QUADRADOS CERTOS", GREEN
+        draw_wrapped(surface, status, font(15, True), status_color, pygame.Rect(panel_x, 84, 300, 50), 19)
+        draw_text(surface, f"Encontrados: {len(self.clicked)} de {len(self.pattern)}", font(13), INK_MUTED, (panel_x, 150))
+
+
+# ---------------------------------------------------------------------------
+# 18. Connect the wires: an Among Us-style wiring task - match each colored
+#     connector on the left to its twin on the right, which the board shuffles.
+# ---------------------------------------------------------------------------
+CONNECT_WIRE_COLORS = (RED, AMBER, GREEN, CYAN)
+CONNECT_WIRE_NAMES = ("VERMELHO", "AMARELO", "VERDE", "CIANO")
+
+
+class ConnectWiresCaptcha(Captcha):
+    kind = "conectar_fios"
+    instruction = "Ligue cada conector da esquerda ao da mesma cor à direita."
+    LEFT_X = 120
+    RIGHT_X = 380
+    TOP_Y = 50
+    ROW_GAP = 72
+    RADIUS = 20
+    RIGHT_PAUSE_SECONDS = 0.6
+    WRONG_PAUSE_SECONDS = 1.3
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.phase = "active"  # active | right | wrong
+        self.timer = 0.0
+        self.selected_left: int | None = None
+        self.wrong_pair: tuple[int, int] | None = None
+        self.right_order: list[int] = []
+        self.connections: dict[int, int] = {}
+        self._deal()
+
+    def _deal(self) -> None:
+        self.right_order = list(range(len(CONNECT_WIRE_COLORS)))
+        self.rng.shuffle(self.right_order)
+        self.connections = {}
+        self.selected_left = None
+        self.wrong_pair = None
+        self.phase = "active"
+
+    def _left_center(self, row: int) -> tuple[int, int]:
+        return (self.LEFT_X, self.TOP_Y + row * self.ROW_GAP)
+
+    def _right_center(self, row: int) -> tuple[int, int]:
+        return (self.RIGHT_X, self.TOP_Y + row * self.ROW_GAP)
+
+    def on_mouse_down(self, pos: tuple[int, int]) -> None:
+        if self.phase != "active":
+            return
+        count = len(CONNECT_WIRE_COLORS)
+        used_left = set(self.connections.keys())
+        used_right = set(self.connections.values())
+        for row in range(count):
+            if row in used_left:
+                continue
+            if pygame.Vector2(pos).distance_to(self._left_center(row)) <= self.RADIUS + 8:
+                self.selected_left = row
+                self.events.append("click")
+                return
+        if self.selected_left is None:
+            return
+        for row in range(count):
+            if row in used_right:
+                continue
+            if pygame.Vector2(pos).distance_to(self._right_center(row)) <= self.RADIUS + 8:
+                chosen_left = self.selected_left
+                self.selected_left = None
+                if self.right_order[row] == chosen_left:
+                    self.connections[chosen_left] = row
+                    self.events.append("toggle")
+                    if len(self.connections) == count:
+                        self.phase = "right"
+                        self.timer = self.RIGHT_PAUSE_SECONDS
+                else:
+                    self.wrong_pair = (chosen_left, row)
+                    self.phase = "wrong"
+                    self.timer = self.WRONG_PAUSE_SECONDS
+                    self.fail()
+                return
+
+    def update(self, dt: float) -> None:
+        if self.phase in ("right", "wrong"):
+            self.timer -= dt
+            if self.timer <= 0:
+                if self.phase == "right":
+                    self.win()
+                    return
+                self._deal()
+
+    def render(self, surface: pygame.Surface) -> None:
+        count = len(CONNECT_WIRE_COLORS)
+        for left_row, right_row in self.connections.items():
+            pygame.draw.line(surface, CONNECT_WIRE_COLORS[left_row], self._left_center(left_row), self._right_center(right_row), 6)
+        if self.phase == "wrong" and self.wrong_pair is not None:
+            left_row, right_row = self.wrong_pair
+            pygame.draw.line(surface, RED, self._left_center(left_row), self._right_center(right_row), 6)
+        if self.selected_left is not None and self.hover is not None:
+            pygame.draw.line(surface, INK_BRIGHT, self._left_center(self.selected_left), self.hover, 3)
+
+        for row in range(count):
+            center = self._left_center(row)
+            pygame.draw.circle(surface, CONNECT_WIRE_COLORS[row], center, self.RADIUS)
+            ring = INK_BRIGHT if self.selected_left == row else SCREEN_BLACK
+            pygame.draw.circle(surface, ring, center, self.RADIUS, 4 if self.selected_left == row else 3)
+        for row in range(count):
+            center = self._right_center(row)
+            pygame.draw.circle(surface, CONNECT_WIRE_COLORS[self.right_order[row]], center, self.RADIUS)
+            pygame.draw.circle(surface, SCREEN_BLACK, center, self.RADIUS, 3)
+
+        panel_x = 460
+        draw_text(surface, "PAINEL DE FIAÇÃO", font(18, True), INK_BRIGHT, (panel_x, 30))
+        draw_wrapped(
+            surface,
+            "Clique um conector da esquerda, depois o da mesma cor à direita. A ordem da direita muda toda vez.",
+            font(13),
+            INK_MUTED,
+            pygame.Rect(panel_x, 62, 230, 100),
+            17,
+        )
+        draw_text(surface, f"Ligados: {len(self.connections)} de {count}", font(14), INK_MUTED, (panel_x, 170))
+        if self.phase == "wrong":
+            left_row, _ = self.wrong_pair
+            draw_text(surface, f"ERRADO! Não era {CONNECT_WIRE_NAMES[left_row]}.", font(14, True), RED, (panel_x, 210))
+        elif self.phase == "right":
+            draw_text(surface, "FIAÇÃO CORRETA!", font(15, True), GREEN, (panel_x, 210))
+
+
+# ---------------------------------------------------------------------------
 TIERS = {
     "easy": ("wobbly", "cats", "rotate"),
     "medium": ("puzzle", "memory"),
@@ -2275,4 +2531,8 @@ def create_captcha(kind: str, rng: random.Random, assets_root: Path) -> Captcha:
         return InstrumentsCaptcha(rng, assets_root)
     if kind == "radio":
         return RadioCaptcha(rng, assets_root)
+    if kind == "padrao":
+        return VisualMemoryCaptcha(rng, assets_root)
+    if kind == "conectar_fios":
+        return ConnectWiresCaptcha(rng, assets_root)
     raise ValueError(f"Unknown captcha: {kind}")

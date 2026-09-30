@@ -16,13 +16,14 @@ import pygame
 from src.core.scene import Scene
 from src.core.settings import VIRTUAL_HEIGHT, VIRTUAL_WIDTH
 from src.minigames.arcade import (
-    BOSS_CAPTCHAS,
+    BOSS_TIME_LIMIT,
     CAPTCHAS_PER_WAVE,
     FINAL_WAVE,
     KIND_LABELS,
     MAX_LIVES,
     NAME_MAX_LEN,
     OVERCLOCK_MAX,
+    STARTING_LIVES,
     ArcadeRun,
     ArcadeStats,
     Leaderboard,
@@ -99,11 +100,12 @@ LEADERBOARD_TAUNTS = (
     "Alguém aqui gosta de aparecer no topo.",
 )
 ARENA_RULES = (
-    f"Você tem {MAX_LIVES - 2} vidas para começar. Cada verificação tem um cronômetro: se zerar, perde uma vida.",
-    "Resolva rápido e sem erro para empilhar COMBO: quanto mais rápido você resolve, mais pontos vale.",
-    "Sequências limpas enchem o medidor OVERCLOCK e te devolvem uma vida quando ele lota.",
-    f"A cada {CAPTCHAS_PER_WAVE} verificações a onda sobe: o tempo aperta e novos testes entram em cena.",
-    f"A onda {FINAL_WAVE} é o confronto final: {BOSS_CAPTCHAS} verificações seguidas contra o VERIFY-9. Vença e a arena é sua.",
+    f"Você tem {STARTING_LIVES} vidas. Cronômetro zerado custa uma vida.",
+    "Resolva rápido: quanto mais tempo sobrar, mais pontos vale.",
+    "OVERCLOCK cheio (sequências limpas) devolve uma vida.",
+    f"A cada {CAPTCHAS_PER_WAVE} verificações a onda sobe e o tempo aperta.",
+    f"Onda {FINAL_WAVE}: confronto final, 3 tarefas em {int(BOSS_TIME_LIMIT)}s.",
+    "Perdeu o confronto? O tempo acabou, mas você tenta de novo.",
 )
 NAME_ALLOWED_CHARS = set("ABCDEFGHIJKLMNOPQRSTUVWXYZÁÀÂÃÉÊÍÓÔÕÚÇÑ0123456789 -_")
 PAUSE_LABELS = ("CONTINUAR", "REINICIAR", "MENU PRINCIPAL")
@@ -212,7 +214,7 @@ class ArcadeScene(Scene):
         self.taunt = random.choice(ARENA_INTRO)
         if self.audio is not None:
             self.audio.stop_ambience()
-            self.audio.play_music_sequence(("audit_1", "audit_2"), fade_ms=700)
+            self.audio.play_music_sequence(("arena_theme",), fade_ms=700)
 
     def handle_escape(self) -> bool:
         if self.view == "name_entry":
@@ -388,6 +390,7 @@ class ArcadeScene(Scene):
         assert self.run is not None
         pending_wave: int | None = None
         pending_unlocks: list[str] = []
+        boss_reset = False
         for event in self.run.pop_events():
             if event.kind == "sound":
                 self._play_sound(str(event.value), 0.5)
@@ -408,10 +411,15 @@ class ArcadeScene(Scene):
                 pending_wave = int(event.value)
             elif event.kind == "unlock":
                 pending_unlocks.append(str(event.value))
+            elif event.kind == "boss_reset":
+                boss_reset = True
             elif event.kind == "timeout":
                 self._play_sound("error", 0.7)
                 self._flash_mood("angry", 1.0)
-                self._queue_banner("VIDA PERDIDA", "O tempo acabou.", RED, 1.1)
+                if boss_reset:
+                    self._queue_banner("CONFRONTO REINICIADO", "O tempo do chefe acabou. Tente de novo.", RED, 1.8)
+                else:
+                    self._queue_banner("VIDA PERDIDA", "O tempo acabou.", RED, 1.1)
                 self.taunt = random.choice(FAILED_QUOTES)
             elif event.kind == "gameover":
                 self.summary = event.value
@@ -427,7 +435,8 @@ class ArcadeScene(Scene):
             # A wave-up and its unlock(s) fire together: one banner, not a queue of them,
             # so the player never has two notices fighting for the same screen space.
             if pending_wave == FINAL_WAVE:
-                self._queue_banner("CONFRONTO FINAL", random.choice(BOSS_INTRO_TAUNTS), RED, 2.2)
+                labels = ", ".join(KIND_LABELS.get(kind, kind.upper()) for kind in pending_unlocks)
+                self._queue_banner("CONFRONTO FINAL", f"3 tarefas: {labels}", RED, 2.6)
                 self.taunt = random.choice(BOSS_INTRO_TAUNTS)
             elif pending_unlocks:
                 labels = ", ".join(KIND_LABELS.get(kind, kind.upper()) for kind in pending_unlocks)

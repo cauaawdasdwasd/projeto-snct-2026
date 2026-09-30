@@ -5,9 +5,10 @@ this mode *is* the captchas: VERIFY-9 throws one verification after another unti
 player reaches the final confrontation. It has a beginning, a middle and an end instead
 of being an endless grind:
 
-- Waves are fixed-length (`CAPTCHAS_PER_WAVE` solves each, `BOSS_CAPTCHAS` on the last
-  one) and only get harder in a predictable curve (shorter timers, wider challenge
-  roster), so a player can learn the pace instead of being surprised by noise.
+- The 5 regular waves draw from a per-run shuffled queue (`_build_campaign_queue`)
+  instead of an independent random pick each time: every "dynamic" verification is
+  guaranteed to show up exactly once somewhere in those 5 waves, in a random order, so a
+  short run never skips the content it is actually about while still feeling random.
 - Score is driven mainly by speed: `score_for_solve` weighs how much time was left over
   the time limit far more than the wave number, so "quanto mais rápido, mais pontos" is
   true at every stage, not just a late-game bonus.
@@ -16,9 +17,12 @@ of being an endless grind:
 - The overclock meter is filled by the same clean streaks and pays out an extra life
   instead of points, turning "play well" into "survive longer" instead of a second,
   disconnected currency.
-- Wave `FINAL_WAVE` is the boss fight: VERIFY-9 throws `BOSS_CAPTCHAS` back-to-back
-  verifications drawn only from its most "alive" tests (wires, cofre, botão, labirinto,
-  termo, instrumentos, rádio) - clearing it wins the run outright.
+- Wave `FINAL_WAVE` is a real boss fight, not just a harder wave: VERIFY-9 draws 2
+  distinct verifications from its "signature" pool plus the visual-memory grid (always
+  last) into one fixed 3-task gauntlet, run against a single shared `BOSS_TIME_LIMIT`
+  clock instead of a per-task timer. Running out of time costs a life and resets the
+  attempt (fresh tasks, fresh clock) instead of ending the run outright, as long as a
+  life remains.
 - Lifetime stats persist across runs (`ArcadeStats`) and unlock ranks, giving the mode a
   reason to be replayed beyond a single session's high score.
 """
@@ -41,48 +45,51 @@ NAME_MAX_LEN = 14
 STARTING_LIVES = 3
 MAX_LIVES = 5
 CAPTCHAS_PER_WAVE = 3
-BOSS_CAPTCHAS = 5  # the finale demands more than a normal wave before it lets go
-FINAL_WAVE = 13  # this wave IS the VERIFY-9 boss fight; clearing it wins the run
+BOSS_CAPTCHAS = 3  # a fixed 3-task gauntlet, not "however many the pool deals"
+FINAL_WAVE = 6  # this wave IS the VERIFY-9 boss fight; clearing it wins the run
+BOSS_TIME_LIMIT = 120.0  # one shared clock for all 3 boss tasks, not a per-task timer
 
-# A short campaign (13 waves, ~40 verifications) still needs to feel like it is
-# tightening the whole way, not just at the start: a much steeper decay than an
-# endless-grind curve would use, so the squeeze is felt within a single sitting
-# instead of over a hundred waves nobody reaches in one run.
+# A skilled player has to be able to go from the briefing to the boss gate in a few
+# minutes - 5 intro/escalation waves (5*CAPTCHAS_PER_WAVE = 15 verifications) is short
+# enough for that, then the boss fight is its own ~2-minute set piece on top.
 BASE_TIME_LIMIT = 24.0
 TIME_LIMIT_FLOOR = 8.0
 TIME_LIMIT_DECAY = 0.82
 
 # Some verifications are inherently slower to read/execute than others (typing several
 # guesses, following a multi-step deduction). Rather than distort the shared wave curve
-# for everyone, they get a flat multiplier on top of it.
+# for everyone, they get a flat multiplier on top of it. (Irrelevant during the boss
+# fight itself, which runs on BOSS_TIME_LIMIT instead of a per-task timer.)
 KIND_TIME_MULTIPLIER = {
     "termo": 3.2,
-    "wires": 1.8,
     "cofre": 2.6,
-    "labirinto": 1.4,
-    "instrumentos": 1.6,
+    "padrao": 2.4,
+    "wires": 1.8,
     "radio": 1.7,
+    "conectar_fios": 1.65,
+    "instrumentos": 1.6,
+    "labirinto": 1.4,
 }
 
-# The "different"/dynamic verifications (dial-in puzzles, KTANE/turbulence-style modules)
-# and the two image-based ones show up more often than the quick reflex/reading tests,
-# so a run keeps surfacing its most memorable content instead of averaging it away.
-KIND_WEIGHT = {
-    "rotate": 1.8,
-    "puzzle": 1.8,
-    "puzzle9": 1.8,
-    "termo": 2.0,
-    "wires": 2.2,
-    "cofre": 2.2,
-    "botao": 2.2,
-    "labirinto": 2.2,
-    "instrumentos": 2.2,
-    "radio": 2.2,
-}
-
-# The boss fight only draws from VERIFY-9's most "alive" verifications - no plain
-# reflex/reading tests - so the finale reads as a distinct, harder set piece.
-BOSS_KIND_POOL: tuple[str, ...] = ("wires", "cofre", "botao", "labirinto", "termo", "instrumentos", "radio")
+# The 6 classic "prove you're human" captchas (distorted text, click-the-cats, traffic
+# grid, rotate-the-photo, tile swaps) are the most tedious part of the mode, so the
+# 5 regular waves never schedule them at all - they exist for flavor/completeness but a
+# short campaign has no room for filler. Every OTHER verification is "the point" of the
+# arena, so all of them are guaranteed to appear, once each, spread across the 5 waves.
+BORING_KINDS: tuple[str, ...] = ("wobbly", "cats", "traffic", "rotate", "puzzle", "puzzle9")
+REGULAR_DYNAMIC_KINDS: tuple[str, ...] = (
+    "simon", "chimp", "whackabot", "invaders", "memory", "memory6",
+    "termo", "wires", "cofre", "botao", "labirinto", "instrumentos", "radio",
+    "conectar_fios", "padrao",
+)
+# The boss fight draws 2 DISTINCT verifications from this "signature" pool (a sample,
+# not an independent coin flip per slot, so the same one can never show up twice in one
+# attempt) and always closes with the visual-memory grid - a fixed-length, guaranteed
+# variety gauntlet instead of a wider random pool like the regular waves use.
+BOSS_SIGNATURE_KINDS: tuple[str, ...] = (
+    "termo", "wires", "cofre", "botao", "labirinto", "instrumentos", "radio", "conectar_fios",
+)
+BOSS_FINALE_KIND = "padrao"
 
 BASE_SCORE = 120
 WAVE_SCORE_STEP = 14
@@ -97,8 +104,6 @@ SOLVE_CELEBRATION_SECONDS = 0.9
 TIMEOUT_PAUSE_SECONDS = 1.1
 WAVE_BANNER_SECONDS = 1.1
 
-# Cumulative unlock schedule: the roster only grows, so early challenges stay in the mix
-# and a player always recognises *something* on the screen, even deep into a run.
 KIND_LABELS = {
     "wobbly": "TEXTO TORTO",
     "cats": "ACHE OS GATOS",
@@ -119,24 +124,9 @@ KIND_LABELS = {
     "invaders": "INVASORES",
     "instrumentos": "PAINEL DE INSTRUMENTOS",
     "radio": "RÁDIO DA TORRE",
+    "padrao": "MEMÓRIA VISUAL",
+    "conectar_fios": "CONECTAR OS FIOS",
 }
-# A campaign arc, not an infinite roster: it starts simple, spends its middle stretch
-# bringing in every dynamic/KTANE-style test, and finishes fully unlocked right before
-# the FINAL_WAVE boss fight (which reuses the roster, it never adds to it).
-WAVE_UNLOCKS: tuple[tuple[int, tuple[str, ...]], ...] = (
-    (1, ("wobbly", "cats")),
-    (2, ("traffic",)),
-    (3, ("rotate", "simon")),
-    (4, ("botao", "labirinto")),
-    (5, ("whackabot", "wires")),
-    (6, ("chimp", "cofre")),
-    (7, ("instrumentos", "radio")),
-    (8, ("puzzle",)),
-    (9, ("memory",)),
-    (10, ("puzzle9",)),
-    (11, ("termo",)),
-    (12, ("memory6", "invaders")),
-)
 
 RANKS: tuple[tuple[int, str], ...] = (
     (0, "ESTAGIÁRIO(A) DE TI"),
@@ -156,23 +146,28 @@ def time_limit_for(wave: int, kind: str) -> float:
     return time_limit_for_wave(wave) * KIND_TIME_MULTIPLIER.get(kind, 1.0)
 
 
+def build_campaign_queue(rng: random.Random) -> list[str]:
+    """A shuffled order for the 5 regular waves covering every REGULAR_DYNAMIC_KINDS
+    verification exactly once - "random, but never skips the content" instead of an
+    independent draw per slot, which could (and did) leave some kinds never played in
+    a single short run."""
+    queue = list(REGULAR_DYNAMIC_KINDS)
+    rng.shuffle(queue)
+    return queue
 
-def unlocked_kinds(wave: int) -> tuple[str, ...]:
-    kinds: list[str] = []
-    for threshold, batch in WAVE_UNLOCKS:
-        if wave >= threshold:
-            for kind in batch:
-                if kind not in kinds:
-                    kinds.append(kind)
-    return tuple(kinds)
+
+def draw_boss_tasks(rng: random.Random) -> list[str]:
+    """2 distinct verifications sampled (not drawn independently, so they can never
+    repeat within one attempt) from the signature pool, plus the visual-memory grid
+    fixed as the third and final task."""
+    return [*rng.sample(BOSS_SIGNATURE_KINDS, 2), BOSS_FINALE_KIND]
 
 
-def newly_unlocked_kinds(wave: int) -> tuple[str, ...]:
-    """Kinds that become available for the first time exactly at this wave."""
-    for threshold, batch in WAVE_UNLOCKS:
-        if threshold == wave:
-            return batch
-    return ()
+def wave_slice(queue: list[str], wave: int) -> tuple[str, ...]:
+    """The chunk of the campaign queue a given regular wave plays, for the wave-up
+    banner to preview ("novo teste liberado: ...") before the player gets there."""
+    start = (wave - 1) * CAPTCHAS_PER_WAVE
+    return tuple(queue[start : start + CAPTCHAS_PER_WAVE])
 
 
 def captchas_required_for(wave: int) -> int:
@@ -318,7 +313,8 @@ class ArcadeRun:
         self._events: list[ArcadeEvent] = []
         self.game_over = False
         self.summary: RunSummary | None = None
-        self._recent_kinds: list[str] = []
+        self.campaign_queue: list[str] = build_campaign_queue(self.rng)
+        self.boss_tasks: list[str] = []
         self._start()
 
     def _start(self) -> None:
@@ -344,15 +340,30 @@ class ArcadeRun:
         events, self._events = self._events, []
         return events
 
+    def _start_boss(self) -> None:
+        """(Re)starts the boss encounter: a fresh 3-task lineup and a fresh shared
+        clock. Called both when the boss wave is first reached and whenever the
+        shared clock runs out with a life still left, so a failed attempt resets
+        instead of ending the run."""
+        self.boss_tasks = draw_boss_tasks(self.rng)
+        self.cleared_in_wave = 0
+        self.time_limit = BOSS_TIME_LIMIT
+        self.time_left = BOSS_TIME_LIMIT
+
     def _spawn_captcha(self) -> None:
-        pool = BOSS_KIND_POOL if self.wave == FINAL_WAVE else unlocked_kinds(self.wave)
-        choices = [kind for kind in pool if kind not in self._recent_kinds[-2:]] or list(pool)
-        weights = [KIND_WEIGHT.get(kind, 1.0) for kind in choices]
-        kind = self.rng.choices(choices, weights=weights, k=1)[0]
-        self._recent_kinds.append(kind)
+        if self.wave == FINAL_WAVE:
+            # The boss runs on one shared clock across all 3 tasks: time_limit/time_left
+            # are set once in _start_boss() and deliberately left untouched here, so the
+            # countdown keeps running straight through the task-to-task transitions.
+            kind = self.boss_tasks[self.cleared_in_wave]
+        else:
+            # captchas_cleared is a running total across the whole run and hasn't been
+            # touched by the boss yet at this point, so it doubles as the campaign
+            # queue's position: 0 on the very first captcha, 14 on the last regular one.
+            kind = self.campaign_queue[self.captchas_cleared]
+            self.time_limit = time_limit_for(self.wave, kind)
+            self.time_left = self.time_limit
         self.captcha = create_captcha(kind, random.Random(self.rng.randrange(1 << 30)), self.assets_root)
-        self.time_limit = time_limit_for(self.wave, kind)
-        self.time_left = self.time_limit
         self.had_error_this_captcha = False
         self.phase = "active"
 
@@ -447,12 +458,16 @@ class ArcadeRun:
             if self.wave > FINAL_WAVE:
                 self._end_run(victory=True)
                 return
-            unlocked = newly_unlocked_kinds(self.wave)
             self._events.append(ArcadeEvent("wave", self.wave))
-            for kind in unlocked:
+            if self.wave == FINAL_WAVE:
+                self._start_boss()
+                upcoming = tuple(self.boss_tasks)
+            else:
+                upcoming = wave_slice(self.campaign_queue, self.wave)
+            for kind in upcoming:
                 self._events.append(ArcadeEvent("unlock", kind))
             self.phase = "wave_banner"
-            self.phase_timer = WAVE_BANNER_SECONDS + (0.5 if unlocked else 0.0)
+            self.phase_timer = WAVE_BANNER_SECONDS + (0.5 if upcoming else 0.0)
 
     def _handle_timeout(self) -> None:
         self.lives -= 1
@@ -461,6 +476,11 @@ class ArcadeRun:
         if self.lives <= 0:
             self._end_run()
             return
+        if self.wave == FINAL_WAVE:
+            # The boss fight's shared clock ran out: reset the attempt (fresh tasks,
+            # fresh clock) instead of ending the run, as long as a life remains.
+            self._start_boss()
+            self._events.append(ArcadeEvent("boss_reset", None))
         self.phase = "hit"
         self.phase_timer = TIMEOUT_PAUSE_SECONDS
 

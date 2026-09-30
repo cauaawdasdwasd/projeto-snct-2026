@@ -15,25 +15,30 @@ from src.core.settings import ASSETS_DIR, VIRTUAL_HEIGHT, VIRTUAL_WIDTH
 from src.minigames.arcade import (
     BASE_TIME_LIMIT,
     BOSS_CAPTCHAS,
+    BOSS_FINALE_KIND,
+    BOSS_SIGNATURE_KINDS,
+    BOSS_TIME_LIMIT,
     CAPTCHAS_PER_WAVE,
     FINAL_WAVE,
+    REGULAR_DYNAMIC_KINDS,
     RANKS,
     TIME_LIMIT_FLOOR,
     ArcadeRun,
     ArcadeStats,
-    KIND_LABELS,
     Leaderboard,
-    newly_unlocked_kinds,
+    build_campaign_queue,
+    draw_boss_tasks,
     rank_for,
     score_for_solve,
     time_limit_for,
     time_limit_for_wave,
-    unlocked_kinds,
+    wave_slice,
 )
 from src.minigames.captchas import (
     CANVAS,
     CatGridCaptcha,
     ChimpSequenceCaptcha,
+    ConnectWiresCaptcha,
     HoldReleaseCaptcha,
     InstrumentsCaptcha,
     InvadersCaptcha,
@@ -46,6 +51,7 @@ from src.minigames.captchas import (
     TermoCaptcha,
     TrafficGridCaptcha,
     VaultCaptcha,
+    VisualMemoryCaptcha,
     WhackABotCaptcha,
     WireCutCaptcha,
     WobblyTextCaptcha,
@@ -100,6 +106,27 @@ def test_simon_beep_can_be_solved_and_punishes_a_wrong_pad() -> None:
         expected = game.sequence[game.input_index]
         game.on_mouse_down(game.pads[expected].center)
     assert game.solved
+
+
+def test_simon_beep_status_chip_never_overlaps_the_pads() -> None:
+    # Regression: the status chip used to sit at a fixed spot that overlapped the top
+    # of the first two pads, so "MEMORIZE A SEQUÊNCIA..." rendered on top of the game.
+    game = SimonBeepCaptcha(rng(46), ASSETS_DIR)
+    chip = pygame.Rect(20, 20, 220, 40)
+    for pad_rect in game.pads:
+        assert not chip.colliderect(pad_rect)
+
+
+def test_simon_beep_emits_a_distinct_sound_tag_per_pad() -> None:
+    game = SimonBeepCaptcha(rng(47), ASSETS_DIR)
+    heard: set[int] = set()
+    while game.phase == "showing":
+        game.update(0.05)
+        for tag in game.take_events():
+            if tag.startswith("pad_"):
+                heard.add(int(tag.removeprefix("pad_")))
+    assert heard  # at least one pad tone fired while the sequence played
+    assert all(0 <= pad <= 3 for pad in heard)
 
 
 def test_chimp_sequence_can_be_solved_and_punishes_a_wrong_tile() -> None:
@@ -448,11 +475,75 @@ def test_radio_resets_the_round_count_on_a_wrong_callsign() -> None:
     assert game.round == 0 and game.phase == "active"
 
 
+def _solve_visual_memory(game: VisualMemoryCaptcha) -> None:
+    guard = 0
+    while not game.solved and guard < 200:
+        guard += 1
+        if game.phase == "showing":
+            game.update(VisualMemoryCaptcha.REVEAL_SECONDS + 0.1)
+            continue
+        if game.phase in ("right", "wrong"):
+            pause = VisualMemoryCaptcha.RIGHT_PAUSE_SECONDS if game.phase == "right" else VisualMemoryCaptcha.WRONG_PAUSE_SECONDS
+            game.update(pause + 0.1)
+            continue
+        cell = next(iter(game.pattern - game.clicked))
+        game.on_mouse_down(game._cell_rect(*cell).center)
+
+
+def test_visual_memory_grows_from_3x3_to_5x5_and_can_be_solved() -> None:
+    game = VisualMemoryCaptcha(rng(48), ASSETS_DIR)
+    assert game._grid_size() == 3
+    _solve_visual_memory(game)
+    assert game.solved
+
+
+def test_visual_memory_restarts_at_3x3_after_a_wrong_click() -> None:
+    game = VisualMemoryCaptcha(rng(49), ASSETS_DIR)
+    game.update(VisualMemoryCaptcha.REVEAL_SECONDS + 0.1)
+    assert game.phase == "answering"
+    wrong_cell = next(cell for cell in [(x, y) for x in range(3) for y in range(3)] if cell not in game.pattern)
+    game.on_mouse_down(game._cell_rect(*wrong_cell).center)
+    assert game.phase == "wrong" and game.failures == 1
+    game.update(VisualMemoryCaptcha.WRONG_PAUSE_SECONDS + 0.1)
+    assert game.round_index == 0 and game.phase == "showing"
+
+
+def _solve_connect_wires(game: ConnectWiresCaptcha) -> None:
+    guard = 0
+    while not game.solved and guard < 100:
+        guard += 1
+        if game.phase in ("right", "wrong"):
+            pause = ConnectWiresCaptcha.RIGHT_PAUSE_SECONDS if game.phase == "right" else ConnectWiresCaptcha.WRONG_PAUSE_SECONDS
+            game.update(pause + 0.1)
+            continue
+        used_left = set(game.connections.keys())
+        left_row = next(row for row in range(len(game.right_order)) if row not in used_left)
+        right_row = game.right_order.index(left_row)
+        game.on_mouse_down(game._left_center(left_row))
+        game.on_mouse_down(game._right_center(right_row))
+
+
+def test_connect_wires_can_be_solved_by_matching_every_color() -> None:
+    game = ConnectWiresCaptcha(rng(50), ASSETS_DIR)
+    _solve_connect_wires(game)
+    assert game.solved
+
+
+def test_connect_wires_resets_on_a_wrong_pairing() -> None:
+    game = ConnectWiresCaptcha(rng(51), ASSETS_DIR)
+    wrong_right_row = next(row for row in range(len(game.right_order)) if game.right_order[row] != 0)
+    game.on_mouse_down(game._left_center(0))
+    game.on_mouse_down(game._right_center(wrong_right_row))
+    assert game.phase == "wrong" and game.failures == 1
+    game.update(ConnectWiresCaptcha.WRONG_PAUSE_SECONDS + 0.1)
+    assert game.phase == "active" and not game.connections  # fresh shuffle, ready to try again
+
+
 def test_new_kinds_build_and_render_through_the_factory() -> None:
     surface = pygame.Surface(CANVAS)
     for kind in (
         "traffic", "simon", "whackabot", "chimp", "wires", "termo", "cofre", "botao",
-        "labirinto", "instrumentos", "radio",
+        "labirinto", "instrumentos", "radio", "padrao", "conectar_fios",
     ):
         game = create_captcha(kind, rng(9), ASSETS_DIR)
         game.render(surface)
@@ -467,43 +558,68 @@ def test_time_limit_keeps_easing_toward_the_floor_across_the_whole_run() -> None
     limits = [time_limit_for_wave(wave) for wave in range(1, FINAL_WAVE + 1)]
     assert limits[0] == BASE_TIME_LIMIT
     assert limits == sorted(limits, reverse=True)
-    # never actually flatlines...
     assert all(limit > TIME_LIMIT_FLOOR for limit in limits)
-    # ...but by the boss wave it's close to the floor
-    assert limits[-1] - TIME_LIMIT_FLOOR < 2.0
-    # and the squeeze is felt within this short campaign, not spread so thin across it
-    # that a player never perceives the clock actually shrinking
-    assert limits[1] - limits[6] > 5.0
+    # the squeeze is clearly felt across this short (5-wave-plus-boss) campaign...
+    assert limits[0] - limits[-1] > 8.0
+    # ...without getting so close to the floor that the boss wave feels unfair on top
+    # of its harder-only kind pool and higher solve count
+    assert limits[-1] - TIME_LIMIT_FLOOR > 3.0
 
 
 def test_slower_verifications_get_more_time_than_the_wave_baseline() -> None:
-    for wave in (1, 7, FINAL_WAVE):
+    for wave in (1, 3, FINAL_WAVE):
         baseline = time_limit_for_wave(wave)
         assert time_limit_for(wave, "wobbly") == pytest.approx(baseline)
         assert time_limit_for(wave, "termo") == pytest.approx(baseline * 3.2)
         assert time_limit_for(wave, "cofre") == pytest.approx(baseline * 2.6)
+        assert time_limit_for(wave, "padrao") == pytest.approx(baseline * 2.4)
         assert time_limit_for(wave, "wires") == pytest.approx(baseline * 1.8)
         assert time_limit_for(wave, "radio") == pytest.approx(baseline * 1.7)
+        assert time_limit_for(wave, "conectar_fios") == pytest.approx(baseline * 1.65)
         assert time_limit_for(wave, "instrumentos") == pytest.approx(baseline * 1.6)
         assert time_limit_for(wave, "labirinto") == pytest.approx(baseline * 1.4)
         # ordered by how much deduction/typing/navigating each one actually demands
         assert (
             time_limit_for(wave, "termo")
             > time_limit_for(wave, "cofre")
+            > time_limit_for(wave, "padrao")
             > time_limit_for(wave, "wires")
             > time_limit_for(wave, "radio")
+            > time_limit_for(wave, "conectar_fios")
             > time_limit_for(wave, "instrumentos")
             > time_limit_for(wave, "labirinto")
             > baseline
         )
 
 
-def test_wave_unlocks_are_cumulative_and_only_new_at_their_threshold() -> None:
-    assert unlocked_kinds(1) == ("wobbly", "cats")
-    assert set(unlocked_kinds(2)) == {"wobbly", "cats", "traffic"}
-    assert newly_unlocked_kinds(2) == ("traffic",)
-    assert newly_unlocked_kinds(FINAL_WAVE) == ()  # the boss fight adds no new kind, just raises the stakes
-    assert set(unlocked_kinds(FINAL_WAVE - 1)) == set(KIND_LABELS)  # everything is unlocked before the boss
+def test_campaign_queue_covers_every_dynamic_kind_exactly_once() -> None:
+    queue = build_campaign_queue(rng(60))
+    assert sorted(queue) == sorted(REGULAR_DYNAMIC_KINDS)
+    assert len(queue) == CAPTCHAS_PER_WAVE * (FINAL_WAVE - 1)  # exactly fills the 5 regular waves
+
+
+def test_campaign_queue_order_is_shuffled_per_run() -> None:
+    first = build_campaign_queue(rng(61))
+    second = build_campaign_queue(rng(62))
+    assert first != second  # different seeds, different orders (this would be a flaky
+    # assertion in principle, but with 15! orderings a collision is not a real risk)
+
+
+def test_wave_slice_splits_the_queue_into_consecutive_wave_chunks() -> None:
+    queue = build_campaign_queue(rng(63))
+    assert wave_slice(queue, 1) == tuple(queue[0:3])
+    assert wave_slice(queue, 2) == tuple(queue[3:6])
+    assert wave_slice(queue, FINAL_WAVE - 1) == tuple(queue[12:15])
+    assert set().union(*(wave_slice(queue, wave) for wave in range(1, FINAL_WAVE))) == set(REGULAR_DYNAMIC_KINDS)
+
+
+def test_boss_tasks_are_two_distinct_signature_kinds_plus_the_finale() -> None:
+    for seed in range(20):
+        tasks = draw_boss_tasks(rng(seed))
+        assert len(tasks) == 3
+        assert tasks[2] == BOSS_FINALE_KIND
+        assert tasks[0] != tasks[1]
+        assert tasks[0] in BOSS_SIGNATURE_KINDS and tasks[1] in BOSS_SIGNATURE_KINDS
 
 
 def test_rank_progression_reaches_a_ceiling() -> None:
@@ -701,6 +817,10 @@ def _solve_current(run: ArcadeRun) -> None:
             if captcha.phase in ("right", "wrong"):
                 pause = RadioCaptcha.RIGHT_PAUSE_SECONDS if captcha.phase == "right" else RadioCaptcha.WRONG_PAUSE_SECONDS
                 captcha.update(pause + 0.1)
+    elif isinstance(captcha, VisualMemoryCaptcha):
+        _solve_visual_memory(captcha)
+    elif isinstance(captcha, ConnectWiresCaptcha):
+        _solve_connect_wires(captcha)
     elif isinstance(captcha, MemoryCaptcha):
         pairs = len(captcha.cards) // 2
         for value in range(pairs):
@@ -756,8 +876,10 @@ def test_arcade_run_scores_advances_waves_and_fires_unlocks() -> None:
     assert run.wave >= 5
     assert run.score > 0
     assert run.combo >= 1
-    assert "traffic" in unlocked_seen
-    assert "botao" in unlocked_seen  # the dynamic/fun kinds now unlock earlier (wave 4)
+    # waves 2-4 (wave 1's kinds play with no "unlock" announcement, same as before)
+    # must have announced exactly their slice of this run's own campaign queue
+    for wave in (2, 3, 4):
+        assert set(wave_slice(run.campaign_queue, wave)) <= set(unlocked_seen)
 
 
 def test_arcade_run_ends_after_losing_all_lives_and_persists_stats() -> None:
@@ -786,6 +908,74 @@ def test_arcade_run_ends_after_losing_all_lives_and_persists_stats() -> None:
     assert stats.total_runs == 1
     assert stats.total_score == run.score
     assert run.summary is not None and run.summary.wave == run.wave
+
+
+def test_a_newly_unlocked_kind_is_always_the_very_next_captcha() -> None:
+    # Regression: with 20 kinds and weighted selection, a short run could easily
+    # announce "novo teste liberado" and then never actually draw it before the run
+    # ends. The wave that unlocks something must always lead with one of those kinds.
+    stats = ArcadeStats()
+    run = ArcadeRun(ASSETS_DIR, stats, random.Random(51))
+    guard = 0
+    while run.wave < FINAL_WAVE and guard < 200:
+        guard += 1
+        _solve_current(run)
+        run.update(0.001)
+        events = run.pop_events()
+        unlocked_this_batch = [str(e.value) for e in events if e.kind == "unlock"]
+        _fast_forward_past_pause(run)
+        if unlocked_this_batch:
+            assert run.captcha.kind in unlocked_this_batch
+        assert not run.game_over
+
+
+def _reach_boss_wave(run: ArcadeRun) -> None:
+    guard = 0
+    while run.wave < FINAL_WAVE and guard < 200:
+        guard += 1
+        _solve_current(run)
+        run.update(0.001)
+        run.pop_events()
+        _fast_forward_past_pause(run)
+    assert run.wave == FINAL_WAVE and run.phase == "active"
+
+
+def test_boss_fight_resets_on_timeout_instead_of_ending_the_run() -> None:
+    stats = ArcadeStats()
+    run = ArcadeRun(ASSETS_DIR, stats, random.Random(52))
+    _reach_boss_wave(run)
+    assert run.time_left == pytest.approx(BOSS_TIME_LIMIT)
+    lives_before = run.lives
+
+    run.time_left = 0.001
+    run.update(0.01)  # crosses zero -> _handle_timeout -> boss attempt resets, not the run
+    events = run.pop_events()
+    assert any(event.kind == "boss_reset" for event in events)
+    assert run.lives == lives_before - 1
+    assert not run.game_over
+    assert run.wave == FINAL_WAVE  # still fighting the boss, never sent back to wave 1
+    assert run.cleared_in_wave == 0
+
+    _fast_forward_past_pause(run)
+    assert run.phase == "active"
+    assert run.time_left == pytest.approx(BOSS_TIME_LIMIT)  # the shared clock is fresh again
+    assert len(run.boss_tasks) == 3 and run.boss_tasks[2] == BOSS_FINALE_KIND
+    assert run.captcha.kind == run.boss_tasks[0]
+
+
+def test_boss_fight_ends_the_run_once_the_reset_costs_the_last_life() -> None:
+    stats = ArcadeStats()
+    run = ArcadeRun(ASSETS_DIR, stats, random.Random(53))
+    run.stats.save = lambda path=None: None
+    _reach_boss_wave(run)
+
+    run.lives = 1
+    run.time_left = 0.001
+    run.update(0.01)
+
+    assert run.game_over and not run.victory
+    assert run.lives == 0
+    assert run.summary is not None and not run.summary.victory
 
 
 def test_run_waits_for_explicit_resume_before_spawning_the_next_captcha() -> None:
