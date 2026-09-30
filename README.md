@@ -684,6 +684,19 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
   corrigir só a que errou. Sem filtro de "tabu": o banco já é só palavras reais do
   português, sem restrição de palavrão nem nada do tipo.
 
+## Termo volta a aceitar digitação livre; banco fica ainda mais fácil (rodada 24)
+
+- **O filtro "só palavra do banco" da rodada 23 voltou atrás.** Na prática, o banco de
+  53 palavras era pequeno demais pra servir como dicionário de tentativas válidas —
+  palavras comuns de verdade como CARRO e CLIMA (testadas pelo Cauã) eram recusadas só
+  por não estarem nas 53 escolhidas como possíveis respostas. `_submit` voltou a aceitar
+  qualquer sequência de 5 letras como tentativa, exatamente como antes da rodada 23.
+- **Banco de respostas ficou ainda mais fácil**, já que agora é só isso que ele controla
+  (o que pode ser sorteado como resposta, não mais o que pode ser digitado): saíram
+  `VETOR`, `CIFRA`, `MODEM`, `FOTON` e `GENES` (termos menos do dia a dia); entraram
+  `CARRO`, `CLIMA`, `TEMPO`, `NOITE`, `PONTE`, `FESTA` e `GRUPO` — palavras bem comuns,
+  do cotidiano. Banco final com 55 palavras, ainda nenhuma com K, W ou Y.
+
 ## Papéis dos casos (rodadas 7 e 8)
 
 - Todos os papéis mantêm o bege do jogo, mas **cada um tem uma organização própria** pensada para o caso: tabelas,
