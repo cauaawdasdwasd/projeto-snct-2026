@@ -302,6 +302,29 @@ def test_termo_arrow_keys_move_the_cursor_to_fix_a_letter() -> None:
     assert game.guesses == [game.target] and game.phase == "right"
 
 
+def test_termo_rejects_a_guess_that_is_not_in_the_word_bank_for_free() -> None:
+    # A player must only ever be able to type real Portuguese words from the bank, not
+    # arbitrary letters - and rejecting a non-word must be free, like real Wordle: no
+    # guess consumed, no failure recorded, letters stay so the player can just fix one.
+    from src.minigames.captchas import TERMO_WORDS
+
+    game = TermoCaptcha(rng(35), ASSETS_DIR)
+    fake_word = "ZZZZZ"
+    assert fake_word not in TERMO_WORDS
+    _type_termo_word(game, fake_word)
+    assert game.invalid_timer > 0
+    assert game.guesses == [] and game.failures == 0 and game.phase == "active"
+    assert "".join(game.current_letters) == fake_word  # untouched, ready to be corrected
+
+    game.update(TermoCaptcha.INVALID_WORD_SECONDS + 0.1)
+    assert game.invalid_timer == 0
+
+    for _ in range(len(fake_word)):  # clear the rejected letters before retyping
+        _press(game, pygame.K_BACKSPACE)
+    _type_termo_word(game, game.target)
+    assert game.guesses == [game.target] and game.phase == "right"
+
+
 def test_termo_fails_and_deals_a_new_word_once_out_of_guesses() -> None:
     from src.minigames.captchas import TERMO_WORDS
 

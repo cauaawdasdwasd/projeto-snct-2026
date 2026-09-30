@@ -1422,11 +1422,11 @@ class WireCutCaptcha(Captcha):
 TERMO_WORDS = (
     "DADOS", "ROBOS", "ATOMO", "TESTE", "FALHA", "CHAVE", "SENHA", "VETOR",
     "PROVA", "FONTE", "TELAS", "REDES", "CIFRA", "VIRUS", "PIXEL", "ERROS",
-    "LOGIN", "BYTES", "CACHE", "BOLHA", "PODER", "PAPEL", "FICHA", "CASOS",
+    "LOGIN", "FORTE", "CACHE", "BOLHA", "PODER", "PAPEL", "FICHA", "CASOS",
     "TURNO", "ALVOS", "PASSO", "TECLA", "MODEM", "BUSCA", "MEDIA", "CURVA",
-    "GRAFO", "PLACA", "DISCO", "ETICA", "JUSTA", "REGRA", "NORMA", "FORCA",
-    "GENES", "FOTON", "QUARK", "LASER", "RAIOS", "ONDAS", "CAMPO", "MASSA",
-    "FORMA", "RUIDO", "SINAL", "NODOS",
+    "PLACA", "DISCO", "ETICA", "JUSTA", "REGRA", "NORMA", "FORCA", "GENES",
+    "FOTON", "LASER", "RAIOS", "ONDAS", "CAMPO", "MASSA", "FORMA", "RUIDO",
+    "SINAL", "LIVRO", "MUNDO", "VERDE", "CERTO",
 )
 TERMO_ALPHABET = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
@@ -1458,12 +1458,13 @@ class TermoCaptcha(Captcha):
     kind = "termo"
     instruction = "Adivinhe a palavra de 5 letras. Verde: posição certa. Amarelo: letra certa, lugar errado."
     WORD_LENGTH = 5
-    MAX_GUESSES = 5
+    MAX_GUESSES = 6
     TILE = 52
     GAP = 8
     ORIGIN = (40, 16)
     RIGHT_PAUSE_SECONDS = 0.8
     WRONG_PAUSE_SECONDS = 1.6
+    INVALID_WORD_SECONDS = 0.8
 
     def __init__(self, rng: random.Random, assets_root: Path) -> None:
         super().__init__(rng, assets_root)
@@ -1474,6 +1475,7 @@ class TermoCaptcha(Captcha):
         self.cursor = 0
         self.phase = "active"  # active | wrong | right
         self.timer = 0.0
+        self.invalid_timer = 0.0
         self._deal()
 
     def _deal(self) -> None:
@@ -1483,6 +1485,7 @@ class TermoCaptcha(Captcha):
         self.current_letters = [""] * self.WORD_LENGTH
         self.cursor = 0
         self.phase = "active"
+        self.invalid_timer = 0.0
 
     def _tile_rect(self, row: int, column: int) -> pygame.Rect:
         x = self.ORIGIN[0] + column * (self.TILE + self.GAP)
@@ -1516,6 +1519,12 @@ class TermoCaptcha(Captcha):
         if "" in self.current_letters:
             return
         guess = "".join(self.current_letters)
+        if guess not in TERMO_WORDS:
+            # Not a real word from the bank: rejected for free, same as real Wordle -
+            # it doesn't consume one of the limited guesses or cost any time.
+            self.invalid_timer = self.INVALID_WORD_SECONDS
+            self.events.append("click")
+            return
         self.guesses.append(guess)
         self.results.append(_score_termo_guess(guess, self.target))
         self.current_letters = [""] * self.WORD_LENGTH
@@ -1531,6 +1540,8 @@ class TermoCaptcha(Captcha):
             self.events.append("toggle")
 
     def update(self, dt: float) -> None:
+        if self.invalid_timer > 0:
+            self.invalid_timer = max(0.0, self.invalid_timer - dt)
         if self.phase in ("wrong", "right"):
             self.timer -= dt
             if self.timer <= 0:
@@ -1575,7 +1586,9 @@ class TermoCaptcha(Captcha):
             pygame.draw.rect(surface, color, pygame.Rect(panel_x, legend_y, 16, 16), border_radius=3)
             draw_wrapped(surface, label, font(13), INK_MUTED, pygame.Rect(panel_x + 24, legend_y - 2, 290, 40), 16)
             legend_y += 30
-        if self.phase == "wrong":
+        if self.invalid_timer > 0:
+            draw_text(surface, "NÃO É UMA PALAVRA VÁLIDA", font(15, True), RED, (panel_x, 244))
+        elif self.phase == "wrong":
             draw_text(surface, f"A PALAVRA ERA: {self.target}", font(17, True), RED, (panel_x, 244))
         elif self.phase == "right":
             draw_text(surface, "ACERTOU!", font(19, True), GREEN, (panel_x, 244))

@@ -667,6 +667,23 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
   (par, ímpar, maior que 6, menor que 3) e decidir soltar ou não. Subiu para **0,9s**, mais
   que o dobro, tempo suficiente pra realmente raciocinar em vez de só reagir por sorte.
 
+## Termo com uma tentativa a mais, banco de palavras mais claro e só aceita palavra de verdade (rodada 23)
+
+- **Uma tentativa a mais:** `MAX_GUESSES` de 5 para **6**, igual o Termo/Wordle de
+  verdade.
+- **Banco de palavras revisado: fora as "estranhas" com letras que o português quase não
+  usa fora de empréstimos** — `QUARK` (tinha Q e K), `BYTES` (tinha Y), `GRAFO` e `NODOS`
+  (termos técnicos pouco óbvios) saíram; entraram `FORTE`, `LIVRO`, `MUNDO`, `VERDE` e
+  `CERTO` — palavras comuns, sem letra estranha, fáceis de reconhecer e menos
+  confundíveis entre si. Banco final com 53 palavras, nenhuma com K, W ou Y.
+- **Só aceita palavra de verdade, não deixa mais digitar qualquer sequência de letras.**
+  Antes `TermoCaptcha` aceitava qualquer combinação de 5 letras como tentativa válida —
+  agora `_submit` confere se a palavra está em `TERMO_WORDS` antes de aceitar. Uma
+  tentativa que não é palavra é recusada de graça (como no Wordle de verdade): não gasta
+  uma das tentativas, não custa tempo, e as letras digitadas continuam na tela pra
+  corrigir só a que errou. Sem filtro de "tabu": o banco já é só palavras reais do
+  português, sem restrição de palavrão nem nada do tipo.
+
 ## Papéis dos casos (rodadas 7 e 8)
 
 - Todos os papéis mantêm o bege do jogo, mas **cada um tem uma organização própria** pensada para o caso: tabelas,
