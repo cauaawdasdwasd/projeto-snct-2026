@@ -379,14 +379,14 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
 
 ## Ranking local, teste do macaco e ajustes de layout da arena (rodada 14)
 
-- **Placar com nome, ao estilo fliperama antigo.** Ao terminar uma partida com pontuação
-  entre as 10 melhores (ou enquanto o placar tiver menos de 10 entradas), a tela pede
-  para digitar um nome/apelido antes do resumo final. Fica salvo em
+- **Placar com nome, ao estilo fliperama antigo.** Fica salvo em
   `data/arcade_leaderboard.json` (git-ignorado, é save local da máquina) e aparece em
   dois lugares: um TOP 5 compacto direto na tela inicial da arena, e um botão
   `VER RANKING COMPLETO` que abre o TOP 10 inteiro (nome, onda e pontos). É pensado para
   várias pessoas jogarem no mesmo computador e tentarem se superar. Regras e persistência
-  em `Leaderboard`/`LeaderboardEntry` (`src/minigames/arcade.py`).
+  em `Leaderboard`/`LeaderboardEntry` (`src/minigames/arcade.py`). Nesta rodada o nome
+  era pedido só no fim da partida (se a pontuação entrasse no TOP 10); a rodada 15 mudou
+  isso para pedir o nome **antes** de jogar.
 - **Verificação nova: Teste do Macaco** (`chimp`, kind `"chimp"`). Mostra alguns números
   espalhados num grid, esconde todos depois de ~1,7s e pede para clicar na ordem certa,
   de 1 até o último — cresce um número a cada rodada, 4 rodadas para vencer. O nome é uma
@@ -400,6 +400,157 @@ disso, os próximos casos mantêm apenas a faixa discreta de orientação da mes
 - **Captchas da arena recentralizados.** O quadro de verificação ficava colado no topo
   do painel, com um vão vazio enorme embaixo. `CANVAS_ORIGIN`, em
   `src/scenes/arcade.py`, agora centraliza o conteúdo no espaço disponível do painel.
+
+## Nome do jogador no início, corta-fio e terminal hackeado (rodada 15)
+
+- **Fluxo do placar invertido: nome primeiro, depois joga.** A Arena agora abre com
+  `QUEM ESTÁ JOGANDO?` antes de qualquer coisa — digita o nome, aperta `CONTINUAR`
+  (ou `Enter`) e só então vê as regras e o botão `ENTRAR NA ARENA`. Todo turno é
+  gravado no placar local automaticamente ao terminar (sem precisar entrar no TOP 10
+  para isso pedir o nome, como era antes); o nome fica visível durante o turno
+  (`JOGANDO: <nome>` no HUD) e pode ser trocado a qualquer momento pelo botão
+  `JOGANDO: <nome> (trocar)` na tela inicial — pensado para várias pessoas jogarem
+  na mesma estação sem passar pelo menu principal a cada troca.
+- **Verificação nova: Cortar o Fio** (`wires`, kind `"wires"`), inspirada em *Keep
+  Talking and Nobody Explodes*. Nasceu nesta rodada com fios verticais e uma regra
+  simples ("corte o único fio AZUL"); a rodada 16 reformulou visual e regra por
+  completo — ver lá.
+- **Verificação nova: Terminal Hackeado** (`terminal`), ao estilo do hack de senhas do
+  Fallout. Ficou ruim (senha embaralhada sem nenhuma pista jogável de verdade) e foi
+  **removida** na rodada 16, substituída pelo Termo.
+
+## Termo, fio com código, curva de tempo sem platô e final aos 100 (rodada 16)
+
+- **Termo** substitui o Terminal Hackeado: um Wordle em português, grade 5x5, cores
+  verde/amarelo/cinza por letra. Banco de 52 palavras de 5 letras ligado ao tema do jogo
+  (`TERMO_WORDS` em `src/minigames/captchas.py`). Agora navegável com `←`/`→` para
+  corrigir uma letra sem apagar tudo, e ganhou **tempo extra** por ser mais demorado que
+  as outras verificações — ver `KIND_TIME_MULTIPLIER` em `src/minigames/arcade.py`
+  (valor aumentado de novo na rodada 17).
+- **Cortar o Fio reformulado**, agora mais parecido com *Keep Talking* de verdade: cada
+  rodada sorteia um **código** de 6 caracteres (letras e números) e uma regra que lê uma
+  propriedade dele — "último dígito ÍMPAR", "soma dos dígitos PAR", "tem VOGAL", "mais
+  letras que números" — para decidir entre dois fios que garantidamente só aparecem uma
+  vez cada no tabuleiro (sem ambiguidade possível). Os fios agora são **horizontais**,
+  com terminais metálicos, brilho/sombra de cabo e faísca ao cortar.
+- **Girar a Foto**: removidos os 4 desenhos feitos em código (pessoa, casa, foguete,
+  robô); usa só as fotos reais de `assets/captcha/rotate/`.
+- **Curva de tempo sem platô.** Antes, o tempo caía direto até um piso fixo (12s) por
+  volta da onda 25 e ficava **parado** ali pro resto da partida — cerca de 75 ondas sem
+  nenhuma escalada, o que ficava monótono num modo que devia ser frenético. Agora
+  `time_limit_for_wave` usa decaimento exponencial: continua apertando, cada vez menos,
+  até bem perto do fim (piso teórico de 9s, nunca alcançado de verdade) — sempre dá a
+  sensação de que está ficando mais difícil, sem nunca virar injogável.
+- **Final: derrote o VERIFY-9.** Sobreviver até a onda 100 (`FINAL_WAVE`) encerra a
+  partida em vitória — tela própria ("VOCÊ DERROTOU O VERIFY-9!"), falas exclusivas do
+  VERIFY-9 derrotado, e uma contagem de vitórias salva no placar local, visível na tela
+  inicial da arena. Não é fácil (100 ondas = 300 verificações), então fica como o
+  desafio final para quem realmente disputar o ranking a sério.
+
+## Cofre numérico, desbloqueios mais cedo e mais tempo pras verificações lentas (rodada 17)
+
+- **Verificação nova: Abrir o Cofre** (`cofre`, kind `"cofre"`), estilo o cofre de arma
+  do Lockdown Protocol: senha numérica de 4 dígitos, 9 tentativas, cada uma mostra
+  quantos dígitos estão certos e na posição certa (pino verde) e quantos existem na
+  senha mas em outra posição (pino amarelo) — dedução Mastermind clássica. Dá pra digitar
+  no teclado ou clicar num teclado numérico na tela. Liberava na onda 5 (a rodada 18
+  reorganizou de novo, ver lá).
+- **Desbloqueios reorganizados para trazer o que é mais dinâmico mais cedo**: Caça-Robôs
+  e Cortar o Fio agora liberam na onda 4 (eram 6 e 7); Teste do Macaco e o Cofre novo vêm
+  logo depois, na onda 5; Quebra-cabeça e Jogo da Memória empurrados pra 6 e 7. A ideia é
+  não deixar a primeira metade da partida só com os testes mais simples.
+- **Mais tempo pras verificações que exigem mais raciocínio.** Termo subiu de 1,8x para
+  **2,5x** o tempo padrão da onda (ainda parecia curto para um Wordle completo); Cortar o
+  Fio ganhou **1,6x** (ler código + regra + tabuleiro); o Cofre novo entra com **2,2x**
+  (9 tentativas de dedução não cabem no tempo de uma verificação comum).
+
+## Segure e Solte, Labirinto Oculto, e mais tempo de novo (rodada 18)
+
+- **Verificação nova: Segure e Solte** (`botao`, kind `"botao"`), ao estilo do módulo
+  "The Button" de *Keep Talking and Nobody Explodes*: clique e segure um botão grande;
+  um número de 0 a 9 fica trocando enquanto você segura, e uma regra sorteada ("solte
+  quando for PAR", "ÍMPAR", "MAIOR QUE 6", "MENOR QUE 3") diz o momento certo de soltar.
+  Precisa segurar pelo menos 1 segundo antes — soltar cedo demais ou no número errado
+  reinicia a rodada. 3 acertos para vencer.
+- **Verificação nova: Labirinto Oculto** (`labirinto`, kind `"labirinto"`), inspirado no
+  módulo "Maze" do mesmo jogo: um labirinto 6x5 gerado do zero a cada tentativa (sempre
+  com exatamente um caminho possível), você move um ponto verde até a saída vermelha
+  (sempre a célula mais distante do início, pra garantir que dê trabalho de verdade) com
+  as setas do teclado.
+- **Desbloqueios reorganizados outra vez**: Segure e Solte e Labirinto Oculto entram na
+  onda 4 (o lugar mais cedo até agora); Caça-Robôs e Cortar o Fio, que estavam lá, passam
+  pra onda 5; Teste do Macaco e Cofre pra onda 6; e assim por diante — tudo desbloqueado
+  até a onda 11 agora (era 10). Com essas duas, a arena chega a 17 tipos de verificação.
+- Labirinto Oculto também ganhou tempo extra (1,4x) por exigir navegação, não só reação.
+
+## Arena virou campanha com chefe final, pontuação por velocidade, dois jogos novos e mais correções (rodada 19)
+
+- **Mudança de direção: a Arena agora é uma campanha curta com fim, não um grind infinito.**
+  Em vez de tentar sobreviver até a onda 100 (o que virava uma partida excessivamente longa
+  e sem sensação real de dificuldade crescente), `FINAL_WAVE` caiu para **13**: 12 ondas de
+  introdução/escalada (começo e meio) e a onda 13 é o **confronto final** contra o VERIFY-9,
+  que exige `BOSS_CAPTCHAS` = **5 verificações seguidas** (em vez das 3 de uma onda normal),
+  sorteadas só entre os testes mais "vivos" do jogo — Cortar o Fio, Cofre, Segure e Solte,
+  Labirinto, Termo e os dois novos desta rodada (ver abaixo). Vencer essa onda encerra a
+  partida em vitória de verdade, com tela e falas próprias do VERIFY-9 derrotado (isso já
+  existia; só o alvo mudou de "onda 100" pra "onda 13, mas é osso").
+- **Pontuação agora é principalmente sobre velocidade.** `score_for_solve` trocou um bônus
+  pequeno de velocidade (1,0x–1,5x) por um multiplicador que vai de **0,5x a 2,0x** conforme
+  o tempo sobrando na hora de resolver — quanto mais rápido, mais pontos, de forma bem mais
+  sentida do que antes. O crescimento de pontos por onda ficou mais discreto de propósito
+  (`WAVE_SCORE_STEP` de 18 para 14) pra velocidade ser realmente o fator principal, como
+  pedido.
+- **Curva de tempo recalibrada pra uma partida curta.** Como a campanha agora dura ~13
+  ondas em vez de 100, o decaimento antigo (`0.965`, pensado pra esticar por um jogo bem
+  mais longo) mal apertava nesse intervalo curto — dava a impressão de que "o tempo não
+  diminui". Agora `TIME_LIMIT_DECAY` é `0.82` (base 24s, piso 8s): o aperto é sentido onda a
+  onda dentro de uma única partida.
+- **Segure e Solte não troca mais de número de forma desigual.** O número sorteado a cada
+  0,4s podia repetir o valor anterior (1 em cada 10 sorteios), fazendo aquele número
+  específico "grudar" na tela por 0,8s, 1,2s etc. enquanto os outros só ficavam 0,4s —
+  parecia que uns números saíam mais rápido que outros porque, na prática, saíam mesmo.
+  `_roll_digit` agora exclui o número atual do próximo sorteio: todo número fica exatamente
+  um passo na tela, sem exceção.
+- **Termo com ainda mais tempo.** O multiplicador subiu de 2,5x para **3,2x** o tempo padrão
+  da onda — ainda é o teste mais generoso em tempo, de propósito, por ser o mais lento de
+  ler e digitar.
+- **Cofre com feedback por posição, igual o Termo de letras.** Antes mostrava só uma conta
+  agregada ("2 certos, 1 quase") com pontinhos verdes/amarelos soltos. Agora cada uma das 4
+  caixinhas da tentativa fica colorida individualmente — verde (dígito certo, posição
+  certa), amarelo (dígito existe, lugar errado) ou cinza (não está na senha) — usando o
+  mesmo algoritmo do Termo (`_score_sequence`, compartilhado pelas duas verificações em vez
+  de duplicado). O cofre também ganhou mais tempo (2,2x → **2,6x**), por segurança.
+- **Dois jogos novos inspirados em "Don't Panic! It's Just a Turbulence"**, escolhidos com o
+  Cauã entre as opções de mecânica descritas (painel de instrumentos e rádio da torre):
+  - **Painel de Instrumentos** (`instrumentos`): dois ponteiros de cockpit (ALTITUDE e
+    INCLINAÇÃO) que ficam à deriva sozinhos; segure as setas (↑/↓ para um, ←/→ para o
+    outro) pra trazer **os dois ao mesmo tempo** pra dentro da faixa verde seguro e
+    manter por ~2,2s. É um jogo de "malabarismo" — cuidar de um deixa o outro derivar.
+  - **Rádio da Torre** (`radio`): a torre soletra um codinome de 4 caracteres no alfabeto
+    fonético ICAO de verdade (ALFA, BRAVO, KILO... e os números "aeronáuticos" ZERO, WUN,
+    TOO, TREE, FOWER, FIFE, NINER etc.) e você digita de volta as letras/números
+    correspondentes antes do tempo acabar. 2 rodadas certas pra vencer; errar reinicia a
+    contagem.
+  - Ambos entram cedo (onda 7), junto com o resto dos testes "dinâmicos", e valem mais
+    tempo (1,6x e 1,7x) por exigirem leitura com atenção.
+- **Quebra-cabeça, girar foto e os testes "diferentes" aparecem com mais frequência.** A
+  escolha de qual verificação sortear deixou de ser uniforme: `KIND_WEIGHT` dá peso extra
+  pros quebra-cabeças, pro girar-foto e pra todos os testes ao estilo Keep
+  Talking/Turbulence (fio, cofre, botão, labirinto, termo, instrumentos, rádio), então eles
+  aparecem bem mais do que os testes rápidos de reflexo/leitura ao longo de uma partida —
+  sem deixar de existir, só menos repetidos.
+- **Textos e elementos da tela da Arena aumentados** (HUD, regras, telas de nome/fim de
+  partida, botões) em ~15–20%: ficou pedido que tudo estivesse "pequeno demais" pra ler de
+  longe. Não mexi no tamanho de texto **dentro** de cada verificação (o canvas de 720x360 de
+  cada uma tem posições calculadas a dedo; aumentar a fonte ali sem redesenhar cada layout
+  arriscava cortar texto/sobrepor elementos em alguma das 19 verificações).
+- **Sobre "mais imagens" no girar-foto/quebra-cabeça:** o jogo já escaneia sozinho tudo que
+  existir em `assets/captcha/rotate/` (girar) e `assets/captcha/tiles/` (quebra-cabeça,
+  gatos e memória) — não precisa mexer em código pra adicionar fotos reais novas, só soltar
+  o arquivo `.jpg` na pasta (pro girar, adicionar o nome do objeto em
+  `ROTATE_PHOTO_INSTRUCTIONS` é opcional; sem isso ele usa uma instrução genérica). Hoje são
+  7 fotos no girar e 16 fotos no banco de quebra-cabeça/gatos/memória — não gerei fotos
+  novas nesta rodada porque são fotos reais, não desenhos, e não tenho como fotografar nada.
 
 ## Papéis dos casos (rodadas 7 e 8)
 

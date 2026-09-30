@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import math
 import random
+from collections import deque
 from pathlib import Path
 
 import pygame
@@ -339,97 +340,8 @@ class CatGridCaptcha(Captcha):
 
 
 # ---------------------------------------------------------------------------
-# 3. Rotate the portrait upright
+# 3. Rotate the portrait upright (real photos only, see assets/captcha/rotate/)
 # ---------------------------------------------------------------------------
-def _sky_and_ground(size: int, ground_top: int) -> pygame.Surface:
-    scene = pygame.Surface((size, size), pygame.SRCALPHA)
-    for y in range(size):
-        shade = y / size
-        pygame.draw.line(scene, (70 + int(90 * shade), 150 + int(70 * shade), 230), (0, y), (size, y))
-    pygame.draw.circle(scene, (255, 226, 90), (size - 56, 52), 26)  # the sun is always up
-    for cx, cy in ((54, 60), (150, 34)):
-        for dx, dy, r in ((0, 0, 16), (16, 4, 13), (-16, 5, 12)):
-            pygame.draw.circle(scene, (250, 250, 255), (cx + dx, cy + dy), r)
-    pygame.draw.rect(scene, (74, 168, 84), (0, ground_top, size, size - ground_top))
-    pygame.draw.rect(scene, (52, 130, 62), (0, ground_top, size, 6))
-    return scene
-
-
-def _scene_person(size: int) -> pygame.Surface:
-    scene = _sky_and_ground(size, 176)
-    cx = size // 2
-    pygame.draw.line(scene, (40, 40, 60), (cx - 8, 138), (cx - 12, 186), 8)  # legs
-    pygame.draw.line(scene, (40, 40, 60), (cx + 8, 138), (cx + 12, 186), 8)
-    pygame.draw.ellipse(scene, (30, 30, 30), (cx - 26, 182, 20, 10))  # shoes
-    pygame.draw.ellipse(scene, (30, 30, 30), (cx + 6, 182, 20, 10))
-    pygame.draw.rect(scene, (220, 70, 60), (cx - 20, 88, 40, 56), border_radius=8)  # shirt
-    pygame.draw.line(scene, (220, 70, 60), (cx - 20, 96), (cx - 42, 128), 8)  # arms
-    pygame.draw.line(scene, (220, 70, 60), (cx + 20, 96), (cx + 42, 128), 8)
-    pygame.draw.circle(scene, (238, 200, 160), (cx, 66), 22)  # head
-    pygame.draw.circle(scene, (250, 250, 250), (cx - 8, 62), 5)
-    pygame.draw.circle(scene, (250, 250, 250), (cx + 8, 62), 5)
-    pygame.draw.circle(scene, (20, 20, 20), (cx - 8, 63), 2)
-    pygame.draw.circle(scene, (20, 20, 20), (cx + 8, 63), 2)
-    pygame.draw.arc(scene, (150, 60, 50), (cx - 10, 68, 20, 14), math.pi * 1.1, math.pi * 1.9, 3)
-    pygame.draw.rect(scene, (60, 40, 30), (cx - 22, 42, 44, 12), border_top_left_radius=12, border_top_right_radius=12)  # hair
-    pygame.draw.rect(scene, (120, 84, 50), (28, 150, 10, 30))  # tree
-    pygame.draw.circle(scene, (40, 130, 60), (33, 140), 22)
-    return scene
-
-
-def _scene_house(size: int) -> pygame.Surface:
-    scene = _sky_and_ground(size, 170)
-    pygame.draw.rect(scene, (236, 210, 150), (66, 104, 108, 76))
-    pygame.draw.polygon(scene, (190, 70, 60), [(54, 108), (120, 52), (186, 108)])
-    pygame.draw.rect(scene, (150, 60, 50), (150, 56, 14, 30))  # chimney
-    for k in range(3):  # smoke rises
-        pygame.draw.circle(scene, (235, 235, 240), (160 + k * 5, 44 - k * 14), 7 + k * 2)
-    pygame.draw.rect(scene, (110, 70, 44), (108, 134, 26, 46))  # door
-    pygame.draw.circle(scene, (240, 200, 60), (128, 158), 2)
-    for x in (76, 146):
-        pygame.draw.rect(scene, (120, 190, 240), (x, 118, 22, 20))
-        pygame.draw.rect(scene, (80, 60, 40), (x, 118, 22, 20), 2)
-    pygame.draw.polygon(scene, (200, 180, 140), [(108, 180), (134, 180), (150, 236), (90, 236)])  # path
-    return scene
-
-
-def _scene_rocket(size: int) -> pygame.Surface:
-    scene = _sky_and_ground(size, 190)
-    cx = size // 2
-    pygame.draw.polygon(scene, (255, 170, 40), [(cx - 12, 168), (cx + 12, 168), (cx, 206)])  # flame is below
-    pygame.draw.ellipse(scene, (236, 236, 244), (cx - 20, 50, 40, 124))
-    pygame.draw.polygon(scene, (210, 50, 50), [(cx - 20, 82), (cx + 20, 82), (cx, 42)])  # red nose on top
-    pygame.draw.circle(scene, (70, 140, 210), (cx, 104), 11)
-    pygame.draw.circle(scene, (30, 60, 100), (cx, 104), 11, 3)
-    pygame.draw.polygon(scene, (210, 50, 50), [(cx - 20, 140), (cx - 42, 176), (cx - 20, 164)])
-    pygame.draw.polygon(scene, (210, 50, 50), [(cx + 20, 140), (cx + 42, 176), (cx + 20, 164)])
-    return scene
-
-
-def _scene_robot(size: int) -> pygame.Surface:
-    scene = _sky_and_ground(size, 184)
-    cx = size // 2
-    pygame.draw.rect(scene, (110, 120, 140), (cx - 30, 118, 60, 58), border_radius=6)  # body
-    pygame.draw.rect(scene, (80, 90, 110), (cx - 30, 176, 22, 14))  # feet
-    pygame.draw.rect(scene, (80, 90, 110), (cx + 8, 176, 22, 14))
-    pygame.draw.rect(scene, (150, 160, 180), (cx - 36, 58, 72, 56), border_radius=10)  # head
-    pygame.draw.circle(scene, (110, 230, 130), (cx - 14, 84), 8)
-    pygame.draw.circle(scene, (110, 230, 130), (cx + 14, 84), 8)
-    pygame.draw.line(scene, (80, 90, 110), (cx, 58), (cx, 38), 4)  # antenna on top
-    pygame.draw.circle(scene, (230, 80, 70), (cx, 34), 6)
-    pygame.draw.line(scene, (80, 90, 110), (cx - 30, 130), (cx - 50, 156), 7)
-    pygame.draw.line(scene, (80, 90, 110), (cx + 30, 130), (cx + 50, 156), 7)
-    return scene
-
-
-ROTATE_SCENES = (
-    (_scene_person, "Gire a imagem até a pessoa ficar em pé."),
-    (_scene_house, "Gire a imagem até a casa ficar em pé."),
-    (_scene_rocket, "Gire a imagem até o foguete apontar para cima."),
-    (_scene_robot, "Gire a imagem até o robô ficar em pé."),
-)
-
-
 class RotateCaptcha(Captcha):
     kind = "rotate"
     instruction = "Gire a imagem até a pessoa ficar em pé."
@@ -442,12 +354,10 @@ class RotateCaptcha(Captcha):
 
     def __init__(self, rng: random.Random, assets_root: Path) -> None:
         super().__init__(rng, assets_root)
-        options: list[tuple] = list(ROTATE_SCENES)
-        for name, photo in load_rotate_photos(assets_root).items():
-            instruction = ROTATE_PHOTO_INSTRUCTIONS.get(name, "Gire a imagem até ficar em pé.")
-            options.append((lambda size, image=photo: fit_square(image, size), instruction))
-        drawer, self.instruction = rng.choice(options)
-        self.image = drawer(self.SIZE)
+        photos = load_rotate_photos(assets_root)
+        name, photo = rng.choice(list(photos.items()))
+        self.instruction = ROTATE_PHOTO_INSTRUCTIONS.get(name, "Gire a imagem até ficar em pé.")
+        self.image = fit_square(photo, self.SIZE)
         self.angle = rng.choice([-1, 1]) * rng.randrange(45, 166, 15)
         self.dragging = False
         self._last_x = 0
@@ -1324,6 +1234,1001 @@ class WhackABotCaptcha(Captcha):
 
 
 # ---------------------------------------------------------------------------
+# 10. Wire cut: read the manual, cut the one wire it points to (Keep Talking-style)
+# ---------------------------------------------------------------------------
+WIRE_PALETTE = (
+    ("VERMELHO", (214, 70, 60)),
+    ("AZUL", (70, 130, 200)),
+    ("AMARELO", (224, 190, 70)),
+    ("BRANCO", (230, 230, 226)),
+    ("PRETO", (60, 60, 66)),
+)
+WIRE_CODE_LETTERS = "ABCDEFGHJKLMNPQRSTUVWXYZ"
+WIRE_CODE_DIGITS = "0123456789"
+
+
+def _wire_generate_code(rng: random.Random) -> str:
+    """A little serial number, like the one on a Keep Talking bomb: 6 letters/digits,
+    mixed independently so the letter/digit split varies run to run (never a fixed tie
+    that would make the 'more letters than digits' rule always resolve the same way).
+    At least one digit is guaranteed so the digit-based rules always have something
+    to evaluate."""
+    chars = [rng.choice(WIRE_CODE_LETTERS) if rng.random() < 0.5 else rng.choice(WIRE_CODE_DIGITS) for _ in range(6)]
+    if not any(c in WIRE_CODE_DIGITS for c in chars):
+        chars[rng.randrange(len(chars))] = rng.choice(WIRE_CODE_DIGITS)
+    return "".join(chars)
+
+
+def _wire_last_digit_odd(code: str) -> bool:
+    digits = [c for c in code if c.isdigit()]
+    return bool(digits) and int(digits[-1]) % 2 == 1
+
+
+def _wire_digit_sum_even(code: str) -> bool:
+    digits = [int(c) for c in code if c.isdigit()]
+    return sum(digits) % 2 == 0
+
+
+def _wire_has_vowel(code: str) -> bool:
+    return any(c in "AEIOU" for c in code)
+
+
+def _wire_more_letters_than_digits(code: str) -> bool:
+    letters = sum(1 for c in code if c.isalpha())
+    digits = sum(1 for c in code if c.isdigit())
+    return letters > digits
+
+
+# Each rule reads the serial code and picks between two colors that are guaranteed to
+# be the *only* wire of their color on the board, so the answer is never ambiguous -
+# the same design trick real bomb-defusal manuals use (a clear decision, not a puzzle
+# with two right answers).
+WIRE_CONDITIONS = (
+    (_wire_last_digit_odd, "CÓDIGO {code} — último dígito ÍMPAR: corte {color_true}. PAR: corte {color_false}."),
+    (_wire_digit_sum_even, "CÓDIGO {code} — soma dos dígitos PAR: corte {color_true}. ÍMPAR: corte {color_false}."),
+    (_wire_has_vowel, "CÓDIGO {code} — tem VOGAL: corte {color_true}. Sem vogal: corte {color_false}."),
+    (_wire_more_letters_than_digits, "CÓDIGO {code} — mais LETRAS que números: corte {color_true}. Senão: corte {color_false}."),
+)
+
+
+class WireCutCaptcha(Captcha):
+    kind = "wires"
+    instruction = "Leia o código e a regra com atenção, depois corte o fio certo. Errar reinicia tudo."
+    WIRE_COUNT = 5
+    ROUNDS_TO_WIN = 3
+    WIRE_HEIGHT = 30
+    GAP = 12
+    ORIGIN_Y = 90
+    LEFT_X = 96
+    WIRE_LENGTH = 528
+    TERMINAL_WIDTH = 26
+    WRONG_PAUSE_SECONDS = 1.3
+    RIGHT_PAUSE_SECONDS = 0.6
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.round = 0
+        self.wires: list[tuple[str, tuple[int, int, int]]] = []
+        self.code = ""
+        self.rule_text = ""
+        self.correct_index = 0
+        self.cut_index: int | None = None
+        self.phase = "active"  # active | wrong | right
+        self.timer = 0.0
+        self._deal()
+
+    def _deal(self) -> None:
+        while True:
+            self.wires = [self.rng.choice(WIRE_PALETTE) for _ in range(self.WIRE_COUNT)]
+            counts: dict[str, int] = {}
+            for name, _ in self.wires:
+                counts[name] = counts.get(name, 0) + 1
+            unique_colors = [name for name, count in counts.items() if count == 1]
+            if len(unique_colors) >= 2:
+                break
+        self.code = _wire_generate_code(self.rng)
+        color_true, color_false = self.rng.sample(unique_colors, 2)
+        condition, template = self.rng.choice(WIRE_CONDITIONS)
+        target_color = color_true if condition(self.code) else color_false
+        self.correct_index = next(index for index, (name, _) in enumerate(self.wires) if name == target_color)
+        self.rule_text = template.format(code=self.code, color_true=color_true, color_false=color_false)
+        self.cut_index = None
+        self.phase = "active"
+
+    def wire_rect(self, index: int) -> pygame.Rect:
+        y = self.ORIGIN_Y + index * (self.WIRE_HEIGHT + self.GAP)
+        return pygame.Rect(self.LEFT_X, y, self.WIRE_LENGTH, self.WIRE_HEIGHT)
+
+    def on_mouse_down(self, pos: tuple[int, int]) -> None:
+        if self.phase != "active":
+            return
+        for index in range(self.WIRE_COUNT):
+            if not self.wire_rect(index).collidepoint(pos):
+                continue
+            self.cut_index = index
+            if index == self.correct_index:
+                self.events.append("toggle")
+                self.round += 1
+                self.phase = "right"
+                self.timer = self.RIGHT_PAUSE_SECONDS
+            else:
+                self.phase = "wrong"
+                self.timer = self.WRONG_PAUSE_SECONDS
+                self.fail()
+            return
+
+    def update(self, dt: float) -> None:
+        if self.phase in ("wrong", "right"):
+            self.timer -= dt
+            if self.timer <= 0:
+                if self.phase == "right" and self.round >= self.ROUNDS_TO_WIN:
+                    self.win()
+                    return
+                if self.phase == "wrong":
+                    self.round = 0
+                self._deal()
+
+    def render(self, surface: pygame.Surface) -> None:
+        panel_color = RED if self.phase == "wrong" else (GREEN if self.phase == "right" else AMBER)
+        panel = pygame.Rect(20, 8, 680, 74)
+        pygame.draw.rect(surface, SCREEN_BLACK, panel, border_radius=8)
+        pygame.draw.rect(surface, panel_color, panel, 2, border_radius=8)
+        draw_wrapped(surface, self.rule_text, font(16, True), panel_color, pygame.Rect(panel.x + 14, panel.y + 8, panel.width - 28, panel.height - 16), 20, center=True)
+
+        for index, (_, rgb) in enumerate(self.wires):
+            rect = self.wire_rect(index)
+            is_cut = index == self.cut_index
+
+            backplate = pygame.Rect(
+                rect.x - self.TERMINAL_WIDTH - 6, rect.y - 6,
+                rect.width + 2 * self.TERMINAL_WIDTH + 12, self.WIRE_HEIGHT + 12,
+            )
+            pygame.draw.rect(surface, (24, 28, 26), backplate, border_radius=6)
+            for term_x in (rect.x - self.TERMINAL_WIDTH, rect.right):
+                terminal = pygame.Rect(term_x, rect.y - 3, self.TERMINAL_WIDTH, self.WIRE_HEIGHT + 6)
+                pygame.draw.rect(surface, (98, 102, 110), terminal, border_radius=4)
+                pygame.draw.rect(surface, (44, 46, 52), terminal, 2, border_radius=4)
+                pygame.draw.circle(surface, (36, 38, 44), terminal.center, 4)
+
+            body = rgb if not is_cut else tuple(max(0, c // 3) for c in rgb)
+            radius = self.WIRE_HEIGHT // 2
+            if not is_cut:
+                pygame.draw.rect(surface, (8, 10, 9), rect.move(0, 3), border_radius=radius)
+                pygame.draw.rect(surface, body, rect, border_radius=radius)
+                highlight = tuple(min(255, c + 55) for c in body)
+                pygame.draw.rect(surface, highlight, pygame.Rect(rect.x + 8, rect.y + 4, rect.width - 16, 5), border_radius=3)
+                shade = tuple(max(0, c - 45) for c in body)
+                pygame.draw.rect(surface, shade, pygame.Rect(rect.x + 8, rect.bottom - 8, rect.width - 16, 4), border_radius=2)
+            else:
+                stub_width = rect.width // 2 - 16
+                left_stub = pygame.Rect(rect.x, rect.y, stub_width, self.WIRE_HEIGHT)
+                right_stub = pygame.Rect(rect.right - stub_width, rect.y, stub_width, self.WIRE_HEIGHT)
+                for stub in (left_stub, right_stub):
+                    pygame.draw.rect(surface, body, stub, border_radius=radius)
+                spark = GREEN if index == self.correct_index else RED
+                cx, cy = rect.centerx, rect.centery
+                for dx, dy in ((-18, -12), (-18, 12), (18, -12), (18, 12)):
+                    pygame.draw.line(surface, spark, (cx + dx, cy + dy), (cx + dx // 4, cy), 3)
+                pygame.draw.circle(surface, spark, (cx, cy), 4)
+
+        status_y = self.ORIGIN_Y + self.WIRE_COUNT * (self.WIRE_HEIGHT + self.GAP)
+        draw_text(surface, f"Rodada {min(self.round + 1, self.ROUNDS_TO_WIN)} de {self.ROUNDS_TO_WIN}", font(15), INK_MUTED, (40, status_y))
+        if self.phase == "wrong":
+            draw_text(surface, "FIO ERRADO! Nova instrução chegando...", font(18, True), RED, (360, status_y + 26), "center")
+        elif self.phase == "right" and self.round < self.ROUNDS_TO_WIN:
+            draw_text(surface, "Fio certo. Próxima instrução...", font(18, True), GREEN, (360, status_y + 26), "center")
+
+
+# ---------------------------------------------------------------------------
+# 11. Termo: a Wordle-style guesser, word bank tuned to the game's own themes
+# ---------------------------------------------------------------------------
+TERMO_WORDS = (
+    "DADOS", "ROBOS", "ATOMO", "TESTE", "FALHA", "CHAVE", "SENHA", "VETOR",
+    "PROVA", "FONTE", "TELAS", "REDES", "CIFRA", "VIRUS", "PIXEL", "ERROS",
+    "LOGIN", "BYTES", "CACHE", "BOLHA", "PODER", "PAPEL", "FICHA", "CASOS",
+    "TURNO", "ALVOS", "PASSO", "TECLA", "MODEM", "BUSCA", "MEDIA", "CURVA",
+    "GRAFO", "PLACA", "DISCO", "ETICA", "JUSTA", "REGRA", "NORMA", "FORCA",
+    "GENES", "FOTON", "QUARK", "LASER", "RAIOS", "ONDAS", "CAMPO", "MASSA",
+    "FORMA", "RUIDO", "SINAL", "NODOS",
+)
+TERMO_ALPHABET = set("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+
+
+def _score_sequence(guess: str, target: str) -> list[str]:
+    """Classic Wordle scoring, generalized to any equal-length sequence of characters:
+    exact position first, then leftover items - shared by the letter Termo and the
+    numeric vault so both show the same per-slot correct/present/absent feedback."""
+    result = ["absent"] * len(guess)
+    remaining = list(target)
+    for index, item in enumerate(guess):
+        if item == target[index]:
+            result[index] = "correct"
+            remaining[index] = None
+    for index, item in enumerate(guess):
+        if result[index] == "correct":
+            continue
+        if item in remaining:
+            result[index] = "present"
+            remaining[remaining.index(item)] = None
+    return result
+
+
+def _score_termo_guess(guess: str, target: str) -> list[str]:
+    return _score_sequence(guess, target)
+
+
+class TermoCaptcha(Captcha):
+    kind = "termo"
+    instruction = "Adivinhe a palavra de 5 letras. Verde: posição certa. Amarelo: letra certa, lugar errado."
+    WORD_LENGTH = 5
+    MAX_GUESSES = 5
+    TILE = 52
+    GAP = 8
+    ORIGIN = (40, 16)
+    RIGHT_PAUSE_SECONDS = 0.8
+    WRONG_PAUSE_SECONDS = 1.6
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.target = ""
+        self.guesses: list[str] = []
+        self.results: list[list[str]] = []
+        self.current_letters: list[str] = [""] * self.WORD_LENGTH
+        self.cursor = 0
+        self.phase = "active"  # active | wrong | right
+        self.timer = 0.0
+        self._deal()
+
+    def _deal(self) -> None:
+        self.target = self.rng.choice(TERMO_WORDS)
+        self.guesses = []
+        self.results = []
+        self.current_letters = [""] * self.WORD_LENGTH
+        self.cursor = 0
+        self.phase = "active"
+
+    def _tile_rect(self, row: int, column: int) -> pygame.Rect:
+        x = self.ORIGIN[0] + column * (self.TILE + self.GAP)
+        y = self.ORIGIN[1] + row * (self.TILE + self.GAP)
+        return pygame.Rect(x, y, self.TILE, self.TILE)
+
+    def on_key(self, event: pygame.event.Event) -> None:
+        if self.phase != "active" or event.type != pygame.KEYDOWN:
+            return
+        if event.key == pygame.K_LEFT:
+            self.cursor = max(0, self.cursor - 1)
+        elif event.key == pygame.K_RIGHT:
+            self.cursor = min(self.WORD_LENGTH - 1, self.cursor + 1)
+        elif event.key == pygame.K_BACKSPACE:
+            if self.current_letters[self.cursor]:
+                self.current_letters[self.cursor] = ""
+            elif self.cursor > 0:
+                self.cursor -= 1
+                self.current_letters[self.cursor] = ""
+        elif event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
+            self._submit()
+        else:
+            typed = getattr(event, "unicode", "").upper()
+            if typed and typed in TERMO_ALPHABET:
+                self.current_letters[self.cursor] = typed
+                self.events.append("click")
+                if self.cursor < self.WORD_LENGTH - 1:
+                    self.cursor += 1
+
+    def _submit(self) -> None:
+        if "" in self.current_letters:
+            return
+        guess = "".join(self.current_letters)
+        self.guesses.append(guess)
+        self.results.append(_score_termo_guess(guess, self.target))
+        self.current_letters = [""] * self.WORD_LENGTH
+        self.cursor = 0
+        if guess == self.target:
+            self.phase = "right"
+            self.timer = self.RIGHT_PAUSE_SECONDS
+        elif len(self.guesses) >= self.MAX_GUESSES:
+            self.phase = "wrong"
+            self.timer = self.WRONG_PAUSE_SECONDS
+            self.fail()
+        else:
+            self.events.append("toggle")
+
+    def update(self, dt: float) -> None:
+        if self.phase in ("wrong", "right"):
+            self.timer -= dt
+            if self.timer <= 0:
+                if self.phase == "right":
+                    self.win()
+                    return
+                self._deal()
+
+    def render(self, surface: pygame.Surface) -> None:
+        state_colors = {"correct": GREEN, "present": AMBER, "absent": PANEL_MID}
+        for row in range(self.MAX_GUESSES):
+            for column in range(self.WORD_LENGTH):
+                rect = self._tile_rect(row, column)
+                letter = ""
+                text_color = INK_BRIGHT
+                if row < len(self.guesses):
+                    letter = self.guesses[row][column]
+                    state = self.results[row][column]
+                    pygame.draw.rect(surface, state_colors[state], rect, border_radius=6)
+                    text_color = SCREEN_BLACK if state != "absent" else INK_MUTED
+                elif row == len(self.guesses):
+                    is_cursor = column == self.cursor
+                    pygame.draw.rect(surface, PANEL, rect, border_radius=6)
+                    pygame.draw.rect(surface, AMBER if is_cursor else INK_BRIGHT, rect, 3 if is_cursor else 2, border_radius=6)
+                    letter = self.current_letters[column]
+                else:
+                    pygame.draw.rect(surface, (22, 30, 26), rect, border_radius=6)
+                    pygame.draw.rect(surface, BORDER_DARK, rect, 2, border_radius=6)
+                if letter:
+                    draw_text(surface, letter, font(26, True), text_color, rect.center, "center")
+
+        panel_x = 400
+        draw_text(surface, "TERMO", font(22, True), GREEN, (panel_x, 18))
+        draw_text(surface, f"TENTATIVA {min(len(self.guesses) + 1, self.MAX_GUESSES)}/{self.MAX_GUESSES}", font(14), INK_MUTED, (panel_x, 50))
+        draw_wrapped(surface, "Digite, use ←/→ para corrigir uma letra e aperte Enter.", font(13), INK_MUTED, pygame.Rect(panel_x, 72, 300, 40), 17)
+        legend_y = 122
+        for label, color in (
+            ("posição certa", GREEN),
+            ("letra certa, lugar errado", AMBER),
+            ("não está na palavra", BORDER_DARK),
+        ):
+            pygame.draw.rect(surface, color, pygame.Rect(panel_x, legend_y, 16, 16), border_radius=3)
+            draw_wrapped(surface, label, font(13), INK_MUTED, pygame.Rect(panel_x + 24, legend_y - 2, 290, 40), 16)
+            legend_y += 30
+        if self.phase == "wrong":
+            draw_text(surface, f"A PALAVRA ERA: {self.target}", font(17, True), RED, (panel_x, 244))
+        elif self.phase == "right":
+            draw_text(surface, "ACERTOU!", font(19, True), GREEN, (panel_x, 244))
+
+
+# ---------------------------------------------------------------------------
+# 12. Vault: crack a 4-digit code Mastermind-style (like the gun-safe keypad in
+#     Lockdown Protocol) - each guess reveals how many digits are exactly right and
+#     how many are the right digit in the wrong spot.
+# ---------------------------------------------------------------------------
+VAULT_NUMPAD = (
+    ("1", "2", "3"),
+    ("4", "5", "6"),
+    ("7", "8", "9"),
+    ("C", "0", "OK"),
+)
+
+
+def _score_vault_guess(guess: str, code: str) -> list[str]:
+    return _score_sequence(guess, code)
+
+
+class VaultCaptcha(Captcha):
+    kind = "cofre"
+    instruction = "Descubra a senha de 4 dígitos. Verde: posição certa. Amarelo: dígito certo, lugar errado."
+    CODE_LENGTH = 4
+    MAX_ATTEMPTS = 9
+    TILE = 30
+    TILE_GAP = 6
+    HISTORY_ORIGIN = (20, 14)
+    LEGEND_X = 190
+    DIGIT_BOX = (55, 62)
+    DIGIT_ORIGIN = (430, 16)
+    DIGIT_GAP = 8
+    NUMPAD_BUTTON = (60, 48)
+    NUMPAD_ORIGIN = (430, 96)
+    NUMPAD_GAP = 8
+    RIGHT_PAUSE_SECONDS = 0.9
+    WRONG_PAUSE_SECONDS = 1.8
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.code = ""
+        self.guesses: list[str] = []
+        self.results: list[list[str]] = []
+        self.current_digits: list[str] = []
+        self.phase = "active"  # active | wrong | right
+        self.timer = 0.0
+        self._deal()
+
+    def _deal(self) -> None:
+        self.code = "".join(self.rng.sample("0123456789", self.CODE_LENGTH))
+        self.guesses = []
+        self.results = []
+        self.current_digits = []
+        self.phase = "active"
+
+    def _digit_box_rect(self, index: int) -> pygame.Rect:
+        x = self.DIGIT_ORIGIN[0] + index * (self.DIGIT_BOX[0] + self.DIGIT_GAP)
+        return pygame.Rect(x, self.DIGIT_ORIGIN[1], *self.DIGIT_BOX)
+
+    def _history_tile_rect(self, row: int, column: int) -> pygame.Rect:
+        x = self.HISTORY_ORIGIN[0] + column * (self.TILE + self.TILE_GAP)
+        y = self.HISTORY_ORIGIN[1] + row * (self.TILE + self.TILE_GAP)
+        return pygame.Rect(x, y, self.TILE, self.TILE)
+
+    def _numpad_rect(self, row: int, column: int) -> pygame.Rect:
+        x = self.NUMPAD_ORIGIN[0] + column * (self.NUMPAD_BUTTON[0] + self.NUMPAD_GAP)
+        y = self.NUMPAD_ORIGIN[1] + row * (self.NUMPAD_BUTTON[1] + self.NUMPAD_GAP)
+        return pygame.Rect(x, y, *self.NUMPAD_BUTTON)
+
+    def _press(self, label: str) -> None:
+        if label == "C":
+            if self.current_digits:
+                self.current_digits.pop()
+        elif label == "OK":
+            self._submit()
+        elif len(self.current_digits) < self.CODE_LENGTH:
+            self.current_digits.append(label)
+            self.events.append("click")
+
+    def on_mouse_down(self, pos: tuple[int, int]) -> None:
+        if self.phase != "active":
+            return
+        for row, labels in enumerate(VAULT_NUMPAD):
+            for column, label in enumerate(labels):
+                if self._numpad_rect(row, column).collidepoint(pos):
+                    self._press(label)
+                    return
+
+    def on_key(self, event: pygame.event.Event) -> None:
+        if self.phase != "active" or event.type != pygame.KEYDOWN:
+            return
+        if event.key == pygame.K_BACKSPACE:
+            if self.current_digits:
+                self.current_digits.pop()
+        elif event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
+            self._submit()
+        else:
+            typed = getattr(event, "unicode", "")
+            if typed.isdigit() and len(self.current_digits) < self.CODE_LENGTH:
+                self.current_digits.append(typed)
+                self.events.append("click")
+
+    def _submit(self) -> None:
+        if len(self.current_digits) != self.CODE_LENGTH:
+            return
+        guess = "".join(self.current_digits)
+        self.guesses.append(guess)
+        self.results.append(_score_vault_guess(guess, self.code))
+        self.current_digits = []
+        if guess == self.code:
+            self.phase = "right"
+            self.timer = self.RIGHT_PAUSE_SECONDS
+        elif len(self.guesses) >= self.MAX_ATTEMPTS:
+            self.phase = "wrong"
+            self.timer = self.WRONG_PAUSE_SECONDS
+            self.fail()
+        else:
+            self.events.append("toggle")
+
+    def update(self, dt: float) -> None:
+        if self.phase in ("wrong", "right"):
+            self.timer -= dt
+            if self.timer <= 0:
+                if self.phase == "right":
+                    self.win()
+                    return
+                self._deal()
+
+    def render(self, surface: pygame.Surface) -> None:
+        state_colors = {"correct": GREEN, "present": AMBER, "absent": PANEL_MID}
+        for row in range(self.MAX_ATTEMPTS):
+            for column in range(self.CODE_LENGTH):
+                rect = self._history_tile_rect(row, column)
+                if row < len(self.guesses):
+                    digit = self.guesses[row][column]
+                    state = self.results[row][column]
+                    pygame.draw.rect(surface, state_colors[state], rect, border_radius=5)
+                    text_color = SCREEN_BLACK if state != "absent" else INK_MUTED
+                    draw_text(surface, digit, font(15, True), text_color, rect.center, "center")
+                else:
+                    pygame.draw.rect(surface, (22, 30, 26), rect, border_radius=5)
+                    pygame.draw.rect(surface, BORDER_DARK, rect, 1, border_radius=5)
+
+        draw_text(
+            surface,
+            f"TENTATIVA {min(len(self.guesses) + 1, self.MAX_ATTEMPTS)}/{self.MAX_ATTEMPTS}",
+            font(13, True),
+            INK_MUTED,
+            (self.LEGEND_X, self.HISTORY_ORIGIN[1]),
+        )
+        legend_y = self.HISTORY_ORIGIN[1] + 32
+        for label, color in (
+            ("posição certa", GREEN),
+            ("dígito certo, lugar errado", AMBER),
+            ("não está na senha", PANEL_MID),
+        ):
+            pygame.draw.rect(surface, color, pygame.Rect(self.LEGEND_X, legend_y, 16, 16), border_radius=3)
+            draw_wrapped(surface, label, font(13), INK_MUTED, pygame.Rect(self.LEGEND_X + 24, legend_y - 2, 210, 40), 16)
+            legend_y += 34
+
+        if self.phase == "wrong":
+            draw_text(surface, f"COFRE TRAVADO. SENHA ERA {self.code}.", font(15, True), RED, (self.LEGEND_X, legend_y + 8))
+        elif self.phase == "right":
+            draw_text(surface, "COFRE ABERTO!", font(17, True), GREEN, (self.LEGEND_X, legend_y + 8))
+
+        for index in range(self.CODE_LENGTH):
+            rect = self._digit_box_rect(index)
+            pygame.draw.rect(surface, PANEL, rect, border_radius=6)
+            is_cursor = index == len(self.current_digits)
+            pygame.draw.rect(surface, AMBER if is_cursor else INK_BRIGHT, rect, 2, border_radius=6)
+            if index < len(self.current_digits):
+                draw_text(surface, self.current_digits[index], font(28, True), INK_BRIGHT, rect.center, "center")
+
+        for row, labels in enumerate(VAULT_NUMPAD):
+            for column, label in enumerate(labels):
+                rect = self._numpad_rect(row, column)
+                if label == "OK":
+                    color = GREEN
+                elif label == "C":
+                    color = RED
+                else:
+                    color = PANEL_MID
+                pygame.draw.rect(surface, color, rect, border_radius=6)
+                pygame.draw.rect(surface, BORDER_DARK, rect, 2, border_radius=6)
+                text_color = SCREEN_BLACK if label in ("OK", "C") else INK_BRIGHT
+                draw_text(surface, label, font(19, True), text_color, rect.center, "center")
+
+
+# ---------------------------------------------------------------------------
+# 13. Hold and release: press the button, watch the number, let go at the right
+#     moment - a "The Button"-style reflex-under-a-rule module.
+# ---------------------------------------------------------------------------
+BUTTON_RULES = (
+    ("PAR", lambda digit: digit % 2 == 0),
+    ("ÍMPAR", lambda digit: digit % 2 == 1),
+    ("MAIOR QUE 6", lambda digit: digit > 6),
+    ("MENOR QUE 3", lambda digit: digit < 3),
+)
+
+
+class HoldReleaseCaptcha(Captcha):
+    kind = "botao"
+    instruction = "Clique e segure o botão. Solte só quando o número satisfizer a regra."
+    ROUNDS_TO_WIN = 3
+    MIN_HOLD_SECONDS = 1.0
+    DIGIT_STEP_SECONDS = 0.4
+    RIGHT_PAUSE_SECONDS = 0.6
+    WRONG_PAUSE_SECONDS = 1.3
+    BUTTON_CENTER = (200, 180)
+    BUTTON_RADIUS = 90
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.round = 0
+        self.rule_label = ""
+        self.rule_check = None
+        self.phase = "idle"  # idle | holding | right | wrong
+        self.hold_time = 0.0
+        self.digit = 0
+        self.digit_timer = 0.0
+        self.timer = 0.0
+        self._new_rule()
+
+    def _new_rule(self) -> None:
+        self.rule_label, self.rule_check = self.rng.choice(BUTTON_RULES)
+
+    def _roll_digit(self) -> int:
+        """A fresh digit that is never the same as the one just shown, so every digit
+        stays on screen for exactly DIGIT_STEP_SECONDS - no digit can luck into a
+        repeat draw and visibly linger longer than the others."""
+        choices = [d for d in range(10) if d != self.digit]
+        return self.rng.choice(choices)
+
+    def on_mouse_down(self, pos: tuple[int, int]) -> None:
+        if self.phase != "idle":
+            return
+        if pygame.Vector2(pos).distance_to(self.BUTTON_CENTER) <= self.BUTTON_RADIUS:
+            self.phase = "holding"
+            self.hold_time = 0.0
+            self.digit = self.rng.randrange(10)
+            self.digit_timer = 0.0
+            self.events.append("click")
+
+    def on_mouse_up(self, pos: tuple[int, int]) -> None:
+        if self.phase != "holding":
+            return
+        ok = self.hold_time >= self.MIN_HOLD_SECONDS and self.rule_check(self.digit)
+        if ok:
+            self.round += 1
+            self.phase = "right"
+            self.timer = self.RIGHT_PAUSE_SECONDS
+            self.events.append("toggle")
+        else:
+            self.phase = "wrong"
+            self.timer = self.WRONG_PAUSE_SECONDS
+            self.fail()
+
+    def update(self, dt: float) -> None:
+        if self.phase == "holding":
+            self.hold_time += dt
+            self.digit_timer += dt
+            if self.digit_timer >= self.DIGIT_STEP_SECONDS:
+                self.digit_timer -= self.DIGIT_STEP_SECONDS
+                self.digit = self._roll_digit()
+        elif self.phase in ("right", "wrong"):
+            self.timer -= dt
+            if self.timer <= 0:
+                if self.phase == "right":
+                    if self.round >= self.ROUNDS_TO_WIN:
+                        self.win()
+                        return
+                else:
+                    self.round = 0
+                self._new_rule()
+                self.phase = "idle"
+
+    def render(self, surface: pygame.Surface) -> None:
+        if self.phase == "holding":
+            color = AMBER
+        elif self.phase == "right":
+            color = GREEN
+        elif self.phase == "wrong":
+            color = RED
+        else:
+            color = PANEL_MID
+        pygame.draw.circle(surface, color, self.BUTTON_CENTER, self.BUTTON_RADIUS)
+        pygame.draw.circle(surface, SCREEN_BLACK, self.BUTTON_CENTER, self.BUTTON_RADIUS, 4)
+        if self.phase == "holding":
+            draw_text(surface, str(self.digit), font(48, True), SCREEN_BLACK, self.BUTTON_CENTER, "center")
+            ready = self.hold_time >= self.MIN_HOLD_SECONDS
+            draw_text(
+                surface,
+                "PRONTO PRA SOLTAR" if ready else "SEGURE...",
+                font(14, True),
+                SCREEN_BLACK,
+                (self.BUTTON_CENTER[0], self.BUTTON_CENTER[1] + self.BUTTON_RADIUS + 22),
+                "center",
+            )
+        elif self.phase == "idle":
+            draw_text(surface, "CLIQUE E SEGURE", font(15, True), INK_MUTED, self.BUTTON_CENTER, "center")
+
+        panel_x = 460
+        draw_text(surface, "REGRA:", font(14, True), INK_MUTED, (panel_x, 30))
+        draw_wrapped(surface, f"Solte quando o número for {self.rule_label}.", font(18, True), AMBER, pygame.Rect(panel_x, 52, 230, 60), 22)
+        draw_text(surface, f"Rodada {min(self.round + 1, self.ROUNDS_TO_WIN)} de {self.ROUNDS_TO_WIN}", font(14), INK_MUTED, (panel_x, 150))
+        draw_wrapped(surface, f"Segure pelo menos {self.MIN_HOLD_SECONDS:.0f}s antes de soltar.", font(13), INK_MUTED, pygame.Rect(panel_x, 176, 230, 40), 17)
+        if self.phase == "wrong":
+            draw_text(surface, "ERRADO! Nova regra chegando...", font(15, True), RED, (panel_x, 260))
+        elif self.phase == "right" and self.round < self.ROUNDS_TO_WIN:
+            draw_text(surface, "Certo! Próxima regra...", font(15, True), GREEN, (panel_x, 260))
+
+
+# ---------------------------------------------------------------------------
+# 14. Hidden maze: navigate a generated maze from start to exit with the arrows
+# ---------------------------------------------------------------------------
+MAZE_DIRECTIONS = (((0, -1), "UP"), ((0, 1), "DOWN"), ((-1, 0), "LEFT"), ((1, 0), "RIGHT"))
+MAZE_KEY_DELTAS = {
+    pygame.K_UP: (0, -1),
+    pygame.K_DOWN: (0, 1),
+    pygame.K_LEFT: (-1, 0),
+    pygame.K_RIGHT: (1, 0),
+}
+
+
+class MazeCaptcha(Captcha):
+    kind = "labirinto"
+    instruction = "Use as setas do teclado para levar o ponto verde até a saída vermelha."
+    COLUMNS = 6
+    ROWS = 5
+    CELL = 56
+    ORIGIN = (36, 20)
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.passages: set[frozenset[tuple[int, int]]] = set()
+        self.player = (0, 0)
+        self.goal = (0, 0)
+        self._deal()
+
+    def _deal(self) -> None:
+        self.passages = self._generate_maze()
+        self.player = (0, 0)
+        self.goal = self._farthest_cell(self.player)
+
+    def _generate_maze(self) -> set[frozenset[tuple[int, int]]]:
+        """Randomized depth-first backtracker: guarantees exactly one path between
+        any two cells (a 'perfect' maze), so the puzzle never has a dead ambiguity."""
+        start = (0, 0)
+        visited = {start}
+        stack = [start]
+        passages: set[frozenset[tuple[int, int]]] = set()
+        while stack:
+            cx, cy = stack[-1]
+            neighbors = [
+                (cx + dx, cy + dy)
+                for (dx, dy), _ in MAZE_DIRECTIONS
+                if 0 <= cx + dx < self.COLUMNS and 0 <= cy + dy < self.ROWS and (cx + dx, cy + dy) not in visited
+            ]
+            if neighbors:
+                nxt = self.rng.choice(neighbors)
+                passages.add(frozenset({(cx, cy), nxt}))
+                visited.add(nxt)
+                stack.append(nxt)
+            else:
+                stack.pop()
+        return passages
+
+    def _farthest_cell(self, start: tuple[int, int]) -> tuple[int, int]:
+        """The goal is the cell requiring the longest path from the start, so the
+        maze always demands real navigation instead of one lucky step."""
+        distance = {start: 0}
+        queue = deque([start])
+        farthest = start
+        while queue:
+            cell = queue.popleft()
+            for (dx, dy), _ in MAZE_DIRECTIONS:
+                neighbor = (cell[0] + dx, cell[1] + dy)
+                if (
+                    0 <= neighbor[0] < self.COLUMNS
+                    and 0 <= neighbor[1] < self.ROWS
+                    and neighbor not in distance
+                    and frozenset({cell, neighbor}) in self.passages
+                ):
+                    distance[neighbor] = distance[cell] + 1
+                    queue.append(neighbor)
+                    if distance[neighbor] > distance[farthest]:
+                        farthest = neighbor
+        return farthest
+
+    def _cell_rect(self, x: int, y: int) -> pygame.Rect:
+        return pygame.Rect(self.ORIGIN[0] + x * self.CELL, self.ORIGIN[1] + y * self.CELL, self.CELL, self.CELL)
+
+    def on_key(self, event: pygame.event.Event) -> None:
+        if event.type != pygame.KEYDOWN:
+            return
+        delta = MAZE_KEY_DELTAS.get(event.key)
+        if delta is None:
+            return
+        neighbor = (self.player[0] + delta[0], self.player[1] + delta[1])
+        if (
+            0 <= neighbor[0] < self.COLUMNS
+            and 0 <= neighbor[1] < self.ROWS
+            and frozenset({self.player, neighbor}) in self.passages
+        ):
+            self.player = neighbor
+            self.events.append("click")
+            if self.player == self.goal:
+                self.win()
+
+    def render(self, surface: pygame.Surface) -> None:
+        for y in range(self.ROWS):
+            for x in range(self.COLUMNS):
+                pygame.draw.rect(surface, (20, 28, 22), self._cell_rect(x, y))
+        for y in range(self.ROWS):
+            for x in range(self.COLUMNS):
+                rect = self._cell_rect(x, y)
+                if x + 1 < self.COLUMNS and frozenset({(x, y), (x + 1, y)}) not in self.passages:
+                    pygame.draw.line(surface, BORDER, rect.topright, rect.bottomright, 3)
+                if y + 1 < self.ROWS and frozenset({(x, y), (x, y + 1)}) not in self.passages:
+                    pygame.draw.line(surface, BORDER, rect.bottomleft, rect.bottomright, 3)
+        outer = pygame.Rect(self.ORIGIN[0], self.ORIGIN[1], self.COLUMNS * self.CELL, self.ROWS * self.CELL)
+        pygame.draw.rect(surface, BORDER, outer, 3)
+
+        pygame.draw.circle(surface, RED, self._cell_rect(*self.goal).center, 14)
+        pygame.draw.circle(surface, GREEN, self._cell_rect(*self.player).center, 14)
+
+        panel_x = 440
+        draw_text(surface, "SAÍDA DO LABIRINTO", font(15, True), INK_BRIGHT, (panel_x, 30))
+        draw_wrapped(surface, "Use ↑ ↓ ← → para mover o ponto verde até o ponto vermelho.", font(14), INK_MUTED, pygame.Rect(panel_x, 60, 230, 80), 19)
+
+
+# ---------------------------------------------------------------------------
+# 15. Instrument panel: hold two drifting cockpit gauges inside their safe band at
+#     the same time - a "keep the plane steady through turbulence" juggling module.
+# ---------------------------------------------------------------------------
+class InstrumentsCaptcha(Captcha):
+    kind = "instrumentos"
+    instruction = "Segure as setas para manter os DOIS ponteiros na faixa verde ao mesmo tempo."
+    GAUGE_MIN = 0.0
+    GAUGE_MAX = 100.0
+    HOLD_SECONDS = 2.2
+    SAFE_HALF_WIDTH = 11.0
+    NUDGE_SPEED = 46.0
+    JERK = 26.0
+    MAX_VELOCITY = 30.0
+    LABELS = ("ALTITUDE", "INCLINAÇÃO")
+    GAUGE_CENTERS = ((190, 150), (190, 300))
+    GAUGE_SIZE = (320, 34)
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.targets = [0.0, 0.0]
+        self.gauges = [0.0, 0.0]
+        self.velocity = [0.0, 0.0]
+        self.held_up = False
+        self.held_down = False
+        self.held_left = False
+        self.held_right = False
+        self.hold_timer = 0.0
+        self._deal()
+
+    def _deal(self) -> None:
+        self.targets = [self.rng.uniform(30.0, 70.0), self.rng.uniform(30.0, 70.0)]
+        self.gauges = [self.rng.uniform(self.GAUGE_MIN, self.GAUGE_MAX) for _ in range(2)]
+        self.velocity = [0.0, 0.0]
+        self.hold_timer = 0.0
+
+    def on_key(self, event: pygame.event.Event) -> None:
+        if event.type not in (pygame.KEYDOWN, pygame.KEYUP):
+            return
+        pressed = event.type == pygame.KEYDOWN
+        if event.key == pygame.K_UP:
+            self.held_up = pressed
+        elif event.key == pygame.K_DOWN:
+            self.held_down = pressed
+        elif event.key == pygame.K_LEFT:
+            self.held_left = pressed
+        elif event.key == pygame.K_RIGHT:
+            self.held_right = pressed
+
+    def _clamp(self, value: float) -> float:
+        return max(self.GAUGE_MIN, min(self.GAUGE_MAX, value))
+
+    def update(self, dt: float) -> None:
+        for index in range(2):
+            jerked = self.velocity[index] + self.rng.uniform(-self.JERK, self.JERK) * dt
+            self.velocity[index] = max(-self.MAX_VELOCITY, min(self.MAX_VELOCITY, jerked))
+            self.gauges[index] = self._clamp(self.gauges[index] + self.velocity[index] * dt)
+        if self.held_up:
+            self.gauges[0] = self._clamp(self.gauges[0] + self.NUDGE_SPEED * dt)
+        if self.held_down:
+            self.gauges[0] = self._clamp(self.gauges[0] - self.NUDGE_SPEED * dt)
+        if self.held_right:
+            self.gauges[1] = self._clamp(self.gauges[1] + self.NUDGE_SPEED * dt)
+        if self.held_left:
+            self.gauges[1] = self._clamp(self.gauges[1] - self.NUDGE_SPEED * dt)
+
+        both_safe = all(abs(self.gauges[i] - self.targets[i]) <= self.SAFE_HALF_WIDTH for i in range(2))
+        if both_safe:
+            self.hold_timer += dt
+            if self.hold_timer >= self.HOLD_SECONDS:
+                self.win()
+        else:
+            self.hold_timer = 0.0
+
+    def render(self, surface: pygame.Surface) -> None:
+        draw_text(surface, "PAINEL DE INSTRUMENTOS", font(18, True), INK_BRIGHT, (30, 24))
+        draw_wrapped(
+            surface,
+            "Segure ↑/↓ para ALTITUDE e ←/→ para INCLINAÇÃO. Mantenha os dois na faixa verde ao mesmo tempo.",
+            font(13),
+            INK_MUTED,
+            pygame.Rect(30, 52, 620, 40),
+            17,
+        )
+
+        for index, (label, center) in enumerate(zip(self.LABELS, self.GAUGE_CENTERS)):
+            rect = pygame.Rect(0, 0, *self.GAUGE_SIZE)
+            rect.center = center
+            pygame.draw.rect(surface, (20, 28, 22), rect, border_radius=8)
+            span = self.GAUGE_MAX - self.GAUGE_MIN
+            lo = (self.targets[index] - self.SAFE_HALF_WIDTH - self.GAUGE_MIN) / span
+            hi = (self.targets[index] + self.SAFE_HALF_WIDTH - self.GAUGE_MIN) / span
+            safe_rect = pygame.Rect(rect.x + round(rect.width * lo), rect.y, round(rect.width * (hi - lo)), rect.height)
+            pygame.draw.rect(surface, (28, 66, 34), safe_rect, border_radius=8)
+            pygame.draw.rect(surface, BORDER, rect, 2, border_radius=8)
+
+            value_ratio = (self.gauges[index] - self.GAUGE_MIN) / span
+            needle_x = rect.x + round(rect.width * value_ratio)
+            in_safe = abs(self.gauges[index] - self.targets[index]) <= self.SAFE_HALF_WIDTH
+            pygame.draw.line(surface, GREEN if in_safe else RED, (needle_x, rect.y - 6), (needle_x, rect.bottom + 6), 4)
+            draw_text(surface, label, font(14, True), AMBER, (rect.x, rect.y - 26))
+
+        stable_color = GREEN if self.hold_timer > 0 else INK_MUTED
+        draw_text(surface, f"ESTÁVEL: {self.hold_timer:0.1f}s / {self.HOLD_SECONDS:0.1f}s", font(15, True), stable_color, (30, 340))
+
+
+# ---------------------------------------------------------------------------
+# 16. Control tower radio: decode a short ICAO phonetic-alphabet callsign before the
+#     signal drops - a "read the radio fast" module in the same family as KTANE.
+# ---------------------------------------------------------------------------
+NATO_ALPHABET = {
+    "A": "ALFA", "B": "BRAVO", "C": "CHARLIE", "D": "DELTA", "E": "ECHO", "F": "FOXTROT",
+    "G": "GOLF", "H": "HOTEL", "I": "INDIA", "J": "JULIETT", "K": "KILO", "L": "LIMA",
+    "M": "MIKE", "N": "NOVEMBER", "O": "OSCAR", "P": "PAPA", "Q": "QUEBEC", "R": "ROMEO",
+    "S": "SIERRA", "T": "TANGO", "U": "UNIFORM", "V": "VICTOR", "W": "WHISKEY", "X": "XRAY",
+    "Y": "YANKEE", "Z": "ZULU",
+    "0": "ZERO", "1": "WUN", "2": "TOO", "3": "TREE", "4": "FOWER", "5": "FIFE",
+    "6": "SIX", "7": "SEVEN", "8": "EIGHT", "9": "NINER",
+}
+RADIO_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+
+class RadioCaptcha(Captcha):
+    kind = "radio"
+    instruction = "Decodifique o alfabeto fonético da torre e digite o codinome exato."
+    CODE_LENGTH = 4
+    ROUNDS_TO_WIN = 2
+    RIGHT_PAUSE_SECONDS = 0.8
+    WRONG_PAUSE_SECONDS = 1.5
+
+    def __init__(self, rng: random.Random, assets_root: Path) -> None:
+        super().__init__(rng, assets_root)
+        self.round = 0
+        self.code = ""
+        self.words: list[str] = []
+        self.current = ""
+        self.phase = "active"  # active | wrong | right
+        self.timer = 0.0
+        self._deal()
+
+    def _deal(self) -> None:
+        self.code = "".join(self.rng.choice(RADIO_CHARSET) for _ in range(self.CODE_LENGTH))
+        self.words = [NATO_ALPHABET[char] for char in self.code]
+        self.current = ""
+        self.phase = "active"
+
+    def on_key(self, event: pygame.event.Event) -> None:
+        if self.phase != "active" or event.type != pygame.KEYDOWN:
+            return
+        if event.key == pygame.K_BACKSPACE:
+            self.current = self.current[:-1]
+        elif event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
+            self._submit()
+        else:
+            typed = getattr(event, "unicode", "").upper()
+            if typed and typed in RADIO_CHARSET and len(self.current) < self.CODE_LENGTH:
+                self.current += typed
+                self.events.append("click")
+
+    def _submit(self) -> None:
+        if len(self.current) != self.CODE_LENGTH:
+            return
+        if self.current == self.code:
+            self.round += 1
+            self.phase = "right"
+            self.timer = self.RIGHT_PAUSE_SECONDS
+            self.events.append("toggle")
+        else:
+            self.phase = "wrong"
+            self.timer = self.WRONG_PAUSE_SECONDS
+            self.fail()
+
+    def update(self, dt: float) -> None:
+        if self.phase in ("wrong", "right"):
+            self.timer -= dt
+            if self.timer <= 0:
+                if self.phase == "right":
+                    if self.round >= self.ROUNDS_TO_WIN:
+                        self.win()
+                        return
+                else:
+                    self.round = 0
+                self._deal()
+
+    def render(self, surface: pygame.Surface) -> None:
+        draw_text(surface, "TORRE DE CONTROLE", font(20, True), CYAN, (30, 20))
+        draw_text(surface, f"Rodada {min(self.round + 1, self.ROUNDS_TO_WIN)} de {self.ROUNDS_TO_WIN}", font(14), INK_MUTED, (30, 50))
+
+        y = 90
+        for index, word in enumerate(self.words):
+            draw_text(surface, f"{index + 1}. {word}", font(24, True), AMBER, (30, y))
+            y += 42
+
+        box_origin = (430, 130)
+        for index in range(self.CODE_LENGTH):
+            rect = pygame.Rect(box_origin[0] + index * 64, box_origin[1], 54, 64)
+            pygame.draw.rect(surface, PANEL, rect, border_radius=8)
+            is_cursor = index == len(self.current)
+            pygame.draw.rect(surface, AMBER if is_cursor else INK_BRIGHT, rect, 3 if is_cursor else 2, border_radius=8)
+            if index < len(self.current):
+                draw_text(surface, self.current[index], font(30, True), INK_BRIGHT, rect.center, "center")
+
+        draw_wrapped(
+            surface,
+            "Digite as letras/números correspondentes e aperte Enter.",
+            font(13),
+            INK_MUTED,
+            pygame.Rect(430, 210, 260, 60),
+            18,
+        )
+        if self.phase == "wrong":
+            draw_text(surface, f"ERRADO! ERA {self.code}", font(16, True), RED, (430, 280))
+        elif self.phase == "right":
+            draw_text(surface, "CONFIRMADO!", font(16, True), GREEN, (430, 280))
+
+
+# ---------------------------------------------------------------------------
 TIERS = {
     "easy": ("wobbly", "cats", "rotate"),
     "medium": ("puzzle", "memory"),
@@ -1356,4 +2261,18 @@ def create_captcha(kind: str, rng: random.Random, assets_root: Path) -> Captcha:
         return WhackABotCaptcha(rng, assets_root)
     if kind == "chimp":
         return ChimpSequenceCaptcha(rng, assets_root)
+    if kind == "wires":
+        return WireCutCaptcha(rng, assets_root)
+    if kind == "termo":
+        return TermoCaptcha(rng, assets_root)
+    if kind == "cofre":
+        return VaultCaptcha(rng, assets_root)
+    if kind == "botao":
+        return HoldReleaseCaptcha(rng, assets_root)
+    if kind == "labirinto":
+        return MazeCaptcha(rng, assets_root)
+    if kind == "instrumentos":
+        return InstrumentsCaptcha(rng, assets_root)
+    if kind == "radio":
+        return RadioCaptcha(rng, assets_root)
     raise ValueError(f"Unknown captcha: {kind}")
